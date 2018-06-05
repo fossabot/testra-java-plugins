@@ -1,0 +1,3 @@
+rootProject.name = 'testra-cucumber-plugin'
+include 'example-tests'
+

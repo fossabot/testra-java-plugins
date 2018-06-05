@@ -1,0 +1,117 @@
+buildscript {
+    ext {
+        dependencyManagementPluginVersion = '1.0.3.RELEASE'
+        js2pPluginVersion = '0.4.33'
+    }
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}")
+        classpath "org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:${js2pPluginVersion}"
+        classpath "net.masterthought:cucumber-reporting:3.10.0"
+        classpath "org.projectlombok:lombok:1.16.18"
+        classpath group: 'org.jdbi', name: 'jdbi3', version: '3.0.0-beta2'
+        classpath group: 'com.oracle', name: 'ojdbc6', version: '11.2.0.3'
+        classpath "gradle.plugin.com.energizedwork.webdriver-binaries:webdriver-binaries-gradle-plugin:1.2"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1"
+    }
+}
+
+plugins {
+    id 'net.ltgt.apt' version '0.10'
+}
+
+// Dependency versions
+ext.logbackVersion = '1.1.2'
+ext.slf4jVersion = '1.7.25'
+ext.junitVersion = '4.12'
+ext.jacksonVersion = '2.8.8'
+ext.apacheCommondLangVersion = '3.5'
+ext.requestBuilderVersion = '0.0.1'
+ext.cucumberVersion = '1.2.5'
+ext.assertjVersion = '1.0.0m1'
+ext.testngVersion = '6.11'
+ext.okHttpLoggingVersion = '1.0.1'
+ext.casinoModuleVersion = '1.0.0'
+ext.jdbiVersion = '3.0.0-beta2'
+ext.ojdbc6Version = '11.2.0.3'
+ext.fluentLeniumVersion = '3.5.0'
+ext.seleniumVersion = '3.8.1'
+
+allprojects {
+    group 'com.williamhill.whgtf.test'
+    version '1.0-SNAPSHOT'
+
+    apply plugin: 'idea'
+    apply plugin: 'project-report'
+
+    repositories {
+        mavenLocal()
+        maven {
+            url 'http://maven.apps.local:8082/nexus/content/groups/public/'
+        }
+    }
+
+    idea {
+        module {
+            outputDir file('build/classes/main')
+            testOutputDir file('build/classes/test')
+        }
+    }
+    if (project.convention.findPlugin(JavaPluginConvention)) {
+        sourceSets.main.output.classesDir = new File(buildDir, "classes/main")
+        sourceSets.main.output.resourcesDir = new File(buildDir, "resources/main")
+        sourceSets.test.output.classesDir = new File(buildDir, "classes/test")
+        sourceSets.test.output.resourcesDir = new File(buildDir, "resources/test")
+    }
+}
+
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    dependencyManagement {
+        dependencies {
+            // External dependencies
+            dependency group: 'ch.qos.logback', name: 'logback-classic', version: "${logbackVersion}"
+            dependency group: 'org.slf4j', name: 'slf4j-api', version: "${slf4jVersion}"
+            dependency group: 'org.testng', name: 'testng', version: "${testngVersion}"
+            dependency group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: "${jacksonVersion}"
+            dependency group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "${jacksonVersion}"
+            dependency group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
+            dependency group: 'org.apache.commons', name: 'commons-lang3', version: "${apacheCommondLangVersion}"
+            dependency group: 'info.cukes', name: 'cucumber-jvm', version: "${cucumberVersion}"
+            dependency group: 'info.cukes', name: 'cucumber-java', version: "${cucumberVersion}"
+            dependency group: 'info.cukes', name: 'cucumber-picocontainer', version: "${cucumberVersion}"
+            dependency group: 'info.cukes', name: 'cucumber-testng', version: "${cucumberVersion}"
+            dependency group: 'org.assertj', name: 'assertj-core-java8', version: "${assertjVersion}"
+            dependency group: 'com.jleth.util', name: 'okhttp2-logging', version: "${okHttpLoggingVersion}"
+            dependency group: 'org.jdbi', name: 'jdbi3', version: "${jdbiVersion}"
+            dependency group: 'com.oracle', name: 'ojdbc6', version: "${ojdbc6Version}"
+            dependency group: 'net.sf.supercsv', name: 'super-csv-java8', version: '2.4.0'
+            dependency group: 'org.fluentlenium', name: 'fluentlenium-assertj', version: fluentLeniumVersion
+            dependency group: 'org.fluentlenium', name: 'fluentlenium-testng', version: fluentLeniumVersion
+            dependency group: 'org.fluentlenium', name: 'fluentlenium-cucumber', version: fluentLeniumVersion
+            dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: seleniumVersion
+            dependency group: 'com.google.guava', name: 'guava', version: '23.0'
+            dependency group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+            dependency group: 'org.modelmapper', name: 'modelmapper', version: '1.1.0'
+            dependency group: 'com.healthmarketscience.sqlbuilder', name: 'sqlbuilder', version: '2.1.7'
+
+
+            // Internal dependencies
+            dependency group: 'com.williamhill.whgtf', name: 'request-builder', version: "${requestBuilderVersion}"
+            dependency group: 'com.williamhill.bonus.integration', name: 'bonus-integration-casinomodule', version: "${casinoModuleVersion}"
+            dependency group: 'com.williamhill.whgtf', name: 'messaging-api', version: '1.4'
+            dependency group: 'com.williamhill.whgtf.report', name: 'jira-zephyr-reporter', version: '1.1.2'
+        }
+    }
+}
