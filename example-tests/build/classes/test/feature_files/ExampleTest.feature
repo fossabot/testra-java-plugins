@@ -1,3 +1,4 @@
+@example
 Feature: Example Test Feature
 
   Background:
@@ -8,3 +9,6 @@ Feature: Example Test Feature
 
   Scenario: Second example scenario
     Then 6 minus 4 equals 2
+
+  Scenario: Third example scenario
+    Then 2 plus 2 does not equal 5
