@@ -1,9 +1,13 @@
 package com.williamhill.whgtf.test.steps;
 
+import com.williamhill.whgtf.testra.jvm.client.api.TestraRestClient;
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+
+import static com.williamhill.whgtf.testra.jvm.util.PropertyHelper.prop;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -29,4 +33,6 @@ public class ExampleTestSteps {
         .as("Error args " + arg0 + " + " + arg1 + " should not equal " + arg2 + " but was " + (arg0+arg1))
         .isNotEqualTo(arg2);
   }
+
+
 }

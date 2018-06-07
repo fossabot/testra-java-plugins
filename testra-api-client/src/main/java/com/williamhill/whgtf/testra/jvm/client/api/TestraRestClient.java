@@ -5,6 +5,7 @@ import static com.williamhill.whgtf.testra.jvm.util.PropertyHelper.prop;
 import static com.williamhill.whgtf.testra.jvm.util.StringHelper.substitute;
 
 import com.williamhill.whgtf.test.bnw.pojo.executions.ExecutionRequest;
+import com.williamhill.whgtf.test.bnw.pojo.project.ProjectRequest;
 import com.williamhill.whgtf.test.bnw.pojo.project.ProjectResponse;
 import com.williamhill.whgtf.test.bnw.pojo.scenarios.ScenarioRequest;
 import com.williamhill.whgtf.test.bnw.pojo.testresult.TestResultRequest;
@@ -51,6 +52,19 @@ public final class TestraRestClient {
       LOGGER.error("No project found with the name projectName");
       return null;
     }
+  }
+
+  public void deleteProject(String projectID){
+      HttpResponseMessage httpResponseMessage = httpClient
+          .delete(defaultHttpRequestMessage()
+          .withUrl(TESTRA_HOST + substitute(prop("deleteProject"),PROJECTID,projectID)));
+  }
+
+  public void createProject(String projectName){
+    HttpResponseMessage httpResponseMessage = httpClient
+        .post(defaultHttpRequestMessage()
+        .withUrl(prop("getProjects"))
+        .withPayload(JsonObject.objectToJson(new ProjectRequest().withName(projectName))));
   }
 
   public HttpResponseMessage addScenario(ScenarioRequest scenarioRequest){
