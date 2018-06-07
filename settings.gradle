@@ -1,4 +1,5 @@
 rootProject.name = 'testra-cucumber-plugin'
 include 'example-tests'
 include 'testra-jvm-plugin'
+include 'testra-api-client'
 

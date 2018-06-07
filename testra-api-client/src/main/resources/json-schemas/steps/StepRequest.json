@@ -1,0 +1,26 @@
+{
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "properties": {
+    "index": {
+      "$id": "/properties/index",
+      "type": "integer",
+      "title": "The Index Schema ",
+      "default": 0,
+      "examples": [
+        0
+      ]
+    },
+    "text": {
+      "$id": "/properties/text",
+      "type": "string",
+      "title": "The Text Schema ",
+      "default": "",
+      "examples": [
+        "Step-2"
+      ]
+    }
+  }
+}

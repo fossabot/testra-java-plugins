@@ -1,0 +1,70 @@
+{
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "properties": {
+    "id": {
+      "$id": "/properties/id",
+      "type": "string",
+      "title": "The Id Schema ",
+      "default": "",
+      "examples": [
+        "5b17fabf178a8b0dc7e992af"
+      ]
+    },
+    "projectId": {
+      "$id": "/properties/projectId",
+      "type": "string",
+      "title": "The Projectid Schema ",
+      "default": "",
+      "examples": [
+        "5b17b4fc178a8b0dc7e99217"
+      ]
+    },
+    "startTime": {
+      "$id": "/properties/startTime",
+      "type": "long",
+      "title": "The Starttime Schema ",
+      "default": 0,
+      "examples": [
+        1528298175156
+      ]
+    },
+    "endTime": {
+      "$id": "/properties/endTime",
+      "type": "null",
+      "title": "The Endtime Schema ",
+      "default": null,
+      "examples": [
+        null
+      ]
+    },
+    "host": {
+      "$id": "/properties/host",
+      "type": "null",
+      "title": "The Host Schema ",
+      "default": null,
+      "examples": [
+        null
+      ]
+    },
+    "testCases": {
+      "$id": "/properties/testCases",
+      "type": "array"
+    },
+    "testScenarios": {
+      "$id": "/properties/testScenarios",
+      "type": "array"
+    },
+    "parallel": {
+      "$id": "/properties/parallel",
+      "type": "boolean",
+      "title": "The Parallel Schema ",
+      "default": false,
+      "examples": [
+        false
+      ]
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "properties": {
+    "resultType": {
+      "$id": "/properties/resultType",
+      "type": "string",
+      "title": "The Resulttype Schema ",
+      "default": "",
+      "examples": [
+        "TEST_CASE"
+      ]
+    },
+    "targetId": {
+      "$id": "/properties/targetId",
+      "type": "string",
+      "title": "The Targetid Schema ",
+      "default": "",
+      "examples": [
+        "5acf1aa7f8b8e4d1726284ec"
+      ]
+    },
+    "result": {
+      "$id": "/properties/result",
+      "type": "string",
+      "title": "The Result Schema ",
+      "default": "",
+      "examples": [
+        "PASSED"
+      ]
+    },
+    "error": {
+      "$id": "/properties/error",
+      "type": "string",
+      "title": "The Error Schema ",
+      "default": "",
+      "examples": [
+        ""
+      ]
+    },
+    "durationInMs": {
+      "$id": "/properties/durationInMs",
+      "type": "integer",
+      "title": "The Durationinms Schema ",
+      "default": 0,
+      "examples": [
+        10
+      ]
+    },
+    "startTime": {
+      "$id": "/properties/startTime",
+      "type": "long",
+      "title": "The Starttime Schema ",
+      "default": 0,
+      "examples": [
+        1
+      ]
+    },
+    "endTime": {
+      "$id": "/properties/endTime",
+      "type": "long",
+      "title": "The Endtime Schema ",
+      "default": 0,
+      "examples": [
+        1
+      ]
+    },
+    "attachments": {
+      "$id": "/properties/attachments",
+      "type": "array"
+    }
+  }
+}

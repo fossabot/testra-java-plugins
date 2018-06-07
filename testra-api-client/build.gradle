@@ -1,0 +1,40 @@
+group 'com.williamhill.whgtf.test'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    compile group: 'com.squareup.okhttp', name: 'okhttp', version: '2.7.5'
+    compile group: 'com.jleth.util', name: 'okhttp2-logging'
+    compile group: 'ch.qos.logback', name: 'logback-classic'
+    compile group: 'org.slf4j', name: 'slf4j-api'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
+    compile group: 'org.apache.commons', name: 'commons-lang3'
+    compile group: 'com.google.guava', name: 'guava'
+    compile group: 'com.williamhill.whgtf', name: 'request-builder'
+    compile group: 'com.google.guava', name: 'guava', version: '24.0-jre'
+
+    testCompile group: 'org.testng', name: 'testng'
+}
+
+repositories {
+    maven { url "https://jitpack.io" }
+}
+
+// Configuration for json to schema plugin added to root gradle file
+jsonSchema2Pojo {
+    generateBuilders = true
+    source = files("${sourceSets.main.output.resourcesDir}/json-schemas")
+    targetDirectory = file("${project.buildDir}/generated-sources/js2p")
+    targetPackage = 'com.williamhill.whgtf.test.bnw.pojo'
+    annotationStyle = 'jackson'
+    includeHashcodeAndEquals = false
+    includeToString = false
+    sourceType = 'jsonschema' // Schema generated from http://jsonschema.net
+}
+
+// Disable unused tasks
+compileTestJava { enabled = false }
+processTestResources { enabled = false }
+testClasses { enabled = false }
+test { enabled = false }
