@@ -1,4 +1,4 @@
-package com.williamhill.whgtf.testra.jvm.plugin;
+package com.williamhill.whgtf.testra.jvm.plugin.templates;
 
 import java.util.List;
 import lombok.Data;

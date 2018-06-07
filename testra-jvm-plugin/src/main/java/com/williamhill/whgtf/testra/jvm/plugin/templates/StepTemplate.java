@@ -1,5 +1,6 @@
-package com.williamhill.whgtf.testra.jvm.plugin;
+package com.williamhill.whgtf.testra.jvm.plugin.templates;
 
+import com.williamhill.whgtf.testra.jvm.plugin.enums.StatusEnum;
 import lombok.Data;
 
 @Data

@@ -1,4 +1,4 @@
-package com.williamhill.whgtf.testra.jvm.plugin;
+package com.williamhill.whgtf.testra.jvm.plugin.utils;
 
 import cucumber.runtime.CucumberException;
 import cucumber.runtime.StepDefinitionMatch;
@@ -15,7 +15,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * Plugin utils.
  */
-final class Utils {
+public final class Utils {
   private static final String MD_5 = "md5";
   private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
   private Utils() {
@@ -34,7 +34,7 @@ final class Utils {
     }
   }
 
-  protected static Step extractStep(final StepDefinitionMatch match) {
+  public static Step extractStep(final StepDefinitionMatch match) {
     try {
       final Field step = match.getClass().getDeclaredField("step");
       step.setAccessible(true);

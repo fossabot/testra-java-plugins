@@ -95,8 +95,6 @@ public final class TestraRestClient {
 
   private HttpRequestMessage defaultHttpRequestMessage() {
     return new HttpRequestMessage()
-//        .withHeader(HttpHeader.HEADER_CSRF_TOKEN, csrfToken)
-//        .withCookie(cookies)
         .withJsonContentType();
   }
 

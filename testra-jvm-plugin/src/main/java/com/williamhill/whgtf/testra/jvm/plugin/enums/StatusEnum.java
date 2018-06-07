@@ -1,6 +1,6 @@
-package com.williamhill.whgtf.testra.jvm.plugin;
+package com.williamhill.whgtf.testra.jvm.plugin.enums;
 
-enum StatusEnum{
+public enum StatusEnum{
   PASSED("PASSED"),FAILED("FAILED"),SKIPPED("SKIPPED"),PENDING("PENDING");
 
   private String value;

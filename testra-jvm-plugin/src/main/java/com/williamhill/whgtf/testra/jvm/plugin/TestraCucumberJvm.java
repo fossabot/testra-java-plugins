@@ -10,6 +10,11 @@ import com.williamhill.whgtf.test.bnw.pojo.scenarios.ScenarioResponse;
 import com.williamhill.whgtf.test.bnw.pojo.testresult.TestResultRequest;
 import com.williamhill.whgtf.testra.jvm.client.api.TestraRestClient;
 import com.williamhill.whgtf.testra.jvm.message.http.HttpResponseMessage;
+import com.williamhill.whgtf.testra.jvm.plugin.enums.StatusEnum;
+import com.williamhill.whgtf.testra.jvm.plugin.templates.ErrorTemplate;
+import com.williamhill.whgtf.testra.jvm.plugin.templates.ScenarioTemplate;
+import com.williamhill.whgtf.testra.jvm.plugin.templates.StepTemplate;
+import com.williamhill.whgtf.testra.jvm.plugin.utils.Utils;
 import com.williamhill.whgtf.testra.jvm.util.JsonObject;
 import com.williamhill.whgtf.testra.jvm.util.PropertyHelper;
 import cucumber.runtime.StepDefinitionMatch;
@@ -38,32 +43,31 @@ public class TestraCucumberJvm implements Reporter, Formatter {
     PropertyHelper.loadProperties(getEnv() + ".environment.properties", classLoader);
     PropertyHelper.loadProperties("endpoints.properties", classLoader);
   }
+
   private static final Logger LOGGER = LoggerFactory.getLogger(TestraCucumberJvm.class);
   private TestraRestClient testraRestClient;
   private static final String FAILED = "failed";
   private static final String PASSED = "passed";
   private static final String SKIPPED = "skipped";
   private static final String PENDING = "pending";
-  private static String projectID;
   private Feature currentFeature;
   private Scenario currentScenario;
   private long startTime;
   private boolean isScenarioOutline = false;
   private int scenarioOutlineIndex;
-  private String ScenarioID;
   private String ExecutionID;
   private Step currentStep;
   private ScenarioTemplate currentScenarioTemplate;
   private int stepIndex = 0;
 
-  public TestraCucumberJvm(){
+  public TestraCucumberJvm() {
 
-    projectID = getTestraRestClient().getProjectID(prop("project"));
+    String projectID = getTestraRestClient().getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
   }
 
-  public TestraRestClient getTestraRestClient(){
-    if(testraRestClient == null){
+  public TestraRestClient getTestraRestClient() {
+    if (testraRestClient == null) {
       testraRestClient = new TestraRestClient();
     }
     return testraRestClient;
@@ -94,61 +98,61 @@ public class TestraCucumberJvm implements Reporter, Formatter {
     startTime = System.currentTimeMillis();
   }
 
-    @Override
-    public void endOfScenarioLifeCycle(final Scenario scenario) {
+  @Override
+  public void endOfScenarioLifeCycle(final Scenario scenario) {
 
-      long timeAtEnd = System.currentTimeMillis();
+    long timeAtEnd = System.currentTimeMillis();
 
-      List<BackgroundStep> backgroundSteps = currentScenarioTemplate.getBackgroundSteps()
-          .stream()
-          .map(s -> new BackgroundStep().withIndex(s.getIndex()).withText(s.getGherkinStep()))
-          .collect(Collectors.toList());
+    List<BackgroundStep> backgroundSteps = currentScenarioTemplate.getBackgroundSteps()
+        .stream()
+        .map(s -> new BackgroundStep().withIndex(s.getIndex()).withText(s.getGherkinStep()))
+        .collect(Collectors.toList());
 
-      List<com.williamhill.whgtf.test.bnw.pojo.scenarios.Step> steps = currentScenarioTemplate.getBackgroundSteps()
-          .stream()
-          .map(s -> new com.williamhill.whgtf.test.bnw.pojo.scenarios.Step().withIndex(s.getIndex()).withText(s.getGherkinStep()))
-          .collect(Collectors.toList());
+    List<com.williamhill.whgtf.test.bnw.pojo.scenarios.Step> steps = currentScenarioTemplate
+        .getBackgroundSteps()
+        .stream()
+        .map(s -> new com.williamhill.whgtf.test.bnw.pojo.scenarios.Step().withIndex(s.getIndex())
+            .withText(s.getGherkinStep()))
+        .collect(Collectors.toList());
 
-      ScenarioRequest scenarioRequest = new ScenarioRequest()
-          .withName(currentScenarioTemplate.getName())
-          .withFeatureName(currentScenarioTemplate.getFeatureName())
-          .withBackgroundSteps(backgroundSteps)
-          .withSteps(steps);
+    ScenarioRequest scenarioRequest = new ScenarioRequest()
+        .withName(currentScenarioTemplate.getName())
+        .withFeatureName(currentScenarioTemplate.getFeatureName())
+        .withBackgroundSteps(backgroundSteps)
+        .withSteps(steps);
 
-      HttpResponseMessage httpResponseMessage = testraRestClient.addScenario(scenarioRequest);
-      ScenarioResponse scenarioResponse = JsonObject
-          .jsonToObject(httpResponseMessage.getPayload(), ScenarioResponse.class);
-      ScenarioID = scenarioResponse.getId();
-      createExecution();
+    HttpResponseMessage httpResponseMessage = testraRestClient.addScenario(scenarioRequest);
+    ScenarioResponse scenarioResponse = JsonObject
+        .jsonToObject(httpResponseMessage.getPayload(), ScenarioResponse.class);
+    String scenarioID = scenarioResponse.getId();
+    createExecution();
 
-      String status;
-      if(currentScenarioTemplate.getIsFailed()){
-        status = StatusEnum.FAILED.getValue();
-      }
-      else if(currentScenarioTemplate.getIsSkipped()){
-        status = StatusEnum.SKIPPED.getValue();
-      }
-      else{
-        status = StatusEnum.PASSED.getValue();
-      }
-
-      TestResultRequest testResultRequest = new TestResultRequest()
-          .withResult(status)
-          .withResultType("SCENARIO")
-          .withDurationInMs((int)(timeAtEnd-startTime))
-          .withEndTime(timeAtEnd)
-          .withStartTime(startTime)
-          .withTargetId(ScenarioID);
-      if(currentScenarioTemplate.getIsFailed()){
-        testResultRequest.setError(currentScenarioTemplate.getError().getErrorMessage());
-      }
-      testraRestClient.addTestResult(testResultRequest,ExecutionID);
-
-
+    String status;
+    if (currentScenarioTemplate.getIsFailed()) {
+      status = StatusEnum.FAILED.getValue();
+    } else if (currentScenarioTemplate.getIsSkipped()) {
+      status = StatusEnum.SKIPPED.getValue();
+    } else {
+      status = StatusEnum.PASSED.getValue();
     }
 
-  private void createExecution(){
-    if(ExecutionID == null) {
+    TestResultRequest testResultRequest = new TestResultRequest()
+        .withResult(status)
+        .withResultType("SCENARIO")
+        .withDurationInMs((int) (timeAtEnd - startTime))
+        .withEndTime(timeAtEnd)
+        .withStartTime(startTime)
+        .withTargetId(scenarioID);
+    if (currentScenarioTemplate.getIsFailed()) {
+      testResultRequest.setError(currentScenarioTemplate.getError().getErrorMessage());
+    }
+    testraRestClient.addTestResult(testResultRequest, ExecutionID);
+
+
+  }
+
+  private void createExecution() {
+    if (ExecutionID == null) {
       HttpResponseMessage httpResponseMessage = testraRestClient.createExecution();
       ExecutionID = JsonObject
           .jsonToObject(httpResponseMessage.getPayload(), ExecutionResponse.class)
@@ -157,52 +161,49 @@ public class TestraCucumberJvm implements Reporter, Formatter {
   }
 
 
-    @Override
+  @Override
   public void result(final Result result) {
     int scenarioLine;
-    if(isScenarioOutline){
+    if (isScenarioOutline) {
       scenarioLine = scenarioOutlineIndex;
-    }
-    else {
+    } else {
       scenarioLine = currentScenario.getLine();
     }
     StepTemplate stepTemplate = new StepTemplate();
-    stepTemplate.setGherkinStep(currentStep.getKeyword()+currentStep.getName());
+    stepTemplate.setGherkinStep(currentStep.getKeyword() + currentStep.getName());
     stepTemplate.setIndex(stepIndex);
-    if(!result.getStatus().equals("skipped")) {
+    if (!result.getStatus().equals("skipped")) {
       stepTemplate.setStepDuration(result.getDuration());
     }
     stepIndex++;
     stepTemplate.setLine(currentStep.getLine());
-      switch (result.getStatus()) {
-        case FAILED:
-          stepTemplate.setStatus(StatusEnum.FAILED);
-          currentScenarioTemplate.setError(setErrors(stepTemplate,result));
-          currentScenarioTemplate.setIsFailed(true);
-          break;
-        case PENDING:
-          stepTemplate.setStatus(StatusEnum.PENDING);
-          break;
-        case SKIPPED:
-          stepTemplate.setStatus(StatusEnum.SKIPPED);
-          currentScenarioTemplate.setIsSkipped(true);
-          break;
-        case PASSED:
-          stepTemplate.setStatus(StatusEnum.PASSED);
-          break;
-        default:
-          break;
-      }
-      if(scenarioLine>stepTemplate.getLine()) {
-        currentScenarioTemplate.getBackgroundSteps().add(stepTemplate);
-      }
-      else{
-        currentScenarioTemplate.getSteps().add(stepTemplate);
-      }
+    switch (result.getStatus()) {
+      case FAILED:
+        stepTemplate.setStatus(StatusEnum.FAILED);
+        currentScenarioTemplate.setError(setErrors(stepTemplate, result));
+        currentScenarioTemplate.setIsFailed(true);
+        break;
+      case PENDING:
+        stepTemplate.setStatus(StatusEnum.PENDING);
+        break;
+      case SKIPPED:
+        stepTemplate.setStatus(StatusEnum.SKIPPED);
+        currentScenarioTemplate.setIsSkipped(true);
+        break;
+      case PASSED:
+        stepTemplate.setStatus(StatusEnum.PASSED);
+        break;
+      default:
+        break;
+    }
+    if (scenarioLine > stepTemplate.getLine()) {
+      currentScenarioTemplate.getBackgroundSteps().add(stepTemplate);
+    } else {
+      currentScenarioTemplate.getSteps().add(stepTemplate);
+    }
   }
 
-  private ErrorTemplate setErrors(StepTemplate stepTemplate,Result result)
-  {
+  private ErrorTemplate setErrors(StepTemplate stepTemplate, Result result) {
     ErrorTemplate errorTemplate = new ErrorTemplate();
     errorTemplate.setGherkinStep(stepTemplate.getGherkinStep());
     errorTemplate.setLineNumber(stepTemplate.getLine());
@@ -222,64 +223,59 @@ public class TestraCucumberJvm implements Reporter, Formatter {
   }
 
 
-    @Override
+  @Override
   public void match(final Match match) {
-      if (match instanceof StepDefinitionMatch) {
-        currentStep = Utils.extractStep((StepDefinitionMatch) match);
-      }
+    if (match instanceof StepDefinitionMatch) {
+      currentStep = Utils.extractStep((StepDefinitionMatch) match);
+    }
   }
 
   @Override
   public void before(final Match match, final Result result) {
   }
 
-    @Override
-    public void embedding(final String string, final byte[] bytes) {
-    }
+  @Override
+  public void embedding(final String string, final byte[] bytes) {
+  }
 
-    @Override
-    public void write(final String string) {
-    }
+  @Override
+  public void write(final String string) {
+  }
 
-    @Override
-    public void syntaxError(final String state, final String event,
-        final List<String> legalEvents, final String uri, final Integer line) {
-    }
+  @Override
+  public void syntaxError(final String state, final String event,
+      final List<String> legalEvents, final String uri, final Integer line) {
+  }
 
-    @Override
-    public void uri(final String uri) {
-    }
+  @Override
+  public void uri(final String uri) {
+  }
 
-    @Override
-    public void scenarioOutline(final ScenarioOutline so) {
-      scenarioOutlineIndex = so.getLine();
-    }
+  @Override
+  public void scenarioOutline(final ScenarioOutline so) {
+    scenarioOutlineIndex = so.getLine();
+  }
 
-    @Override
-    public void examples(final Examples exmpls) {
-      isScenarioOutline = true;
-    }
-
-
-    @Override
-    public void background(final Background b) {
-    }
-
-    @Override
-    public void done() {
-    }
-
-    @Override
-    public void close() {
-    }
-
-    @Override
-    public void eof() {
-    }
+  @Override
+  public void examples(final Examples exmpls) {
+    isScenarioOutline = true;
+  }
 
 
+  @Override
+  public void background(final Background b) {
+  }
 
+  @Override
+  public void done() {
+  }
 
+  @Override
+  public void close() {
+  }
 
+  @Override
+  public void eof() {
+  }
 
 }

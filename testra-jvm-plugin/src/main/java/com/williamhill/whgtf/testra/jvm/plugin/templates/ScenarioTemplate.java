@@ -1,10 +1,8 @@
-package com.williamhill.whgtf.testra.jvm.plugin;
+package com.williamhill.whgtf.testra.jvm.plugin.templates;
 
-import com.williamhill.whgtf.test.bnw.pojo.steps.StepRequest;
 import gherkin.formatter.model.Tag;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 import lombok.Data;
 
 @Data
