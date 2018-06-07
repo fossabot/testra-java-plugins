@@ -224,10 +224,8 @@ public class TestraCucumberJvm implements Reporter, Formatter {
 
     @Override
   public void match(final Match match) {
-    final StepUtils stepUtils = new StepUtils(currentFeature, currentScenario);
       if (match instanceof StepDefinitionMatch) {
-        final Step step = stepUtils.extractStep((StepDefinitionMatch) match);
-        currentStep = step;
+        currentStep = Utils.extractStep((StepDefinitionMatch) match);
       }
   }
 
