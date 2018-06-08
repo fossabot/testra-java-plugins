@@ -1,8 +1,6 @@
 package com.williamhill.whgtf.testra.jvm.plugin.templates;
 
-import java.util.List;
 import lombok.Data;
-import org.junit.ComparisonFailure;
 
 @Data
 public class ErrorTemplate {
@@ -12,5 +10,4 @@ public class ErrorTemplate {
   private String errorMessage;
   private String localizedErrorMessage;
   private StackTraceElement[] stackTrace;
-
 }

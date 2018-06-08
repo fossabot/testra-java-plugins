@@ -1,6 +1,7 @@
 package com.williamhill.whgtf.testra.jvm.client.api;
 
 import static com.williamhill.whgtf.testra.jvm.util.JsonObject.jsonToList;
+import static com.williamhill.whgtf.testra.jvm.util.JsonObject.objectToJson;
 import static com.williamhill.whgtf.testra.jvm.util.PropertyHelper.prop;
 import static com.williamhill.whgtf.testra.jvm.util.StringHelper.substitute;
 
@@ -49,8 +50,13 @@ public final class TestraRestClient {
       return id;
     }
     catch(IndexOutOfBoundsException e){
-      LOGGER.error("No project found with the name projectName");
-      return null;
+      LOGGER.error("No project found with the name projectName, creating..");
+      httpResponseMessage = httpClient.post(defaultHttpRequestMessage()
+      .withUrl(TESTRA_HOST + prop("getProjects"))
+      .withPayload(objectToJson(new ProjectRequest().withName(projectName))));
+      projectIDString = JsonObject.jsonToObject(httpResponseMessage.getPayload(), ProjectResponse.class)
+          .getId();
+      return  projectIDString;
     }
   }
 

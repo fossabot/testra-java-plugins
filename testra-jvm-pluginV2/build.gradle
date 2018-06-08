@@ -1,0 +1,17 @@
+plugins {
+    id "io.spring.dependency-management"
+    id "net.ltgt.apt"
+}
+def cucumber_version = '2.3.1'
+dependencies {
+    compile project(':testra-api-client')
+    compile group: 'io.cucumber', name: 'cucumber-core', version: "${cucumber_version}"
+    compile group: 'io.cucumber', name: 'cucumber-java', version: "${cucumber_version}"
+    compile 'io.qameta.allure:allure2-model-api'
+    // https://mvnrepository.com/artifact/io.qameta.allure/allure-java-commons
+    compile group: 'io.qameta.allure', name: 'allure-java-commons', version: '2.6.0'
+    testCompile group: 'io.cucumber', name: 'cucumber-testng', version: "${cucumber_version}"
+    compile group: 'org.assertj', name: 'assertj-core-java8'
+    compile 'org.projectlombok:lombok:1.16.18'
+    apt "org.projectlombok:lombok:1.16.18"
+}

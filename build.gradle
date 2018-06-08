@@ -109,6 +109,7 @@ subprojects {
             dependency 'io.qameta.allure:allure2-model-api:1.0-BETA6'
 
 
+
             // Internal dependencies
             dependency group: 'com.williamhill.whgtf', name: 'request-builder', version: "${requestBuilderVersion}"
             dependency group: 'com.williamhill.bonus.integration', name: 'bonus-integration-casinomodule', version: "${casinoModuleVersion}"

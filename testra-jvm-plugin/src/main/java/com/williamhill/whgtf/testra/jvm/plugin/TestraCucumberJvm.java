@@ -50,6 +50,7 @@ public class TestraCucumberJvm implements Reporter, Formatter {
   private static final String PASSED = "passed";
   private static final String SKIPPED = "skipped";
   private static final String PENDING = "pending";
+  private static final String UNDEFINED = "undefined";
   private Feature currentFeature;
   private Scenario currentScenario;
   private long startTime;
@@ -172,12 +173,14 @@ public class TestraCucumberJvm implements Reporter, Formatter {
     StepTemplate stepTemplate = new StepTemplate();
     stepTemplate.setGherkinStep(currentStep.getKeyword() + currentStep.getName());
     stepTemplate.setIndex(stepIndex);
-    if (!result.getStatus().equals("skipped")) {
+    if (!result.getStatus().equals("skipped")&&!result.getStatus().equals("undefined")) {
       stepTemplate.setStepDuration(result.getDuration());
     }
     stepIndex++;
     stepTemplate.setLine(currentStep.getLine());
     switch (result.getStatus()) {
+      case UNDEFINED:
+        stepTemplate.setStatus(StatusEnum.SKIPPED);
       case FAILED:
         stepTemplate.setStatus(StatusEnum.FAILED);
         currentScenarioTemplate.setError(setErrors(stepTemplate, result));
@@ -220,6 +223,7 @@ public class TestraCucumberJvm implements Reporter, Formatter {
 
   @Override
   public void step(final Step step) {
+    currentStep = step;
   }
 
 

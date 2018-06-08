@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$/example-tests" />
             <option value="$PROJECT_DIR$/testra-api-client" />
             <option value="$PROJECT_DIR$/testra-jvm-plugin" />
+            <option value="$PROJECT_DIR$/testra-jvm-pluginV2" />
           </set>
         </option>
         <option name="useAutoImport" value="true" />

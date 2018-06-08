@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     compile project(':testra-jvm-plugin')
+    compile project(':testra-jvm-pluginV2')
 
 
     compile group: 'org.testng', name: 'testng'
