@@ -11,6 +11,7 @@ Feature: Example Test Feature
   Scenario: Second example scenario
     Then 6 minus 4 equals 2
 
+  @tag1
   Scenario: Third example scenario
     And 4 minus 2 equals 3
     And 4 minus 0 equals 4

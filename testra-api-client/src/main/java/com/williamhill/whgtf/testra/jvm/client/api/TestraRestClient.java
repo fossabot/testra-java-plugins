@@ -1,5 +1,7 @@
 package com.williamhill.whgtf.testra.jvm.client.api;
 
+import static com.williamhill.whgtf.testra.jvm.util.HttpAssertHelper.assertHttpStatusAsCreated;
+import static com.williamhill.whgtf.testra.jvm.util.HttpAssertHelper.assertHttpStatusAsOk;
 import static com.williamhill.whgtf.testra.jvm.util.JsonObject.jsonToList;
 import static com.williamhill.whgtf.testra.jvm.util.JsonObject.objectToJson;
 import static com.williamhill.whgtf.testra.jvm.util.PropertyHelper.prop;
@@ -71,12 +73,15 @@ public final class TestraRestClient {
         .post(defaultHttpRequestMessage()
         .withUrl(prop("getProjects"))
         .withPayload(JsonObject.objectToJson(new ProjectRequest().withName(projectName))));
+    assertHttpStatusAsCreated(httpResponseMessage);
   }
 
   public HttpResponseMessage addScenario(ScenarioRequest scenarioRequest){
-    return  httpClient.post(defaultHttpRequestMessage()
+    HttpResponseMessage httpResponseMessage = httpClient.post(defaultHttpRequestMessage()
         .withUrl(TESTRA_HOST+ substitute(prop("getScenarios"), PROJECTID, projectIDString))
             .withPayload(JsonObject.objectToJson(scenarioRequest)));
+    assertHttpStatusAsCreated(httpResponseMessage);
+    return httpResponseMessage;
   }
 
   public HttpResponseMessage getScenarios(){
@@ -86,16 +91,19 @@ public final class TestraRestClient {
 
   public HttpResponseMessage createExecution()
   {
-    return httpClient.post(defaultHttpRequestMessage()
+    HttpResponseMessage httpResponseMessage = httpClient.post(defaultHttpRequestMessage()
     .withUrl(TESTRA_HOST + substitute(prop("getExecutions"), PROJECTID, projectIDString))
     .withPayload(JsonObject.objectToJson(new ExecutionRequest().withIsParallel(false))));
+    assertHttpStatusAsOk(httpResponseMessage);
+    return httpResponseMessage;
   }
 
   public HttpResponseMessage addTestResult(TestResultRequest testResultRequest, String executionID){
-    return httpClient.post(defaultHttpRequestMessage()
+    HttpResponseMessage httpResponseMessage = httpClient.post(defaultHttpRequestMessage()
     .withUrl(TESTRA_HOST + substitute(substitute(prop("getTestResults"),EXECUTIONID,executionID),PROJECTID,projectIDString))
     .withPayload(JsonObject.objectToJson(testResultRequest)));
-
+    assertHttpStatusAsCreated(httpResponseMessage);
+    return httpResponseMessage;
   }
 
 

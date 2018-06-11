@@ -42,7 +42,7 @@
     },
     "durationInMs": {
       "$id": "/properties/durationInMs",
-      "type": "integer",
+      "type": "long",
       "title": "The Durationinms Schema ",
       "default": 0,
       "examples": [
@@ -70,6 +70,52 @@
     "attachments": {
       "$id": "/properties/attachments",
       "type": "array"
+    },
+    "stepResults": {
+      "$id": "/properties/stepResults",
+      "type": "array",
+      "items": {
+        "$id": "/properties/stepResults/items",
+        "type": "object",
+        "properties": {
+          "index": {
+            "$id": "/properties/stepResults/items/properties/index",
+            "type": "integer",
+            "title": "The Index Schema ",
+            "default": 0,
+            "examples": [
+              0
+            ]
+          },
+          "result": {
+            "$id": "/properties/stepResults/items/properties/result",
+            "type": "string",
+            "title": "The Result Schema ",
+            "default": "",
+            "examples": [
+              "PASSED"
+            ]
+          },
+          "error": {
+            "$id": "/properties/stepResults/items/properties/error",
+            "type": "string",
+            "title": "The Error Schema ",
+            "default": "",
+            "examples": [
+              ""
+            ]
+          },
+          "durationInMs": {
+            "$id": "/properties/stepResults/items/properties/durationInMs",
+            "type": "long",
+            "title": "The Durationinms Schema ",
+            "default": 0,
+            "examples": [
+              10
+            ]
+          }
+        }
+      }
     }
   }
 }

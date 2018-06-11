@@ -77,6 +77,20 @@
           }
         }
       }
+    },
+    "tags": {
+      "$id": "/properties/tags",
+      "type": "array",
+      "items": {
+        "$id": "/properties/tags/items",
+        "type": "string",
+        "title": "The 0th Schema ",
+        "default": "",
+        "examples": [
+          "@player",
+          "@backoffice"
+        ]
+      }
     }
   }
 }
