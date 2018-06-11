@@ -95,26 +95,7 @@ subprojects {
             dependency group: 'info.cukes', name: 'cucumber-testng', version: "${cucumberVersion}"
             dependency group: 'org.assertj', name: 'assertj-core-java8', version: "${assertjVersion}"
             dependency group: 'com.jleth.util', name: 'okhttp2-logging', version: "${okHttpLoggingVersion}"
-            dependency group: 'org.jdbi', name: 'jdbi3', version: "${jdbiVersion}"
-            dependency group: 'com.oracle', name: 'ojdbc6', version: "${ojdbc6Version}"
-            dependency group: 'net.sf.supercsv', name: 'super-csv-java8', version: '2.4.0'
-            dependency group: 'org.fluentlenium', name: 'fluentlenium-assertj', version: fluentLeniumVersion
-            dependency group: 'org.fluentlenium', name: 'fluentlenium-testng', version: fluentLeniumVersion
-            dependency group: 'org.fluentlenium', name: 'fluentlenium-cucumber', version: fluentLeniumVersion
-            dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: seleniumVersion
-            dependency group: 'com.google.guava', name: 'guava', version: '23.0'
-            dependency group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
-            dependency group: 'org.modelmapper', name: 'modelmapper', version: '1.1.0'
-            dependency group: 'com.healthmarketscience.sqlbuilder', name: 'sqlbuilder', version: '2.1.7'
-            dependency 'io.qameta.allure:allure2-model-api:1.0-BETA6'
 
-
-
-            // Internal dependencies
-            dependency group: 'com.williamhill.whgtf', name: 'request-builder', version: "${requestBuilderVersion}"
-            dependency group: 'com.williamhill.bonus.integration', name: 'bonus-integration-casinomodule', version: "${casinoModuleVersion}"
-            dependency group: 'com.williamhill.whgtf', name: 'messaging-api', version: '1.4'
-            dependency group: 'com.williamhill.whgtf.report', name: 'jira-zephyr-reporter', version: '1.1.2'
         }
     }
 }
