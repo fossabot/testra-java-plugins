@@ -54,7 +54,7 @@ public class TestraCucumberJvmV2 implements Formatter {
   private final EventHandler<TestSourceRead> featureStartedHandler = this::handleFeatureStartedHandler;
   private final EventHandler<TestCaseStarted> caseStartedHandler = this::handleTestCaseStarted;
   private final EventHandler<TestCaseFinished> caseFinishedHandler = this::handleTestCaseFinished;
-  private final EventHandler<TestStepStarted> stepStartedHandler = this::handleTestStepStarted;˚
+  private final EventHandler<TestStepStarted> stepStartedHandler = this::handleTestStepStarted;
   private final EventHandler<TestStepFinished> stepFinishedHandler = this::handleTestStepFinished;
   private static TestraRestClient testraRestClient;
   private static String projectID;

@@ -3,4 +3,3 @@ include 'example-tests'
 include 'testra-jvm-plugin'
 include 'testra-api-client'
 include 'testra-jvm-pluginV2'
-

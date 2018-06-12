@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 @RunWith(Cucumber.class)
 @CucumberOptions(
     tags = "@example",
-    features = "testra-jvm-plugin/src/test/resources/feature_files",
+    features = "src/test/resources/feature_files",
     glue = {""},
     plugin = {"pretty",
         "json:build/cucumber/cucumber-json-example.json",

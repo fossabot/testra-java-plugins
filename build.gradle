@@ -44,11 +44,24 @@ ext.fluentLeniumVersion = '3.5.0'
 ext.seleniumVersion = '3.8.1'
 
 allprojects {
-    group 'com.williamhill.whgtf.test'
-    version '1.0-SNAPSHOT'
+    group 'com.williamhill.whgtf.testra'
+    version '1.0'
 
     apply plugin: 'idea'
     apply plugin: 'project-report'
+//    apply plugin: "java"
+//    apply plugin: 'maven-publish'
+//    publishing {
+//        publications {
+//            maven(MavenPublication) {
+//                groupId 'com.williamhill.whgtf.testra'
+//                artifactId 'jvm-plugin'
+//                version '1.0'
+//
+//                from components.java
+//            }
+//        }
+//    }
 
     repositories {
         mavenLocal()
@@ -78,6 +91,19 @@ subprojects {
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
+    apply plugin: "java"
+    apply plugin: 'maven-publish'
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId 'com.williamhill.whgtf.testra'
+                artifactId 'jvm-plugin'
+                version '1.0'
+
+                from components.java
+            }
+        }
+    }
 
     dependencyManagement {
         dependencies {
