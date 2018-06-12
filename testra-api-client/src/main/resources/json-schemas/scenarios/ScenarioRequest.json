@@ -22,6 +22,15 @@
         "Feature 2"
       ]
     },
+    "featureDescription": {
+      "$id": "/properties/featureDescription",
+      "type": "string",
+      "title": "The Featuredescription Schema ",
+      "default": "",
+      "examples": [
+        "Feature desc"
+      ]
+    },
     "backgroundSteps": {
       "$id": "/properties/backgroundSteps",
       "type": "array",

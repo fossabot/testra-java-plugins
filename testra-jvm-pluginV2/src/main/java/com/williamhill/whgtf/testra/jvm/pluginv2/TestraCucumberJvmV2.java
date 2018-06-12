@@ -8,6 +8,7 @@ import com.williamhill.whgtf.test.bnw.pojo.executions.ExecutionResponse;
 import com.williamhill.whgtf.test.bnw.pojo.scenarios.BackgroundStep;
 import com.williamhill.whgtf.test.bnw.pojo.scenarios.ScenarioRequest;
 import com.williamhill.whgtf.test.bnw.pojo.scenarios.ScenarioResponse;
+import com.williamhill.whgtf.test.bnw.pojo.testresult.Attachment;
 import com.williamhill.whgtf.test.bnw.pojo.testresult.TestResultRequest;
 import com.williamhill.whgtf.testra.jvm.client.api.TestraRestClient;
 import com.williamhill.whgtf.testra.jvm.message.http.HttpResponseMessage;
@@ -28,6 +29,8 @@ import gherkin.ast.Feature;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.Step;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +38,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestraCucumberJvmV2 implements Formatter{
+public class TestraCucumberJvmV2 implements Formatter {
 
   static {
     ClassLoader classLoader = TestraCucumberJvmV2.class.getClassLoader();
@@ -61,6 +64,8 @@ public class TestraCucumberJvmV2 implements Formatter{
   private final String TYPE_SCENARIO = "SCENARIO";
   private String currentScenarioID = "";
   private String ExecutionID;
+  private static byte[] screenShot;
+  private static boolean isScreenshot = false;
 
   public TestraCucumberJvmV2(){
     projectID = getTestraRestClient().getProjectID(prop("project"));
@@ -74,6 +79,10 @@ public class TestraCucumberJvmV2 implements Formatter{
     return testraRestClient;
   }
 
+  public static void setScreenShot(byte[] screenshot){
+    screenShot = screenshot;
+    isScreenshot = true;
+  }
 
   @Override
   public void setEventPublisher(final EventPublisher publisher) {
@@ -136,6 +145,7 @@ public class TestraCucumberJvmV2 implements Formatter{
     event.testCase.getTags().forEach(x -> tagList.add(x.getName()));
     ScenarioRequest scenarioRequest = new ScenarioRequest();
     scenarioRequest.setTags(tagList);
+    scenarioRequest.setFeatureDescription(currentFeature.getDescription());
     scenarioRequest.setName(event.testCase.getName());
     scenarioRequest.setBackgroundSteps(backgroundSteps.stream()
         .map(s -> new BackgroundStep().withIndex(s.getIndex())
@@ -143,9 +153,11 @@ public class TestraCucumberJvmV2 implements Formatter{
 
     List<com.williamhill.whgtf.test.bnw.pojo.scenarios.Step> testSteps = new ArrayList<>();
     for(int i = backgroundSteps.size(); i<currentTestCase.getTestSteps().size(); i++){
-      testSteps.add(new com.williamhill.whgtf.test.bnw.pojo.scenarios.Step()
-          .withIndex(i-backgroundSteps.size())
-          .withText(currentTestCase.getTestSteps().get(i).getStepText()));
+      if(!currentTestCase.getTestSteps().get(i).isHook()) {
+        testSteps.add(new com.williamhill.whgtf.test.bnw.pojo.scenarios.Step()
+            .withIndex(i - backgroundSteps.size())
+            .withText(currentTestCase.getTestSteps().get(i).getStepText()));
+      }
     }
     scenarioRequest.setSteps(testSteps);
 
@@ -169,6 +181,7 @@ public class TestraCucumberJvmV2 implements Formatter{
   }
 
   private void handleTestCaseFinished(final TestCaseFinished event) {
+
     TestResultRequest testResultRequest = new TestResultRequest()
         .withTargetId(currentScenarioID)
         .withDurationInMs(event.result.getDuration())
@@ -180,7 +193,14 @@ public class TestraCucumberJvmV2 implements Formatter{
 
     if(event.result.getStatus().equals(Type.FAILED)){
       testResultRequest.setError(event.result.getErrorMessage());
+      if(isScreenshot){
+        testResultRequest
+            .setAttachments(Collections.singletonList(new Attachment()
+                .withName("Failure Screenshot")
+                .withBase64EncodedByteArray(new String(Base64.getEncoder().encode(screenShot)))));
+      }
     }
+    screenShot = null;
     testraRestClient.addTestResult(testResultRequest, ExecutionID);
     stepResults = new ArrayList<>();
   }
@@ -195,5 +215,4 @@ public class TestraCucumberJvmV2 implements Formatter{
     }
     stepResults.add(stepResult);
   }
-
 }

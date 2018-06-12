@@ -69,7 +69,31 @@
     },
     "attachments": {
       "$id": "/properties/attachments",
-      "type": "array"
+      "type": "array",
+      "items": {
+        "$id": "/properties/attachments/items",
+        "type": "object",
+        "properties": {
+          "name": {
+            "$id": "/properties/attachments/items/properties/name",
+            "type": "string",
+            "title": "The Name Schema ",
+            "default": "",
+            "examples": [
+              "Atachment1"
+            ]
+          },
+          "base64EncodedByteArray": {
+            "$id": "/properties/attachments/items/properties/base64EncodedByteArray",
+            "type": "string",
+            "title": "The Base64encodedbytearray Schema ",
+            "default": "",
+            "examples": [
+              "VGVzdA=="
+            ]
+          }
+        }
+      }
     },
     "stepResults": {
       "$id": "/properties/stepResults",

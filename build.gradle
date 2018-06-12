@@ -95,6 +95,7 @@ subprojects {
             dependency group: 'info.cukes', name: 'cucumber-testng', version: "${cucumberVersion}"
             dependency group: 'org.assertj', name: 'assertj-core-java8', version: "${assertjVersion}"
             dependency group: 'com.jleth.util', name: 'okhttp2-logging', version: "${okHttpLoggingVersion}"
+            dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: seleniumVersion
 
         }
     }
@@ -102,4 +103,8 @@ subprojects {
 
 configure(subprojects.findAll { it.name == 'testra-api-client' }) {
     apply plugin: 'jsonschema2pojo'
+}
+
+configure(subprojects.findAll { it.name == 'testra-jvm-pluginV2' }) {
+    apply plugin: 'com.energizedwork.webdriver-binaries'
 }
