@@ -49,19 +49,6 @@ allprojects {
 
     apply plugin: 'idea'
     apply plugin: 'project-report'
-//    apply plugin: "java"
-//    apply plugin: 'maven-publish'
-//    publishing {
-//        publications {
-//            maven(MavenPublication) {
-//                groupId 'com.williamhill.whgtf.testra'
-//                artifactId 'jvm-plugin'
-//                version '1.0'
-//
-//                from components.java
-//            }
-//        }
-//    }
 
     repositories {
         mavenLocal()
@@ -91,19 +78,6 @@ subprojects {
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
-    apply plugin: "java"
-    apply plugin: 'maven-publish'
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                groupId 'com.williamhill.whgtf.testra'
-                artifactId 'jvm-plugin'
-                version '1.0'
-
-                from components.java
-            }
-        }
-    }
 
     dependencyManagement {
         dependencies {
@@ -125,7 +99,10 @@ subprojects {
 
         }
     }
+
 }
+
+
 
 configure(subprojects.findAll { it.name == 'testra-api-client' }) {
     apply plugin: 'jsonschema2pojo'
@@ -133,4 +110,29 @@ configure(subprojects.findAll { it.name == 'testra-api-client' }) {
 
 configure(subprojects.findAll { it.name == 'testra-jvm-pluginV2' }) {
     apply plugin: 'com.energizedwork.webdriver-binaries'
+}
+
+subprojects.each { subproject -> evaluationDependsOn(subproject.path)}
+
+task allJar(type: Jar, dependsOn: subprojects.assemble) {
+    baseName = 'jvm-plugin'
+    subprojects.each { subproject ->
+        from subproject.configurations.archives.allArtifacts.files.collect {
+            zipTree(it)
+        }
+    }
+}
+
+apply plugin: "java"
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'com.williamhill.whgtf.testra'
+            artifactId 'jvm-plugin'
+            version '1.0'
+
+            artifact allJar
+        }
+    }
 }
