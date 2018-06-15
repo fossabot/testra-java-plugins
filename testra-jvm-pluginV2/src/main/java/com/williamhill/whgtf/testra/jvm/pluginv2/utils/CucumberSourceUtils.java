@@ -1,4 +1,4 @@
-package com.williamhill.whgtf.testra.jvm.pluginv2;
+package com.williamhill.whgtf.testra.jvm.pluginv2.utils;
 
 import cucumber.api.event.TestSourceRead;
 import gherkin.AstBuilder;
