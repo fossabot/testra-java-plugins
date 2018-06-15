@@ -1,5 +1,6 @@
 package com.williamhill.whgtf.testra.jvm.util;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,21 @@ public final class PropertyHelper {
       if (!resourceFileNames.contains(resourceFileName)) {
         LOGGER.info("Loading property resource : {}", resourceFileName);
         properties.load(classLoader.getResourceAsStream(resourceFileName));
+        resourceFileNames.add(resourceFileName);
+      }
+    } catch (IOException ex) {
+      ex.fillInStackTrace();
+      throw new RuntimeException(
+          String.format("Property resource loading error for %s", resourceFileName));
+    }
+  }
+
+  public static synchronized void loadPropertiesFromAbsolute(String resourceFileName) {
+    try {
+      if (!resourceFileNames.contains(resourceFileName)) {
+        LOGGER.info("Loading property resource : {}", resourceFileName);
+        FileInputStream in = new FileInputStream(resourceFileName);
+        properties.load(in);
         resourceFileNames.add(resourceFileName);
       }
     } catch (IOException ex) {

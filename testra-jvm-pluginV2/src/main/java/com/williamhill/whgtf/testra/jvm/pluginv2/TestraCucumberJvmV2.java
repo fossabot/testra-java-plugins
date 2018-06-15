@@ -29,6 +29,7 @@ import cucumber.runner.UnskipableStep;
 import gherkin.ast.Feature;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.Step;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -41,7 +42,7 @@ public class TestraCucumberJvmV2 implements Formatter {
 
   static {
     ClassLoader classLoader = TestraCucumberJvmV2.class.getClassLoader();
-    PropertyHelper.loadProperties(getEnv() + ".environment.properties", classLoader);
+
     PropertyHelper.loadProperties("endpoints.properties", classLoader);
   }
   private static final Logger LOGGER = LoggerFactory.getLogger(TestraCucumberJvmV2.class);
@@ -57,7 +58,17 @@ public class TestraCucumberJvmV2 implements Formatter {
   private final String TYPE_SCENARIO = "SCENARIO";
   private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
 
-  public TestraCucumberJvmV2(){
+  public TestraCucumberJvmV2(String properties){
+    File propertyFile = new File(properties);
+    ClassLoader classLoader = TestraCucumberJvmV2.class.getClassLoader();
+    if(propertyFile.isFile()){
+      PropertyHelper.loadPropertiesFromAbsolute(propertyFile.getAbsolutePath());
+      LOGGER.info("loaded properties from filepath " + propertyFile.getAbsolutePath());
+    }
+    else{
+      LOGGER.info("property file not found at " + propertyFile.getAbsolutePath() + " using default");
+      PropertyHelper.loadProperties(getEnv() + ".environment.properties", classLoader);
+    }
     setup();
     projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
