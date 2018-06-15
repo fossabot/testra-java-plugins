@@ -13,6 +13,7 @@ import com.williamhill.whgtf.test.bnw.pojo.testresult.TestResultRequest;
 import com.williamhill.whgtf.testra.jvm.message.http.HttpResponseMessage;
 import com.williamhill.whgtf.testra.jvm.pluginv2.utils.CommonData;
 import com.williamhill.whgtf.testra.jvm.pluginv2.utils.CommonDataProvider;
+import com.williamhill.whgtf.testra.jvm.pluginv2.utils.CucumberSourceUtils;
 import com.williamhill.whgtf.testra.jvm.util.JsonObject;
 import com.williamhill.whgtf.testra.jvm.util.PropertyHelper;
 import cucumber.api.Result.Type;
@@ -54,8 +55,10 @@ public class TestraCucumberJvmV2 implements Formatter {
   private final EventHandler<TestStepStarted> stepStartedHandler = this::handleTestStepStarted;
   private final EventHandler<TestStepFinished> stepFinishedHandler = this::handleTestStepFinished;
   private final String TYPE_SCENARIO = "SCENARIO";
+  private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
 
   public TestraCucumberJvmV2(){
+    setup();
     projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
     createExecution();
@@ -85,10 +88,12 @@ public class TestraCucumberJvmV2 implements Formatter {
 
 
   private void handleFeatureStartedHandler(final TestSourceRead event) {
-    setup();
-    commonData.getCucumberSourceUtils().addTestSourceReadEvent(event.uri, event);
+
+    cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
+    commonData.cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
     createExecution();
-    processBackgroundSteps(commonData.getCucumberSourceUtils().getFeature(event.uri));
+    cucumberSourceUtils.getFeature(event.uri);
+    processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri));
   }
   private void createExecution() {
     if (executionID == null) {
@@ -117,7 +122,7 @@ public class TestraCucumberJvmV2 implements Formatter {
         stepTemplate.setIndex(counter);
         stepTemplate.setLine(step.getLocation().getLine());
         counter ++;
-        commonData.getBackgroundSteps().add(stepTemplate);
+        commonData.backgroundSteps.add(stepTemplate);
       }
     }
   }
@@ -125,34 +130,33 @@ public class TestraCucumberJvmV2 implements Formatter {
 
 
   private void handleTestCaseStarted(final TestCaseStarted event) {
-    commonData.setCurrentFeatureFile(event.testCase.getUri());
-    commonData.setCurrentFeature(commonData.getCucumberSourceUtils().getFeature(commonData.getCurrentFeatureFile()));
-
-    commonData.setCurrentTestCase(event.testCase);
+    commonData.currentFeatureFile = event.testCase.getUri();
+    commonData.currentFeature = commonData.cucumberSourceUtils.getFeature(commonData.currentFeatureFile);
+    commonData.currentTestCase = event.testCase;
 
     final List<String> tagList = new ArrayList<>();
     event.testCase.getTags().forEach(x -> tagList.add(x.getName()));
     ScenarioRequest scenarioRequest = new ScenarioRequest();
     scenarioRequest.setTags(tagList);
-    scenarioRequest.setFeatureDescription(commonData.getCurrentFeature().getDescription());
+    scenarioRequest.setFeatureDescription(commonData.currentFeature.getDescription());
     scenarioRequest.setName(event.testCase.getName());
-    scenarioRequest.setBackgroundSteps(commonData.getBackgroundSteps().stream()
+    scenarioRequest.setBackgroundSteps(commonData.backgroundSteps.stream()
         .map(s -> new BackgroundStep().withIndex(s.getIndex())
             .withText(s.getGherkinStep())).collect(Collectors.toList()));
 
     List<com.williamhill.whgtf.test.bnw.pojo.scenarios.Step> testSteps = new ArrayList<>();
-    for(int i = commonData.getBackgroundSteps().size(); i<commonData.getCurrentTestCase().getTestSteps().size(); i++){
-      if(!commonData.getCurrentTestCase().getTestSteps().get(i).isHook()) {
+    for(int i = commonData.backgroundSteps.size(); i<commonData.currentTestCase.getTestSteps().size(); i++){
+      if(!commonData.currentTestCase.getTestSteps().get(i).isHook()) {
         testSteps.add(new com.williamhill.whgtf.test.bnw.pojo.scenarios.Step()
-            .withIndex(i - commonData.getBackgroundSteps().size())
-            .withText(commonData.getCurrentTestCase().getTestSteps().get(i).getStepText()));
+            .withIndex(i - commonData.backgroundSteps.size())
+            .withText(commonData.currentTestCase.getTestSteps().get(i).getStepText()));
       }
     }
     scenarioRequest.setSteps(testSteps);
 
-    commonData.setCurrentScenarioID(JsonObject
+    commonData.currentScenarioID = JsonObject
         .jsonToObject(commonData.getTestraRestClient().addScenario(scenarioRequest).getPayload(),
-            ScenarioResponse.class).getId());
+            ScenarioResponse.class).getId();
   }
 
   private void handleTestStepStarted(final TestStepStarted event) {
@@ -172,26 +176,26 @@ public class TestraCucumberJvmV2 implements Formatter {
   private void handleTestCaseFinished(final TestCaseFinished event) {
 
     TestResultRequest testResultRequest = new TestResultRequest()
-        .withTargetId(commonData.getCurrentScenarioID())
+        .withTargetId(commonData.currentScenarioID)
         .withDurationInMs(event.result.getDuration())
         .withResultType(TYPE_SCENARIO)
         .withResult(event.result.getStatus().toString())
-        .withStepResults(commonData.getStepResults())
+        .withStepResults(commonData.stepResults)
         .withStartTime(1)
         .withEndTime(1);
 
     if(event.result.getStatus().equals(Type.FAILED)){
       testResultRequest.setError(event.result.getErrorMessage());
-      if(commonData.isScreenshot()){
+      if(commonData.isScreenshot){
         testResultRequest
             .setAttachments(Collections.singletonList(new Attachment()
                 .withName("Failure Screenshot")
-                .withBase64EncodedByteArray(new String(Base64.getEncoder().encode(commonData.getScreenShot())))));
+                .withBase64EncodedByteArray(new String(Base64.getEncoder().encode(commonData.screenShot)))));
       }
     }
     commonData.setScreenShot(null);
     commonData.getTestraRestClient().addTestResult(testResultRequest, executionID);
-    commonData.setStepResults(new ArrayList<>());
+    commonData.stepResults = new ArrayList<>();
   }
 
   private void handlePickleStep(final TestStepFinished event) {
@@ -202,6 +206,6 @@ public class TestraCucumberJvmV2 implements Formatter {
     if(event.result.getStatus().equals(Type.FAILED)){
       stepResult.setError(event.result.getErrorMessage());
     }
-    commonData.getStepResults().add(stepResult);
+    commonData.stepResults.add(stepResult);
   }
 }
