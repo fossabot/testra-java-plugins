@@ -37,8 +37,14 @@ public class CommonData {
   }
 
   public void setScreenShot(byte[] screenshot){
-    screenShot = screenshot;
-    isScreenshot = true;
+    if(screenshot == null) {
+      screenShot = null;
+      isScreenshot = false;
+    }
+    else{
+      screenShot = screenshot;
+      isScreenshot = true;
+    }
   }
 
 }
