@@ -63,7 +63,8 @@ public class SeleniumSteps extends AbstractSeleniumClass {
   @After
   public void teardown(){
     byte[] screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
-    TestraCucumberJvmV2.setScreenShot(screenshot);
+    //TODO
+//    TestraCucumberJvmV2.setScreenShot(screenshot);
     webDriver.close();
   }
 }
