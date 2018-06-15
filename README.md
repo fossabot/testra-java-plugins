@@ -30,5 +30,5 @@ Where host is the testra host url
 In your @After teardown function add a screenshot to Testra reports
 ```$xslt
     byte[] screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
-    TestraCucumberJvmV2.setScreenShot(screenshot);
+    TestraCucumberJvmV2.setScreenshot(screenshot);
 ```

@@ -9,7 +9,7 @@ import cucumber.api.testng.AbstractTestNGCucumberTests;
  */
 @CucumberOptions(
     tags = "@selenium",
-    features = "testra-jvm-pluginV2/src/test/resources/feature_files",
+    features = "src/test/resources/feature_files",
     glue = {""},
     plugin = {"com.williamhill.whgtf.testra.jvm.pluginv2.TestraCucumberJvmV2"
     }

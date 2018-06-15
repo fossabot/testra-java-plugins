@@ -1,6 +1,7 @@
 package test.steps;
 
 import com.williamhill.whgtf.testra.jvm.pluginv2.TestraCucumberJvmV2;
+import com.williamhill.whgtf.testra.jvm.pluginv2.utils.CommonDataProvider;
 import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
@@ -63,9 +64,9 @@ public class SeleniumSteps extends AbstractSeleniumClass {
   @After
   public void teardown(){
     if(webDriver!=null){
-    byte[] screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
-    //TODO
-//    TestraCucumberJvmV2.setScreenShot(screenshot);
-    webDriver.close();}
+      byte[] screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
+      TestraCucumberJvmV2.setScreenshot(screenshot);
+      webDriver.close();
+    }
   }
 }

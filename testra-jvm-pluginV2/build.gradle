@@ -9,7 +9,6 @@ dependencies {
     compile group: 'io.cucumber', name: 'cucumber-java', version: "${cucumber_version}"
     testCompile group: 'io.cucumber', name: 'cucumber-testng', version: "${cucumber_version}"
     compile group: 'org.assertj', name: 'assertj-core-java8'
-    // https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java
     compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.8.1'
     compile 'org.projectlombok:lombok:1.16.18'
     compile group: 'com.google.guava', name: 'guava', version: '24.0-jre'

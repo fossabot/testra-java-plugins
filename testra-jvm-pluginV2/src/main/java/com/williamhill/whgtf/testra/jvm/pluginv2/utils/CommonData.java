@@ -21,8 +21,8 @@ public class CommonData {
   public List<StepResult> stepResults = new ArrayList<>();
   public final String TYPE_SCENARIO = "SCENARIO";
   public String currentScenarioID;
-  public byte[] screenShot;
-  public boolean isScreenshot;
+  public static byte[] screenShot;
+  public static boolean isScreenshot;
 
   public CommonData(){
 

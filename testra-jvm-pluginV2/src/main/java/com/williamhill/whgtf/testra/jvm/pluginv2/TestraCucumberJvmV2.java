@@ -3,7 +3,6 @@ package com.williamhill.whgtf.testra.jvm.pluginv2;
 import static com.williamhill.whgtf.testra.jvm.util.HttpAssertHelper.assertHttpStatusAsOk;
 import static com.williamhill.whgtf.testra.jvm.util.PropertyHelper.getEnv;
 import static com.williamhill.whgtf.testra.jvm.util.PropertyHelper.prop;
-
 import com.williamhill.whgtf.test.bnw.pojo.executions.ExecutionResponse;
 import com.williamhill.whgtf.test.bnw.pojo.scenarios.BackgroundStep;
 import com.williamhill.whgtf.test.bnw.pojo.scenarios.ScenarioRequest;
@@ -42,9 +41,9 @@ public class TestraCucumberJvmV2 implements Formatter {
 
   static {
     ClassLoader classLoader = TestraCucumberJvmV2.class.getClassLoader();
-
     PropertyHelper.loadProperties("endpoints.properties", classLoader);
   }
+
   private static final Logger LOGGER = LoggerFactory.getLogger(TestraCucumberJvmV2.class);
   private final Long threadId = Thread.currentThread().getId();
   private static String projectID;
@@ -55,20 +54,27 @@ public class TestraCucumberJvmV2 implements Formatter {
   private final EventHandler<TestCaseFinished> caseFinishedHandler = this::handleTestCaseFinished;
   private final EventHandler<TestStepStarted> stepStartedHandler = this::handleTestStepStarted;
   private final EventHandler<TestStepFinished> stepFinishedHandler = this::handleTestStepFinished;
-  private final String TYPE_SCENARIO = "SCENARIO";
   private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
 
   public TestraCucumberJvmV2(String properties){
     File propertyFile = new File(properties);
-    ClassLoader classLoader = TestraCucumberJvmV2.class.getClassLoader();
     if(propertyFile.isFile()){
       PropertyHelper.loadPropertiesFromAbsolute(propertyFile.getAbsolutePath());
-      LOGGER.info("loaded properties from filepath " + propertyFile.getAbsolutePath());
+      LOGGER.info("Loaded properties from filepath " + propertyFile.getAbsolutePath());
     }
     else{
-      LOGGER.info("property file not found at " + propertyFile.getAbsolutePath() + " using default");
-      PropertyHelper.loadProperties(getEnv() + ".environment.properties", classLoader);
+      LOGGER.info("Property file not found at " + propertyFile.getAbsolutePath() + " using default");
+      PropertyHelper.loadProperties(getEnv() + ".environment.properties", TestraCucumberJvmV2.class.getClassLoader());
     }
+
+    setup();
+    projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
+    LOGGER.info("Project ID is " + projectID);
+    createExecution();
+  }
+
+  public TestraCucumberJvmV2(){
+    PropertyHelper.loadProperties(getEnv() + ".environment.properties", TestraCucumberJvmV2.class.getClassLoader());
     setup();
     projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
@@ -78,10 +84,8 @@ public class TestraCucumberJvmV2 implements Formatter {
   @Override
   public void setEventPublisher(final EventPublisher publisher) {
     publisher.registerHandlerFor(TestSourceRead.class, featureStartedHandler);
-
     publisher.registerHandlerFor(TestCaseStarted.class, caseStartedHandler);
     publisher.registerHandlerFor(TestCaseFinished.class, caseFinishedHandler);
-
     publisher.registerHandlerFor(TestStepStarted.class, stepStartedHandler);
     publisher.registerHandlerFor(TestStepFinished.class, stepFinishedHandler);
   }
@@ -186,6 +190,7 @@ public class TestraCucumberJvmV2 implements Formatter {
 
   private void handleTestCaseFinished(final TestCaseFinished event) {
 
+    String TYPE_SCENARIO = "SCENARIO";
     TestResultRequest testResultRequest = new TestResultRequest()
         .withTargetId(commonData.currentScenarioID)
         .withDurationInMs(event.result.getDuration())
@@ -198,15 +203,25 @@ public class TestraCucumberJvmV2 implements Formatter {
     if(event.result.getStatus().equals(Type.FAILED)){
       testResultRequest.setError(event.result.getErrorMessage());
       if(commonData.isScreenshot){
-        testResultRequest
-            .setAttachments(Collections.singletonList(new Attachment()
-                .withName("Failure Screenshot")
-                .withBase64EncodedByteArray(new String(Base64.getEncoder().encode(commonData.screenShot)))));
+        try {
+          testResultRequest
+              .setAttachments(Collections.singletonList(new Attachment()
+                  .withName("Failure Screenshot")
+                  .withBase64EncodedByteArray(
+                      new String(Base64.getEncoder().encode(commonData.screenShot)))));
+        }
+        catch(NullPointerException e){
+          LOGGER.error("Error no screenshot found, have you implemented the screenshot in @After?");
+        }
       }
     }
     commonData.setScreenShot(null);
     commonData.getTestraRestClient().addTestResult(testResultRequest, executionID);
     commonData.stepResults = new ArrayList<>();
+  }
+
+  public static void setScreenshot(byte[] screenshot){
+    CommonDataProvider.get(Thread.currentThread().getId()).setScreenShot(screenshot);
   }
 
   private void handlePickleStep(final TestStepFinished event) {
