@@ -11,7 +11,6 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind'
     compile group: 'org.apache.commons', name: 'commons-lang3'
     compile group: 'com.google.guava', name: 'guava'
-    compile group: 'com.google.guava', name: 'guava', version: '24.0-jre'
     compile group: 'org.assertj', name: 'assertj-core-java8'
 
     testCompile group: 'org.testng', name: 'testng'
@@ -26,7 +25,7 @@ jsonSchema2Pojo {
     generateBuilders = true
     source = files("${sourceSets.main.output.resourcesDir}/json-schemas")
     targetDirectory = file("${project.buildDir}/generated-sources/js2p")
-    targetPackage = 'com.williamhill.whgtf.test.bnw.pojo'
+    targetPackage = 'tech.testra.jvm.api.client.models'
     annotationStyle = 'jackson'
     includeHashcodeAndEquals = false
     includeToString = false

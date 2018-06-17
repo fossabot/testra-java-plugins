@@ -2,13 +2,13 @@
 Plugin for Cucumber JVM
 
 ## Getting Started
-Add the TestraCucumberJvmV2 plugin to your TestNG runner
+Add the Testra plugin to your TestNG runner
 ```$xslt
 @CucumberOptions(
     tags = "@selenium",
     features = "testra-jvm-pluginV2/src/test/resources/feature_files",
     glue = {""},
-    plugin = {"com.williamhill.whgtf.testra.jvm.pluginv2.TestraCucumberJvmV2:src/test/resources/myproperties.properties"
+    plugin = {"tech.testra.jvm.plugin.cucumberv2.Testra"
     }
 )
 public class ExampleSeleniumRunner extends AbstractTestNGCucumberTests {
@@ -30,5 +30,5 @@ Where host is the testra host url
 In your @After teardown function add a screenshot to Testra reports
 ```$xslt
     byte[] screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
-    TestraCucumberJvmV2.setScreenshot(screenshot);
+    Testra.setScreenShot(screenshot);
 ```
