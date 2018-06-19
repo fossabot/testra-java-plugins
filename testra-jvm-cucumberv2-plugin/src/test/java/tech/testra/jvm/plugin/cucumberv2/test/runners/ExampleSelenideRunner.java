@@ -10,7 +10,7 @@ import cucumber.api.testng.AbstractTestNGCucumberTests;
     tags = "@selenide",
     features = "testra-jvm-pluginV2/src/test/resources/feature_files",
     glue = {""},
-    plugin = {"com.williamhill.whgtf.testra.jvm.pluginv2.TestraCucumberJvmV2"
+    plugin = {"tech.testra.jvm.plugin.cucumberv2.Testra"
     }
 )
 public class ExampleSelenideRunner extends AbstractTestNGCucumberTests {

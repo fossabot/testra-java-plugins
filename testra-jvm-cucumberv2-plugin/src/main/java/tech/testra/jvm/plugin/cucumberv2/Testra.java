@@ -51,6 +51,12 @@ public class Testra implements Formatter {
   private final EventHandler<TestStepStarted> stepStartedHandler = this::handleTestStepStarted;
   private final EventHandler<TestStepFinished> stepFinishedHandler = this::handleTestStepFinished;
   private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
+  private EventHandler<EmbedEvent> embedEventhandler = new EventHandler<EmbedEvent>() {
+    @Override
+    public void receive(EmbedEvent event) {
+      handleEmbed(event);
+    }
+  };
 
   public Testra(String properties) {
     File propertyFile = new File(properties);
@@ -84,11 +90,13 @@ public class Testra implements Formatter {
     publisher.registerHandlerFor(TestCaseFinished.class, caseFinishedHandler);
     publisher.registerHandlerFor(TestStepStarted.class, stepStartedHandler);
     publisher.registerHandlerFor(TestStepFinished.class, stepFinishedHandler);
+    publisher.registerHandlerFor(EmbedEvent.class, embedEventhandler);
+
   }
 
   private void setup(){
     LOGGER.info("Scenario setup - Begin");
-      CommonDataProvider.newCommonData(threadId);
+    CommonDataProvider.newCommonData(threadId);
     if ((commonData = CommonDataProvider.get(threadId)) == null) {
       throw new RuntimeException("Common data not found for id : " + threadId);
     } else {
@@ -116,12 +124,16 @@ public class Testra implements Formatter {
     }
   }
 
+  private void handleEmbed(EmbedEvent event) {
+    commonData.embedEvent = event;
+  }
+
   private void processBackgroundSteps(Feature feature)
   {
     List<String> featureTags = new ArrayList<>();
     feature.getTags().forEach(x -> featureTags.add(x.getName()));
     ScenarioDefinition background = feature.getChildren().stream()
-      .filter(s -> s.getClass().getSimpleName().equals("Background"))
+        .filter(s -> s.getClass().getSimpleName().equals("Background"))
         .findFirst()
         .orElse(null);
 
@@ -185,7 +197,6 @@ public class Testra implements Formatter {
   }
 
   private void handleTestCaseFinished(final TestCaseFinished event) {
-
     String TYPE_SCENARIO = "SCENARIO";
     TestResultRequest testResultRequest = new TestResultRequest()
         .withTargetId(commonData.currentScenarioID)
@@ -198,26 +209,16 @@ public class Testra implements Formatter {
 
     if(event.result.getStatus().equals(Type.FAILED)){
       testResultRequest.setError(event.result.getErrorMessage());
-      if(commonData.isScreenshot){
-        try {
-          testResultRequest
-              .setAttachments(Collections.singletonList(new Attachment()
-                  .withName("Failure Screenshot")
-                  .withBase64EncodedByteArray(
-                      new String(Base64.getEncoder().encode(commonData.screenShot)))));
-        }
-        catch(NullPointerException e){
-          LOGGER.error("Error no screenshot found, have you implemented the screenshot in @After?");
-        }
+      if(commonData.embedEvent != null){
+        testResultRequest
+            .setAttachments(Collections.singletonList( new Attachment()
+                .withName(commonData.embedEvent.mimeType)
+                .withBase64EncodedByteArray(new String(Base64.getEncoder().encode(commonData.embedEvent.data)))));
       }
     }
-    commonData.setScreenShot(null);
+    commonData.embedEvent = null;
     commonData.getTestraRestClient().addTestResult(testResultRequest, executionID);
     commonData.stepResults = new ArrayList<>();
-  }
-
-  public static void setScreenshot(byte[] screenshot){
-    CommonDataProvider.get(Thread.currentThread().getId()).setScreenShot(screenshot);
   }
 
   private void handlePickleStep(final TestStepFinished event) {

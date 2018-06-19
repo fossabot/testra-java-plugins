@@ -10,7 +10,7 @@ import cucumber.api.testng.AbstractTestNGCucumberTests;
     tags = "@selenium",
     features = "src/test/resources/feature_files",
     glue = {""},
-    plugin = {"com.williamhill.whgtf.testra.jvm.pluginv2.TestraCucumberJvmV2"
+    plugin = {"tech.testra.jvm.plugin.cucumberv2.Testra"
     }
 )
 public class ExampleSeleniumRunner extends AbstractTestNGCucumberTests {

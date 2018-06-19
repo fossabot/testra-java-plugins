@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
     glue = {""},
     plugin = {"pretty",
         "json:build/cucumber/cucumber-json-example.json",
-        "com.williamhill.whgtf.testra.jvm.plugin.TestraCucumberJvm"
+        "tech.testra.jvm.plugin.cucumberv1.Testra"
     }
 )
 public class ExampleTestRunner {

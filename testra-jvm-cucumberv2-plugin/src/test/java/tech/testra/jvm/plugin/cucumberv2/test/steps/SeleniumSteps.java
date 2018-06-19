@@ -1,5 +1,6 @@
 package tech.testra.jvm.plugin.cucumberv2.test.steps;
 
+import cucumber.api.Scenario;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -7,6 +8,7 @@ import cucumber.api.java.en.Then;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import tech.testra.jvm.plugin.cucumberv2.Testra;
@@ -61,10 +63,19 @@ public class SeleniumSteps extends AbstractSeleniumClass {
   }
 
   @After
-  public void teardown(){
+  public void teardown(Scenario scenario){
     if(webDriver!=null){
-      byte[] screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
-        Testra.setScreenshot(screenshot);
+      try {
+        if (scenario.isFailed()) {
+          byte[] screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
+          scenario.embed(screenshot, "image/png");
+        }
+      } catch (WebDriverException | ClassCastException somePlatformsDontSupportScreenshots) {
+        somePlatformsDontSupportScreenshots.printStackTrace();
+      }
+
+
+
       webDriver.close();
     }
   }

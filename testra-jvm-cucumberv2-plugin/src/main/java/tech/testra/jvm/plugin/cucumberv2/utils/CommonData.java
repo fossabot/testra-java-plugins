@@ -1,6 +1,7 @@
 package tech.testra.jvm.plugin.cucumberv2.utils;
 
 import cucumber.api.TestCase;
+import cucumber.api.event.EmbedEvent;
 import gherkin.ast.Feature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +23,11 @@ public class CommonData {
   public List<StepResult> stepResults = new ArrayList<>();
   public final String TYPE_SCENARIO = "SCENARIO";
   public String currentScenarioID;
-  public static byte[] screenShot;
-  public static boolean isScreenshot;
+  public EmbedEvent embedEvent;
 
   public CommonData() {
   }
+
 
   public TestraRestClient getTestraRestClient() {
     if (testraRestClient == null) {
@@ -35,14 +36,4 @@ public class CommonData {
     return testraRestClient;
   }
 
-  public void setScreenShot(byte[] screenshot){
-    if(screenshot == null) {
-      screenShot = null;
-      isScreenshot = false;
-    }
-    else{
-      screenShot = screenshot;
-      isScreenshot = true;
-    }
-  }
 }
