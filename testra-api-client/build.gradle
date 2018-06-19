@@ -1,4 +1,4 @@
-group 'com.williamhill.whgtf.test'
+group 'tech.testra.jvm.api'
 version '1.0-SNAPSHOT'
 
 dependencies {

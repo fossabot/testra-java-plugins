@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.testra.jvm.api.client.api.TestraRestClient;
 import tech.testra.jvm.api.client.models.testresult.StepResult;
+import tech.testra.jvm.apiv2.client.api.TestraRestClientV2;
 import tech.testra.jvm.plugin.cucumberv2.StepTemplate;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class CommonData {
   public String currentFeatureFile;
   public TestCase currentTestCase;
   private static TestraRestClient testraRestClient;
+  private static TestraRestClientV2 testraRestClientV2;
   public List<StepTemplate> backgroundSteps = new ArrayList<>();
   public List<StepResult> stepResults = new ArrayList<>();
   public final String TYPE_SCENARIO = "SCENARIO";
@@ -36,4 +38,10 @@ public class CommonData {
     return testraRestClient;
   }
 
+  public TestraRestClientV2 getTestraRestClientV2() {
+    if (testraRestClientV2 == null) {
+      testraRestClientV2 = new TestraRestClientV2();
+    }
+    return testraRestClientV2;
+  }
 }

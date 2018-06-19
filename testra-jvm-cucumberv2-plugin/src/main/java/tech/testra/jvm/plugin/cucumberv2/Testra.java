@@ -51,12 +51,7 @@ public class Testra implements Formatter {
   private final EventHandler<TestStepStarted> stepStartedHandler = this::handleTestStepStarted;
   private final EventHandler<TestStepFinished> stepFinishedHandler = this::handleTestStepFinished;
   private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
-  private EventHandler<EmbedEvent> embedEventhandler = new EventHandler<EmbedEvent>() {
-    @Override
-    public void receive(EmbedEvent event) {
-      handleEmbed(event);
-    }
-  };
+  private EventHandler<EmbedEvent> embedEventhandler = event -> handleEmbed(event);
 
   public Testra(String properties) {
     File propertyFile = new File(properties);
@@ -70,7 +65,9 @@ public class Testra implements Formatter {
     }
 
     setup();
-    projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
+    //projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
+    projectID = commonData.getTestraRestClientV2().getProjectID(prop("project"));
+    commonData.getTestraRestClient().setPROJECTID(projectID);
     LOGGER.info("Project ID is " + projectID);
     createExecution();
   }
@@ -78,7 +75,8 @@ public class Testra implements Formatter {
   public Testra() {
     PropertyHelper.loadProperties(getEnv() + ".environment.properties", Testra.class.getClassLoader());
     setup();
-    projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
+    //projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
+
     LOGGER.info("Project ID is " + projectID);
     createExecution();
   }

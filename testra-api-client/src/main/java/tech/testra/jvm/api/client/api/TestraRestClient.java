@@ -39,6 +39,10 @@ public final class TestraRestClient {
             "TestraRestClient", (Integer.parseInt(prop("beConnectionPoolSize", "0"))));
   }
 
+  public void setPROJECTID(String projectid){
+    projectIDString = projectid;
+  }
+
   public String getProjectID(String projectName){
     HttpResponseMessage httpResponseMessage =
         httpClient.get(defaultHttpRequestMessage()
