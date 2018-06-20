@@ -19,6 +19,8 @@ public class CommonData {
   private static TestraRestClientV2 testraRestClientV2;
   public List<tech.testra.jvm.client.model.StepResult> stepResultsNew = new ArrayList<>();
   public final String TYPE_SCENARIO = "SCENARIO";
+  public String attachmentMimeType;
+  public byte[] attachmentByteArray;
   public String currentScenarioID;
   public Scenario currentScenario;
   public long startTime;

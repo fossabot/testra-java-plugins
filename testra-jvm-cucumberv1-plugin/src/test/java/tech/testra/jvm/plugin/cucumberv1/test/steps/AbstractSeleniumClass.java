@@ -1,7 +1,4 @@
-package tech.testra.jvm.plugin.cucumberv2.test.steps;
-
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+package tech.testra.jvm.plugin.cucumberv1.test.steps;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -9,13 +6,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 public class AbstractSeleniumClass {
 
   protected static WebDriver getNewWebDriver() throws MalformedURLException {
       Optional<Path> chromeDriverPath = Optional.empty();
       try {
-        String driverPath = "testra-jvm-cucumberv2-plugin/src/test/resources/webdriver";
+        String driverPath = "testra-jvm-pluginV2/src/test/resources/webdriver";
         if (!Files.exists(Paths.get(driverPath))) {
           driverPath = driverPath.substring(driverPath.indexOf("/")).substring(1);
         }

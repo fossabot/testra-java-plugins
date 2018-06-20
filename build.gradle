@@ -110,6 +110,10 @@ configure(subprojects.findAll { it.name == 'testra-jvm-cucumberv2-plugin' }) {
     apply plugin: 'com.energizedwork.webdriver-binaries'
 }
 
+configure(subprojects.findAll { it.name == 'testra-jvm-cucumberv1-plugin' }) {
+    apply plugin: 'com.energizedwork.webdriver-binaries'
+}
+
 subprojects.each { subproject -> evaluationDependsOn(subproject.path)}
 
 task allJar(type: Jar, dependsOn: subprojects.assemble) {

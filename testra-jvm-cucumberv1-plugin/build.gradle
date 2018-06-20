@@ -11,9 +11,15 @@ dependencies {
     compile group: 'info.cukes', name: 'cucumber-java'
     compile group: 'info.cukes', name: 'cucumber-picocontainer'
     compile group: 'info.cukes', name: 'cucumber-testng'
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.8.1'
     testCompile group: 'info.cukes', name: 'cucumber-junit', version: '1.2.5'
     compile group: 'org.slf4j', name: 'slf4j-api'
     compile group: 'ch.qos.logback', name: 'logback-classic'
     compile 'org.projectlombok:lombok:1.16.18'
     apt "org.projectlombok:lombok:1.16.18"
+}
+
+webdriverBinaries {
+    chromedriver '2.37'
+    downloadRoot new File("${project.projectDir}/src/test/resources")
 }

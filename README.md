@@ -2,18 +2,32 @@
 Plugin for Cucumber JVM
 
 ## Getting Started
-Add the Testra plugin to your TestNG runner
+####TestNG Cucumber
+Add the Testra v2 plugin to your TestNG runner
 ```$xslt
 @CucumberOptions(
     tags = "@selenium",
-    features = "testra-jvm-pluginV2/src/test/resources/feature_files",
+    features = "src/test/resources/feature_files",
     glue = {""},
-    plugin = {"tech.testra.jvm.plugin.cucumberv2.Testra"
+    plugin = {"tech.testra.jvm.plugin.cucumberv2.Testra:myproperties.properties"
     }
 )
 public class ExampleSeleniumRunner extends AbstractTestNGCucumberTests {
 
 }
+```
+####Junit cucumber
+Add the Testra v1 plugin to your Junit runner
+```$xslt
+@RunWith(Cucumber.class)
+@CucumberOptions(
+    tags = "@example",
+    features = "src/test/resources/feature_files",
+    glue = {""},
+    plugin = {
+        "tech.testra.jvm.plugin.cucumberv1.Testra:myproperties.properties"
+    }
+)
 ```
 
 Passing in the property file as a parameter (myproperties.properties in the example above)
@@ -27,8 +41,19 @@ project=My Test Project
 Where host is the testra host url
 
 ## Enable Screenshots
-In your @After teardown function add a screenshot to Testra reports
+In your @After teardown function add a screenshot to Testra reports using inbuild scenario embed
 ```$xslt
-    byte[] screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
-    Testra.setScreenShot(screenshot);
+  public void teardown(Scenario scenario){
+    if(webDriver!=null){
+      try {
+        if (scenario.isFailed()) {
+          byte[] screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
+          scenario.embed(screenshot, "image/png");
+        }
+      } catch (WebDriverException | ClassCastException somePlatformsDontSupportScreenshots) {
+        somePlatformsDontSupportScreenshots.printStackTrace();
+      }
+      webDriver.close();
+    }
+  }
 ```

@@ -1,19 +1,18 @@
-package tech.testra.jvm.plugin.cucumberv2.test.steps;
+package tech.testra.jvm.plugin.cucumberv1.test.steps;
 
 import cucumber.api.Scenario;
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
+import java.net.MalformedURLException;
+import org.junit.AfterClass;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import tech.testra.jvm.plugin.cucumberv2.Testra;
-
-import java.net.MalformedURLException;
 
 public class SeleniumSteps extends AbstractSeleniumClass {
 

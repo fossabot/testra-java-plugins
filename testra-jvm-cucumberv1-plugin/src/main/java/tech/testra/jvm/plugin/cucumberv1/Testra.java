@@ -1,36 +1,43 @@
 package tech.testra.jvm.plugin.cucumberv1;
 
+import static tech.testra.jvm.apiv2.util.PropertyHelper.getEnv;
+import static tech.testra.jvm.apiv2.util.PropertyHelper.prop;
+
 import cucumber.runtime.StepDefinitionMatch;
 import gherkin.formatter.Formatter;
 import gherkin.formatter.Reporter;
-import gherkin.formatter.model.*;
+import gherkin.formatter.model.Background;
+import gherkin.formatter.model.Examples;
+import gherkin.formatter.model.Feature;
+import gherkin.formatter.model.Match;
+import gherkin.formatter.model.Result;
+import gherkin.formatter.model.Scenario;
+import gherkin.formatter.model.ScenarioOutline;
+import gherkin.formatter.model.Step;
+import gherkin.formatter.model.Tag;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.testra.jvm.apiv2.client.api.TestraRestClientV2;
 import tech.testra.jvm.apiv2.util.PropertyHelper;
+import tech.testra.jvm.client.model.Attachment;
 import tech.testra.jvm.client.model.ScenarioRequest;
 import tech.testra.jvm.client.model.StepResult;
 import tech.testra.jvm.client.model.TestResultRequest;
 import tech.testra.jvm.client.model.TestResultRequest.ResultEnum;
 import tech.testra.jvm.client.model.TestResultRequest.ResultTypeEnum;
 import tech.testra.jvm.client.model.TestStep;
-import tech.testra.jvm.plugin.cucumberv1.enums.StatusEnum;
 import tech.testra.jvm.plugin.cucumberv1.templates.ErrorTemplate;
 import tech.testra.jvm.plugin.cucumberv1.templates.ScenarioTemplate;
 import tech.testra.jvm.plugin.cucumberv1.templates.StepTemplate;
 import tech.testra.jvm.plugin.cucumberv1.utils.CommonData;
 import tech.testra.jvm.plugin.cucumberv1.utils.CommonDataProvider;
 import tech.testra.jvm.plugin.cucumberv1.utils.Utils;
-
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static tech.testra.jvm.apiv2.util.PropertyHelper.getEnv;
-import static tech.testra.jvm.apiv2.util.PropertyHelper.prop;
 
 public class Testra implements Reporter, Formatter {
 
@@ -159,6 +166,12 @@ public class Testra implements Reporter, Formatter {
 
     if (commonData.currentScenarioTemplate.getIsFailed()) {
       testResultRequest.setError(commonData.currentScenarioTemplate.getError().getErrorMessage());
+      if(commonData.attachmentMimeType != null){
+        Attachment attachment = new Attachment();
+        attachment.setName(commonData.attachmentMimeType);
+        attachment.setBase64EncodedByteArray(new String(Base64.getEncoder().encode(commonData.attachmentByteArray)));
+        testResultRequest.setAttachments(Collections.singletonList(attachment));
+      }
     }
     commonData.getTestraRestClientV2().createResult(testResultRequest);
   }
@@ -297,6 +310,8 @@ public class Testra implements Reporter, Formatter {
 
   @Override
   public void embedding(final String string, final byte[] bytes) {
+    commonData.attachmentMimeType = string;
+    commonData.attachmentByteArray = bytes;
   }
 
   @Override
@@ -318,7 +333,7 @@ public class Testra implements Reporter, Formatter {
   }
 
   @Override
-  public void examples(final Examples exmpls) {
+  public void examples(final Examples examples) {
     commonData.isScenarioOutline = true;
   }
 
