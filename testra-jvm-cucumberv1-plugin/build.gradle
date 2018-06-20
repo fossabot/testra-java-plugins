@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    compile project(':testra-api-clientv2')
+    compile project(':testra-api-client')
     compile group: 'org.testng', name: 'testng'
     compile group: 'org.assertj', name: 'assertj-core-java8'
     compile group: 'junit', name: 'junit', version: '4.12'

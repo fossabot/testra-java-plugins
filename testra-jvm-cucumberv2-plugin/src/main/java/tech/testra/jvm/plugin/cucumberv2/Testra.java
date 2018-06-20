@@ -1,7 +1,7 @@
 package tech.testra.jvm.plugin.cucumberv2;
 
-import static tech.testra.jvm.apiv2.util.PropertyHelper.getEnv;
-import static tech.testra.jvm.apiv2.util.PropertyHelper.prop;
+import static tech.testra.jvm.api.util.PropertyHelper.getEnv;
+import static tech.testra.jvm.api.util.PropertyHelper.prop;
 
 import cucumber.api.Result;
 import cucumber.api.Result.Type;
@@ -13,7 +13,7 @@ import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.testra.jvm.apiv2.util.PropertyHelper;
+import tech.testra.jvm.api.util.PropertyHelper;
 import tech.testra.jvm.client.model.Attachment;
 import tech.testra.jvm.client.model.ScenarioRequest;
 import tech.testra.jvm.client.model.StepResult;
@@ -60,8 +60,8 @@ public class Testra implements Formatter {
       PropertyHelper.loadProperties(getEnv() + ".environment.properties", Testra.class.getClassLoader());
     }
     setup();
-    commonData.getTestraRestClientV2().setURLs(prop("host"));
-    projectID = commonData.getTestraRestClientV2().getProjectID(prop("project"));
+    commonData.getTestraRestClient().setURLs(prop("host"));
+    projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
     createExecution();
   }
@@ -107,7 +107,7 @@ public class Testra implements Formatter {
   }
   private void createExecution() {
     if (executionID == null) {
-      executionID = commonData.getTestraRestClientV2().createExecution();
+      executionID = commonData.getTestraRestClient().createExecution();
     }
   }
 
@@ -168,7 +168,7 @@ public class Testra implements Formatter {
       }
     }
     scenarioRequest.setSteps(testStepList);
-    commonData.currentScenarioID = commonData.getTestraRestClientV2().createScenario(scenarioRequest);
+    commonData.currentScenarioID = commonData.getTestraRestClient().createScenario(scenarioRequest);
 
   }
 
@@ -206,7 +206,7 @@ public class Testra implements Formatter {
     }
 
     commonData.embedEvent = null;
-    commonData.getTestraRestClientV2().createResult(testResultRequest);
+    commonData.getTestraRestClient().createResult(testResultRequest);
     commonData.stepResultsNew = new ArrayList<>();
   }
 

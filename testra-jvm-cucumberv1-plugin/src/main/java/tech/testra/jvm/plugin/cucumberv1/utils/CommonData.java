@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.testra.jvm.apiv2.client.api.TestraRestClientV2;
+import tech.testra.jvm.api.client.api.TestraRestClient;
 import tech.testra.jvm.plugin.cucumberv1.templates.ScenarioTemplate;
 
 public class CommonData {
@@ -16,8 +16,7 @@ public class CommonData {
 
   public Feature currentFeature;
   public String currentFeatureFile;
-  private static TestraRestClientV2 testraRestClientV2;
-  public List<tech.testra.jvm.client.model.StepResult> stepResultsNew = new ArrayList<>();
+  private static TestraRestClient testraRestClient;
   public final String TYPE_SCENARIO = "SCENARIO";
   public String attachmentMimeType;
   public byte[] attachmentByteArray;
@@ -43,10 +42,10 @@ public class CommonData {
 //    return testraRestClient;
 //  }
 
-  public TestraRestClientV2 getTestraRestClientV2() {
-    if (testraRestClientV2 == null) {
-      testraRestClientV2 = new TestraRestClientV2();
+  public TestraRestClient getTestraRestClient() {
+    if (testraRestClient == null) {
+      testraRestClient = new TestraRestClient();
     }
-    return testraRestClientV2;
+    return testraRestClient;
   }
 }

@@ -101,11 +101,6 @@ subprojects {
 }
 
 
-
-configure(subprojects.findAll { it.name == 'testra-api-client' }) {
-    apply plugin: 'jsonschema2pojo'
-}
-
 configure(subprojects.findAll { it.name == 'testra-jvm-cucumberv2-plugin' }) {
     apply plugin: 'com.energizedwork.webdriver-binaries'
 }

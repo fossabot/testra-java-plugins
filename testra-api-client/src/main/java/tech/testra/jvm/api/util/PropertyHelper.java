@@ -1,4 +1,4 @@
-package tech.testra.jvm.apiv2.util;
+package tech.testra.jvm.api.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;

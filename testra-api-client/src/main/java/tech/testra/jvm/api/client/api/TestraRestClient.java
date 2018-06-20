@@ -1,7 +1,7 @@
-package tech.testra.jvm.apiv2.client.api;
+package tech.testra.jvm.api.client.api;
 
 
-import static tech.testra.jvm.apiv2.util.PropertyHelper.prop;
+import static tech.testra.jvm.api.util.PropertyHelper.prop;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +22,9 @@ import tech.testra.jvm.client.model.ScenarioRequest;
 import tech.testra.jvm.client.model.TestResult;
 import tech.testra.jvm.client.model.TestResultRequest;
 
-public final class TestraRestClientV2 {
+public final class TestraRestClient {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TestraRestClientV2.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TestraRestClient.class);
   private static final String TESTRA_HOST= prop("host");
   private static final String PROJECTID = "projectID";
   private static final String EXECUTIONID = "executionID";
@@ -37,7 +37,7 @@ public final class TestraRestClientV2 {
 
 
 
-  public TestraRestClientV2(){
+  public TestraRestClient(){
     projectApi.getApiClient().setDebugging(true);
   }
 
