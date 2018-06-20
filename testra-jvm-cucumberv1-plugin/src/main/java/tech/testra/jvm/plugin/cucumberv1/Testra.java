@@ -4,21 +4,24 @@ import cucumber.runtime.StepDefinitionMatch;
 import gherkin.formatter.Formatter;
 import gherkin.formatter.Reporter;
 import gherkin.formatter.model.*;
+import java.io.File;
+import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.testra.jvm.api.client.api.TestraRestClient;
-import tech.testra.jvm.api.client.models.executions.ExecutionResponse;
-import tech.testra.jvm.api.client.models.scenarios.BackgroundStep;
-import tech.testra.jvm.api.client.models.scenarios.ScenarioRequest;
-import tech.testra.jvm.api.client.models.scenarios.ScenarioResponse;
-import tech.testra.jvm.api.client.models.testresult.TestResultRequest;
-import tech.testra.jvm.api.message.http.HttpResponseMessage;
-import tech.testra.jvm.api.util.JsonObject;
-import tech.testra.jvm.api.util.PropertyHelper;
+import tech.testra.jvm.apiv2.client.api.TestraRestClientV2;
+import tech.testra.jvm.apiv2.util.PropertyHelper;
+import tech.testra.jvm.client.model.ScenarioRequest;
+import tech.testra.jvm.client.model.StepResult;
+import tech.testra.jvm.client.model.TestResultRequest;
+import tech.testra.jvm.client.model.TestResultRequest.ResultEnum;
+import tech.testra.jvm.client.model.TestResultRequest.ResultTypeEnum;
+import tech.testra.jvm.client.model.TestStep;
 import tech.testra.jvm.plugin.cucumberv1.enums.StatusEnum;
 import tech.testra.jvm.plugin.cucumberv1.templates.ErrorTemplate;
 import tech.testra.jvm.plugin.cucumberv1.templates.ScenarioTemplate;
 import tech.testra.jvm.plugin.cucumberv1.templates.StepTemplate;
+import tech.testra.jvm.plugin.cucumberv1.utils.CommonData;
+import tech.testra.jvm.plugin.cucumberv1.utils.CommonDataProvider;
 import tech.testra.jvm.plugin.cucumberv1.utils.Utils;
 
 import java.util.Deque;
@@ -26,50 +29,65 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static tech.testra.jvm.api.util.PropertyHelper.getEnv;
-import static tech.testra.jvm.api.util.PropertyHelper.prop;
+import static tech.testra.jvm.apiv2.util.PropertyHelper.getEnv;
+import static tech.testra.jvm.apiv2.util.PropertyHelper.prop;
 
 public class Testra implements Reporter, Formatter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Testra.class);
 
-  static {
-    ClassLoader classLoader = Testra.class.getClassLoader();
-    PropertyHelper.loadProperties(getEnv() + ".environment.properties", classLoader);
-    PropertyHelper.loadProperties("endpoints.properties", classLoader);
-  }
-  private TestraRestClient testraRestClient;
   private static final String FAILED = "failed";
   private static final String PASSED = "passed";
   private static final String SKIPPED = "skipped";
   private static final String PENDING = "pending";
   private static final String UNDEFINED = "undefined";
-  private Feature currentFeature;
-  private Scenario currentScenario;
-  private long startTime;
-  private boolean isScenarioOutline = false;
-  private int scenarioOutlineIndex;
-  private String ExecutionID;
-  private Step currentStep;
-  private ScenarioTemplate currentScenarioTemplate;
-  private int stepIndex = 0;
+  private String executionID;
+
+  private CommonData commonData;
+  private static String projectID;
+  private final Long threadId = Thread.currentThread().getId();
+
+  public Testra(String properties) {
+    File propertyFile = new File(properties);
+    if(propertyFile.isFile()){
+      PropertyHelper.loadPropertiesFromAbsolute(propertyFile.getAbsolutePath());
+      LOGGER.info("Loaded properties from filepath " + propertyFile.getAbsolutePath());
+    }
+    else{
+      LOGGER.info("Property file not found at " + propertyFile.getAbsolutePath() + " using default");
+      PropertyHelper.loadProperties(getEnv() + ".environment.properties", Testra.class.getClassLoader());
+    }
+    setup();
+    commonData.getTestraRestClientV2().setURLs(prop("host"));
+    projectID = commonData.getTestraRestClientV2().getProjectID(prop("project"));
+    LOGGER.info("Project ID is " + projectID);
+    createExecution();
+  }
 
   public Testra() {
-
-    String projectID = getTestraRestClient().getProjectID(prop("project"));
+    PropertyHelper.loadProperties(getEnv() + ".environment.properties", Testra.class.getClassLoader());
+    setup();
+    commonData.getTestraRestClientV2().setURLs(prop("host"));
+    projectID = commonData.getTestraRestClientV2().getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
+    createExecution();
   }
 
-  public TestraRestClient getTestraRestClient() {
-    if (testraRestClient == null) {
-      testraRestClient = new TestraRestClient();
+  private void setup(){
+    LOGGER.info("Scenario setup - Begin");
+    CommonDataProvider.newCommonData(threadId);
+    if ((commonData = CommonDataProvider.get(threadId)) == null) {
+      throw new RuntimeException("Common data not found for id : " + threadId);
+    } else {
+      LOGGER.info("Initialised common data instance for scenario");
     }
-    return testraRestClient;
+    LOGGER.info("Scenario setup - End");
   }
+
 
   @Override
   public void feature(final Feature feature) {
-    this.currentFeature = feature;
+    commonData.currentFeature = feature;
   }
 
   @Override
@@ -78,124 +96,171 @@ public class Testra implements Reporter, Formatter {
 
   @Override
   public void startOfScenarioLifeCycle(final Scenario scenario) {
-    this.currentScenario = scenario;
-    stepIndex = 0;
-    currentScenarioTemplate = new ScenarioTemplate();
-    currentScenarioTemplate.setName(scenario.getName());
-    currentScenarioTemplate.setFeatureName(currentFeature.getName());
+    commonData.currentScenario = scenario;
+    commonData.stepIndex = 0;
+    commonData.currentScenarioTemplate = new ScenarioTemplate();
+    commonData.currentScenarioTemplate.setName(scenario.getName());
+    commonData.currentScenarioTemplate.setFeatureName(commonData.currentFeature.getName());
 
     final Deque<Tag> tags = new LinkedList<>();
     tags.addAll(scenario.getTags());
-    tags.addAll(currentFeature.getTags());
-    currentScenarioTemplate.setTags(tags);
+    tags.addAll(commonData.currentFeature.getTags());
+    commonData.currentScenarioTemplate.setTags(tags);
 
-    startTime = System.currentTimeMillis();
+    commonData.startTime = System.currentTimeMillis();
   }
 
   @Override
   public void endOfScenarioLifeCycle(final Scenario scenario) {
-
     long timeAtEnd = System.currentTimeMillis();
+    ScenarioRequest scenarioRequest = new ScenarioRequest();
+    scenarioRequest.setFeatureName(commonData.currentFeature.getName());
+    scenarioRequest.setFeatureDescription(commonData.currentFeature.getDescription());
+    scenarioRequest.setName(scenario.getName());
+    List<String> tags = commonData.currentFeature.getTags().stream().map(x -> x.getName()).collect(Collectors.toList());
+    tags.addAll(scenario.getTags().stream().map(x -> x.getName()).collect(Collectors.toList()));
+    scenarioRequest.setTags(tags);
 
-    List<BackgroundStep> backgroundSteps = currentScenarioTemplate.getBackgroundSteps()
+    List<TestStep> backgroundSteps = commonData.currentScenarioTemplate.getBackgroundSteps()
         .stream()
-        .map(s -> new BackgroundStep().withIndex(s.getIndex()).withText(s.getGherkinStep()))
+        .map(s -> {TestStep testStep = new TestStep(); testStep.setIndex(s.getIndex());
+        testStep.setText(s.getGherkinStep());
+        return testStep;})
         .collect(Collectors.toList());
+    commonData.stepIndex = 0;
 
-    List<tech.testra.jvm.api.client.models.scenarios.Step> steps = currentScenarioTemplate
-        .getBackgroundSteps()
+    List<TestStep> steps = commonData.currentScenarioTemplate.getSteps()
         .stream()
-            .map(s -> new tech.testra.jvm.api.client.models.scenarios.Step().withIndex(s.getIndex())
-            .withText(s.getGherkinStep()))
+        .map(s -> {TestStep testStep = new TestStep(); testStep.setIndex(s.getIndex());
+          testStep.setText(s.getGherkinStep());
+          return testStep;})
         .collect(Collectors.toList());
+    commonData.stepIndex = 0;
 
-    ScenarioRequest scenarioRequest = new ScenarioRequest()
-        .withName(currentScenarioTemplate.getName())
-        .withFeatureName(currentScenarioTemplate.getFeatureName())
-        .withBackgroundSteps(backgroundSteps)
-        .withSteps(steps);
+    scenarioRequest.setBackgroundSteps(backgroundSteps);
+    scenarioRequest.setSteps(steps);
 
-    HttpResponseMessage httpResponseMessage = testraRestClient.addScenario(scenarioRequest);
-    ScenarioResponse scenarioResponse = JsonObject
-        .jsonToObject(httpResponseMessage.getPayload(), ScenarioResponse.class);
-    String scenarioID = scenarioResponse.getId();
-    createExecution();
+    String scenarioID = commonData.getTestraRestClientV2().createScenario(scenarioRequest);
 
-    String status;
-    if (currentScenarioTemplate.getIsFailed()) {
-      status = StatusEnum.FAILED.getValue();
-    } else if (currentScenarioTemplate.getIsSkipped()) {
-      status = StatusEnum.SKIPPED.getValue();
-    } else {
-      status = StatusEnum.PASSED.getValue();
+    TestResultRequest testResultRequest = new TestResultRequest();
+    testResultRequest.setResult(resultToEnum(commonData.result));
+    testResultRequest.setResultType(ResultTypeEnum.SCENARIO);
+    testResultRequest.setDurationInMs(timeAtEnd - commonData.startTime);
+    testResultRequest.setTargetId(scenarioID);
+    testResultRequest.setStartTime(commonData.startTime);
+    testResultRequest.setEndTime(timeAtEnd);
+    List<StepResult> results = commonData.currentScenarioTemplate.getBackgroundSteps().stream()
+        .map(this::getStepResult).collect(Collectors.toList());
+
+    results.addAll(commonData.currentScenarioTemplate.getSteps().stream()
+        .map(this::getStepResult).collect(Collectors.toList()));
+    testResultRequest.setStepResults(results);
+
+
+    if (commonData.currentScenarioTemplate.getIsFailed()) {
+      testResultRequest.setError(commonData.currentScenarioTemplate.getError().getErrorMessage());
     }
+    commonData.getTestraRestClientV2().createResult(testResultRequest);
+  }
 
-    TestResultRequest testResultRequest = new TestResultRequest()
-        .withResult(status)
-        .withResultType("SCENARIO")
-        .withDurationInMs((int) (timeAtEnd - startTime))
-        .withEndTime(timeAtEnd)
-        .withStartTime(startTime)
-        .withTargetId(scenarioID);
-    if (currentScenarioTemplate.getIsFailed()) {
-      testResultRequest.setError(currentScenarioTemplate.getError().getErrorMessage());
+  private StepResult getStepResult(StepTemplate x) {
+    StepResult stepResult = new StepResult();
+    stepResult.setIndex(x .getIndex());
+    stepResult.setResult(resultToTestResult(x.getStatus()));
+    if (x.getStatus().equals(ResultEnum.FAILED)) {
+      stepResult.setError(commonData.currentScenarioTemplate.getError().getErrorMessage());
     }
-    testraRestClient.addTestResult(testResultRequest, ExecutionID);
-
-
+    return stepResult;
   }
 
   private void createExecution() {
-    if (ExecutionID == null) {
-      HttpResponseMessage httpResponseMessage = testraRestClient.createExecution();
-      ExecutionID = JsonObject
-          .jsonToObject(httpResponseMessage.getPayload(), ExecutionResponse.class)
-          .getId();
+    if (executionID == null) {
+      executionID = commonData.getTestraRestClientV2().createExecution();
     }
+  }
+  private ResultEnum resultToEnum(Result result){
+    switch(result.getStatus()){
+      case FAILED:
+        return ResultEnum.FAILED;
+      case PASSED:
+        return ResultEnum.PASSED;
+      case PENDING:
+        return ResultEnum.PENDING;
+      case SKIPPED:
+        return ResultEnum.SKIPPED;
+      case UNDEFINED:
+        return ResultEnum.UNDEFINED;
+      default:
+        throw new IllegalArgumentException("Result type " + result.toString() + " not found");
+    }
+
+  }
+
+  private StepResult.ResultEnum resultToTestResult(ResultEnum resultEnum){
+    switch(resultEnum){
+      case FAILED:
+        return StepResult.ResultEnum.FAILED;
+      case PASSED:
+        return StepResult.ResultEnum.PASSED;
+      case PENDING:
+        return StepResult.ResultEnum.PENDING;
+      case SKIPPED:
+        return StepResult.ResultEnum.SKIPPED;
+      case UNDEFINED:
+        return StepResult.ResultEnum.UNDEFINED;
+      default:
+        throw new IllegalArgumentException("Result type " + resultEnum.toString() + " not found");
+    }
+
   }
 
 
+//  private StepResult.ResultEnum StepResultToEnum(Result result){
+//    switch(result){
+//      case FAILED:
+//        return StepResult.ResultEnum.FAILED;
+//      case PASSED:
+//        return StepResult.ResultEnum.PASSED;
+//      case PENDING:
+//        return StepResult.ResultEnum.PENDING;
+//      case SKIPPED:
+//        return StepResult.ResultEnum.SKIPPED;
+//      case AMBIGUOUS:
+//        return StepResult.ResultEnum.AMBIGUOUS;
+//      case UNDEFINED:
+//        return StepResult.ResultEnum.UNDEFINED;
+//      default:
+//        throw new IllegalArgumentException("Result type " + result.toString() + " not found");
+//    }
+//  }
+
   @Override
   public void result(final Result result) {
+    commonData.result = result;
     int scenarioLine;
-    if (isScenarioOutline) {
-      scenarioLine = scenarioOutlineIndex;
+    if (commonData.isScenarioOutline) {
+      scenarioLine = commonData.scenarioOutlineIndex;
     } else {
-      scenarioLine = currentScenario.getLine();
+      scenarioLine = commonData.currentScenario.getLine();
     }
     StepTemplate stepTemplate = new StepTemplate();
-    stepTemplate.setGherkinStep(currentStep.getKeyword() + currentStep.getName());
-    stepTemplate.setIndex(stepIndex);
+    stepTemplate.setGherkinStep(commonData.currentStep.getKeyword() + commonData.currentStep.getName());
+    stepTemplate.setIndex(commonData.stepIndex);
     if (!result.getStatus().equals("skipped")&&!result.getStatus().equals("undefined")) {
       stepTemplate.setStepDuration(result.getDuration());
     }
-    stepIndex++;
-    stepTemplate.setLine(currentStep.getLine());
-    switch (result.getStatus()) {
-      case UNDEFINED:
-        stepTemplate.setStatus(StatusEnum.SKIPPED);
-      case FAILED:
-        stepTemplate.setStatus(StatusEnum.FAILED);
-        currentScenarioTemplate.setError(setErrors(stepTemplate, result));
-        currentScenarioTemplate.setIsFailed(true);
-        break;
-      case PENDING:
-        stepTemplate.setStatus(StatusEnum.PENDING);
-        break;
-      case SKIPPED:
-        stepTemplate.setStatus(StatusEnum.SKIPPED);
-        currentScenarioTemplate.setIsSkipped(true);
-        break;
-      case PASSED:
-        stepTemplate.setStatus(StatusEnum.PASSED);
-        break;
-      default:
-        break;
+    commonData.stepIndex++;
+    stepTemplate.setLine(commonData.currentStep.getLine());
+    if(result.getStatus().equals(FAILED)){
+      commonData.currentScenarioTemplate.setError(setErrors(stepTemplate, result));
+      commonData.currentScenarioTemplate.setIsFailed(true);
     }
+    stepTemplate.setStatus(resultToEnum(result));
+
     if (scenarioLine > stepTemplate.getLine()) {
-      currentScenarioTemplate.getBackgroundSteps().add(stepTemplate);
+      commonData.currentScenarioTemplate.getBackgroundSteps().add(stepTemplate);
     } else {
-      currentScenarioTemplate.getSteps().add(stepTemplate);
+      commonData.currentScenarioTemplate.getSteps().add(stepTemplate);
     }
   }
 
@@ -215,14 +280,14 @@ public class Testra implements Reporter, Formatter {
 
   @Override
   public void step(final Step step) {
-    currentStep = step;
+    commonData.currentStep = step;
   }
 
 
   @Override
   public void match(final Match match) {
     if (match instanceof StepDefinitionMatch) {
-      currentStep = Utils.extractStep((StepDefinitionMatch) match);
+      commonData.currentStep = Utils.extractStep((StepDefinitionMatch) match);
     }
   }
 
@@ -249,12 +314,12 @@ public class Testra implements Reporter, Formatter {
 
   @Override
   public void scenarioOutline(final ScenarioOutline so) {
-    scenarioOutlineIndex = so.getLine();
+    commonData.scenarioOutlineIndex = so.getLine();
   }
 
   @Override
   public void examples(final Examples exmpls) {
-    isScenarioOutline = true;
+    commonData.isScenarioOutline = true;
   }
 
 

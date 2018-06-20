@@ -9,7 +9,7 @@ Feature: Example Test Feature
     Then 4 minus 2 equals 2
 
   Scenario: Second example scenario
-    Then 6 minus 4 equals 2
+    Then 6 minus 4 equals 1
 
   @tag1
   Scenario: Third example scenario

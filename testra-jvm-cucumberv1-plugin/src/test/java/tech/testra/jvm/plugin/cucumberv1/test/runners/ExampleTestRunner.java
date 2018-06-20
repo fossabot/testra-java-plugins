@@ -12,8 +12,7 @@ import org.junit.runner.RunWith;
     tags = "@example",
     features = "src/test/resources/feature_files",
     glue = {""},
-    plugin = {"pretty",
-        "json:build/cucumber/cucumber-json-example.json",
+    plugin = {
         "tech.testra.jvm.plugin.cucumberv1.Testra"
     }
 )
