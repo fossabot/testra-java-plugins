@@ -16,7 +16,6 @@ public class CommonData {
 
   public Feature currentFeature;
   public String currentFeatureFile;
-  private static TestraRestClient testraRestClient;
   public final String TYPE_SCENARIO = "SCENARIO";
   public String attachmentMimeType;
   public byte[] attachmentByteArray;
@@ -34,18 +33,4 @@ public class CommonData {
   public CommonData() {
   }
 
-
-//  public TestraRestClient getTestraRestClient() {
-//    if (testraRestClient == null) {
-//      testraRestClient = new TestraRestClient();
-//    }
-//    return testraRestClient;
-//  }
-
-  public TestraRestClient getTestraRestClient() {
-    if (testraRestClient == null) {
-      testraRestClient = new TestraRestClient();
-    }
-    return testraRestClient;
-  }
 }

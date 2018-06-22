@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.testra.jvm.api.client.api.TestraRestClient;
 import tech.testra.jvm.api.util.PropertyHelper;
 import tech.testra.jvm.client.model.Attachment;
 import tech.testra.jvm.client.model.ScenarioRequest;
@@ -62,20 +63,20 @@ public class Testra implements Reporter, Formatter {
     }
     else{
       LOGGER.info("Property file not found at " + propertyFile.getAbsolutePath() + " using default");
-      PropertyHelper.loadProperties(getEnv() + ".environment.properties", Testra.class.getClassLoader());
+      PropertyHelper.loadProperties(".testra", Testra.class.getClassLoader());
     }
     setup();
-    commonData.getTestraRestClient().setURLs(prop("host"));
-    projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
+    TestraRestClient.setURLs(prop("host"));
+    projectID = TestraRestClient.getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
     createExecution();
   }
 
   public Testra() {
-    PropertyHelper.loadProperties(getEnv() + ".environment.properties", Testra.class.getClassLoader());
+    PropertyHelper.loadProperties(".testra", Testra.class.getClassLoader());
     setup();
-    commonData.getTestraRestClient().setURLs(prop("host"));
-    projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
+    TestraRestClient.setURLs(prop("host"));
+    projectID = TestraRestClient.getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
     createExecution();
   }
@@ -147,7 +148,7 @@ public class Testra implements Reporter, Formatter {
     scenarioRequest.setBackgroundSteps(backgroundSteps);
     scenarioRequest.setSteps(steps);
 
-    String scenarioID = commonData.getTestraRestClient().createScenario(scenarioRequest);
+    String scenarioID = TestraRestClient.createScenario(scenarioRequest);
 
     TestResultRequest testResultRequest = new TestResultRequest();
     testResultRequest.setResult(resultToEnum(commonData.result));
@@ -173,7 +174,7 @@ public class Testra implements Reporter, Formatter {
         testResultRequest.setAttachments(Collections.singletonList(attachment));
       }
     }
-    commonData.getTestraRestClient().createResult(testResultRequest);
+    TestraRestClient.createResult(testResultRequest);
   }
 
   private StepResult getStepResult(StepTemplate x) {
@@ -188,7 +189,7 @@ public class Testra implements Reporter, Formatter {
 
   private void createExecution() {
     if (executionID == null) {
-      executionID = commonData.getTestraRestClient().createExecution();
+      executionID = TestraRestClient.createExecution();
     }
   }
   private ResultEnum resultToEnum(Result result){

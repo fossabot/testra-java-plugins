@@ -17,21 +17,17 @@ public class CommonData {
   public Feature currentFeature;
   public String currentFeatureFile;
   public TestCase currentTestCase;
-  private static TestraRestClient testraRestClient;
   public List<StepTemplate> backgroundSteps = new ArrayList<>();
   public List<tech.testra.jvm.client.model.StepResult> stepResultsNew = new ArrayList<>();
   public final String TYPE_SCENARIO = "SCENARIO";
   public String currentScenarioID;
   public EmbedEvent embedEvent;
+  public List<String> snippetLine = new ArrayList<>();
+  public int snippetCount = 0;
+  public long startTime;
+  public long endTime;
+  public int retryCount = 0;
+  public Boolean isRetry;
+  public String currentTestResultID;
 
-  public CommonData() {
   }
-
-
-  public TestraRestClient getTestraRestClient() {
-    if (testraRestClient == null) {
-      testraRestClient = new TestraRestClient();
-    }
-    return testraRestClient;
-  }
-}

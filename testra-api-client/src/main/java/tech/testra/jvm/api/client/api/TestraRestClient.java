@@ -1,5 +1,6 @@
 package tech.testra.jvm.api.client.api;
 
+import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.testra.jvm.client.ApiException;
@@ -13,33 +14,38 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static tech.testra.jvm.api.util.PropertyHelper.getEnv;
 import static tech.testra.jvm.api.util.PropertyHelper.prop;
 
 public final class TestraRestClient {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TestraRestClient.class);
-    private static final String TESTRA_HOST = prop("host");
-  private static final String PROJECTID = "projectID";
-  private static final String EXECUTIONID = "executionID";
   private static String projectIDString;
   private static String executionIDString;
-  private ProjectApi projectApi = new ProjectApi();
-  private ScenarioApi scenarioApi = new ScenarioApi();
-  private ExecutionApi executionApi = new ExecutionApi();
-  private ResultApi resultApi = new ResultApi();
+  private static ProjectApi projectApi = new ProjectApi();
+  private static ScenarioApi scenarioApi = new ScenarioApi();
+  private static ExecutionApi executionApi = new ExecutionApi();
+  private static ResultApi resultApi = new ResultApi();
 
     public TestraRestClient() {
     projectApi.getApiClient().setDebugging(true);
   }
 
-    public void setURLs(String url) {
+    public static void setURLs(String url) {
     projectApi.getApiClient().setBasePath(url);
     executionApi.getApiClient().setBasePath(url);
     resultApi.getApiClient().setBasePath(url);
     scenarioApi.getApiClient().setBasePath(url);
+    if(Boolean.parseBoolean(prop("debug"))) {
+      projectApi.getApiClient().setDebugging(true);
+      executionApi.getApiClient().setDebugging(true);
+      resultApi.getApiClient().setDebugging(true);
+      scenarioApi.getApiClient().setDebugging(true);
+    }
   }
 
-    public String getProjectID(String projectName) {
+
+    public static String getProjectIDFromList(String projectName) {
     List<Project> projects = new ArrayList<>();
     try {
         projects = projectApi.getProjects();
@@ -61,7 +67,17 @@ public final class TestraRestClient {
     }
   }
 
-    public String createScenario(ScenarioRequest scenarioRequest) {
+  public static String getProjectID(String projectName){
+      try {
+        projectIDString = projectApi.getProject(projectName).getId();
+        return projectIDString;
+      } catch (ApiException e) {
+        e.printStackTrace();
+        throw new IllegalArgumentException("Unknown project");
+      }
+  }
+
+    public static String createScenario(ScenarioRequest scenarioRequest) {
     try {
         Scenario scenario = scenarioApi.createScenario(projectIDString, scenarioRequest);
       return scenario.getId();
@@ -73,9 +89,15 @@ public final class TestraRestClient {
     }
   }
 
-    public String createExecution() {
+    public static String createExecution() {
     ExecutionRequest executionRequest = new ExecutionRequest();
     executionRequest.setIsParallel(false);
+    if(prop("branch")!= null)
+      executionRequest.setBranch(prop("branch"));
+    if(prop("environment")!=null)
+      executionRequest.setEnvironment(getEnv());
+    executionRequest.setHost(prop("host"));
+    executionRequest.setTags(Collections.singletonList(""));
     try {
         Execution execution = executionApi.createExecution(projectIDString, executionRequest);
       executionIDString = execution.getId();
@@ -88,13 +110,39 @@ public final class TestraRestClient {
     }
   }
 
-    public void createResult(TestResultRequest testResultRequest) {
+    public static void createResult(TestResultRequest testResultRequest) {
     try {
         resultApi.createResult(projectIDString, executionIDString, testResultRequest);
     } catch (ApiException e) {
       LOGGER.error("Error Creating Result " + testResultRequest.getTargetId());
       LOGGER.error(e.getResponseBody());
       e.printStackTrace();
+    }
+  }
+
+  public static void updateResult(String resultID, TestResultRequest testResultRequest){
+    try {
+      resultApi.updateResult(projectIDString,executionIDString,resultID,testResultRequest);
+    } catch (ApiException e) {
+      e.printStackTrace();
+      throw new IllegalArgumentException("Could not update result");
+    }
+  }
+
+  public static void setExecutionid(String eid){
+      executionIDString = eid;
+  }
+
+  public static String getExecutionid(){
+      return executionIDString;
+  }
+
+  public static List<TestResult> getResults(String executionID){
+    try {
+      return resultApi.getResults(projectIDString,executionID);
+    } catch (ApiException e) {
+      e.printStackTrace();
+      throw new IllegalArgumentException("No results found with execution ID " + executionID);
     }
   }
 }

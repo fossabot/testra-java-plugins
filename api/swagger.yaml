@@ -34,6 +34,7 @@ paths:
       summary: List All Projects
       description: |
         Returns list of all projects available
+      operationId: getProjects
       responses:
         200:
           description: Successful Response
@@ -49,10 +50,11 @@ paths:
     post:
       tags:
       - "project"
+      summary: Create a New Project
       description: >-
         Adds a new project into Testra app. It takes a JSON
         object containing a name that was not used before.
-      summary: Create a New Project
+      operationId: createProject
       parameters:
       - name: body
         in: body
@@ -74,9 +76,9 @@ paths:
             $ref: '#/definitions/ErrorResponse'
           examples:
             application/json:
-              - error: ProjectAlreadyExistsException
-                message: Given project name already exists
-                timestamp: 15678902394
+            - error: ProjectAlreadyExistsException
+              message: Given project name already exists
+              timestamp: 15678902394
         default:
           description: Any other errors
           schema:
@@ -86,14 +88,15 @@ paths:
     get:
       tags:
       - "project"
-      summary: Get project by id
-      description: Returns single project info for the given id
+      summary: Get project by id or name
+      description: Returns single project info for the given id or name
+      operationId: getProject
       parameters:
       - name: id
         in: path
         required: true
         type: string
-        description: Project Id
+        description: Project Id or Name
       responses:
         200:
           description: 'Successful update of given Project'
@@ -119,9 +122,10 @@ paths:
     put:
       tags:
       - "project"
+      summary: Update project info
       description: |
         Updates exiting project using project id
-      summary: Update project info
+      operationId: updateProject
       parameters:
       - name: id
         in: path
@@ -161,6 +165,7 @@ paths:
       tags:
       - "project"
       summary: Deletes project info
+      operationId: deleteProject
       parameters:
       - name: id
         in: path
@@ -204,6 +209,7 @@ paths:
       summary: List all scenarios
       description: |
         Returns list of all scenarios within given project
+      operationId: getScenarios
       parameters:
       - name: projectId
         in: path
@@ -229,10 +235,11 @@ paths:
     post:
       tags:
       - "scenario"
+      summary: Create a New Scenario
       description: >-
         Adds a new scenario into Testra app. It takes a JSON
         object containing a name that was not used before.
-      summary: Create a New Scenario
+      operationId: createScenario
       parameters:
       - name: projectId
         in: path
@@ -260,6 +267,7 @@ paths:
       - "scenario"
       summary: Get scenario by id
       description: Returns single scenario info for the given id
+      operationId: getScenario
       parameters:
       - name: projectId
         in: path
@@ -292,9 +300,10 @@ paths:
     put:
       tags:
       - "scenario"
+      summary: Update scenario info
       description: |
         Updates exiting scenario using scenario id
-      summary: Update scenario info
+      operationId: updateScenario
       parameters:
       - name: projectId
         in: path
@@ -333,6 +342,7 @@ paths:
       tags:
       - "scenario"
       summary: Deletes scenario info
+      operationId: deleteScenario
       parameters:
       - name: projectId
         in: path
@@ -370,6 +380,7 @@ paths:
       summary: List all testcases
       description: |
         Returns list of all testcases within given project
+      operationId: getTestcases
       parameters:
       - name: projectId
         in: path
@@ -391,10 +402,11 @@ paths:
     post:
       tags:
       - "testcase"
+      summary: Create a New Testcase
       description: >-
         Adds a new testcase into Testra app. It takes a JSON
         object containing a name that was not used before.
-      summary: Create a New Testcase
+      operationId: createTestcase
       parameters:
       - name: projectId
         in: path
@@ -422,6 +434,7 @@ paths:
       - "testcase"
       summary: Get testcase by id
       description: Returns single testcase info for the given id
+      operationId: getTestcase
       parameters:
       - name: projectId
         in: path
@@ -454,9 +467,10 @@ paths:
     put:
       tags:
       - "testcase"
+      summary: Update testcase info
       description: |
         Updates exiting testcase using testcase id
-      summary: Update testcase info
+      operationId: updateTestcase
       parameters:
       - name: projectId
         in: path
@@ -497,6 +511,7 @@ paths:
       tags:
       - "testcase"
       summary: Deletes testcase info
+      operationId: deleteTestcase
       parameters:
       - name: projectId
         in: path
@@ -534,6 +549,7 @@ paths:
       summary: List all executions
       description: |
         Returns list of all executions within given project
+      operationId: getExecutions
       parameters:
       - name: projectId
         in: path
@@ -551,10 +567,11 @@ paths:
     post:
       tags:
       - "execution"
+      summary: Create a New Execution
       description: >-
         Adds a new execution into Testra app. It takes a JSON
         object containing a name that was not used before.
-      summary: Create a New Execution
+      operationId: createExecution
       parameters:
       - name: projectId
         in: path
@@ -582,6 +599,7 @@ paths:
       - "execution"
       summary: Get execution by id
       description: Returns single execution info for the given id
+      operationId: getExecution
       parameters:
       - name: projectId
         in: path
@@ -614,9 +632,10 @@ paths:
     put:
       tags:
       - "execution"
+      summary: Update execution info
       description: |
         Updates exiting execution using execution id
-      summary: Update execution info
+      operationId: updateExecution
       parameters:
       - name: projectId
         in: path
@@ -657,6 +676,7 @@ paths:
       tags:
       - "execution"
       summary: Deletes execution info
+      operationId: deleteExecution
       parameters:
       - name: projectId
         in: path
@@ -694,6 +714,7 @@ paths:
       summary: List of all results
       description: |
         Returns list of all results within given project and execution
+      operationId: getResults
       parameters:
       - name: projectId
         in: path
@@ -719,10 +740,11 @@ paths:
     post:
       tags:
       - "result"
+      summary: Create a New Result
       description: >-
         Adds a new result into Testra app. It takes a JSON
         object containing a name that was not used before.
-      summary: Create a New Result
+      operationId: createResult
       parameters:
       - name: projectId
         in: path
@@ -755,6 +777,7 @@ paths:
       - "result"
       summary: Get result by id
       description: Returns single result info for the given id
+      operationId: getResult
       parameters:
       - name: projectId
         in: path
@@ -793,9 +816,10 @@ paths:
     put:
       tags:
       - "result"
+      summary: Update result info
       description: |
         Updates exiting result using result id
-      summary: Update result info
+      operationId: updateResult
       parameters:
       - name: projectId
         in: path
@@ -842,6 +866,7 @@ paths:
       tags:
       - "result"
       summary: Deletes result info
+      operationId: deleteResult
       parameters:
       - name: projectId
         in: path
@@ -966,6 +991,11 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/TestStep'
+    required:
+      - name
+      - featureName
+      - featureDescription
+      - steps
 
   TestStep:
     title: TestStep
@@ -975,19 +1005,20 @@ definitions:
         type: integer
       text:
         type: string
+    required:
+      - index
+      - text
 
   Testcase:
     title: TestCase
-    type: object
-    properties:
-      id:
-        type: string
-      projectId:
-        type: string
-      name:
-        type: string
-      namespaceId:
-        type: string
+    allOf:
+    - type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+    - $ref: '#/definitions/TestcaseRequest'
 
   TestcaseRequest:
     title: TestCaseRequest
@@ -997,25 +1028,20 @@ definitions:
         type: string
       namespace:
         type: string
+    required:
+    - name
+    - namespace
 
   Execution:
     title: TestExecution
-    type: object
-    properties:
-      id:
-        type: string
-      projectId:
-        type: string
-      startTime:
-        type: integer
-        format: int64
-      endTime:
-        type: integer
-        format: int64
-      host:
-        type: string
-      isParallel:
-        type: boolean
+    allOf:
+    - type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+    - $ref: '#/definitions/ExecutionRequest'
 
   ExecutionRequest:
     title: TestExecutionRequest
@@ -1023,6 +1049,22 @@ definitions:
     properties:
       isParallel:
         type: boolean
+      host:
+        type: string
+      endTime:
+        type: integer
+        format: int64
+      environment:
+        type: string
+      branch:
+        type: string
+      tags:
+        type: array
+        items:
+          type: string
+    required:
+      - isParallel
+      - host
 
   Result:
     type: string
@@ -1048,6 +1090,8 @@ definitions:
     title: TestResultRequest
     type: object
     properties:
+      id:
+        type: string
       targetId:
         type: string
       resultType:
@@ -1077,6 +1121,14 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Attachment'
+    required:
+      - targetId
+      - resultType
+      - result
+      - durationInMs
+      - startTime
+      - endTime
+      - retryCount
 
   StepResult:
     title: Step result
@@ -1092,6 +1144,10 @@ definitions:
         format: int64
       error:
         type: string
+    required:
+      - index
+      - result
+      - durationInMs
 
   Attachment:
     title: Attachment
@@ -1099,8 +1155,13 @@ definitions:
     properties:
       name:
         type: string
+      mimeType:
+        type: string
       base64EncodedByteArray:
         type: string
+    required:
+      - mimeType
+      - base64EncodedByteArray
 
   ErrorResponse:
     title: ErrorResponse

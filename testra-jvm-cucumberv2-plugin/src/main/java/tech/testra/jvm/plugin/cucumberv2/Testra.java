@@ -1,22 +1,26 @@
 package tech.testra.jvm.plugin.cucumberv2;
 
-import static tech.testra.jvm.api.util.PropertyHelper.getEnv;
 import static tech.testra.jvm.api.util.PropertyHelper.prop;
 
+import cucumber.api.HookTestStep;
+import cucumber.api.PickleStepTestStep;
 import cucumber.api.Result;
 import cucumber.api.Result.Type;
 import cucumber.api.event.*;
+import cucumber.api.event.SnippetsSuggestedEvent;
 import cucumber.api.formatter.Formatter;
-import cucumber.runner.UnskipableStep;
 import gherkin.ast.Feature;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.SkipException;
+import tech.testra.jvm.api.client.api.TestraRestClient;
 import tech.testra.jvm.api.util.PropertyHelper;
 import tech.testra.jvm.client.model.Attachment;
 import tech.testra.jvm.client.model.ScenarioRequest;
 import tech.testra.jvm.client.model.StepResult;
+import tech.testra.jvm.client.model.TestResult;
 import tech.testra.jvm.client.model.TestResultRequest;
 import tech.testra.jvm.client.model.TestResultRequest.ResultEnum;
 import tech.testra.jvm.client.model.TestResultRequest.ResultTypeEnum;
@@ -39,13 +43,13 @@ public class Testra implements Formatter {
 
   private final Long threadId = Thread.currentThread().getId();
   private static String projectID;
-  private static String executionID;
   private CommonData commonData;
   private final EventHandler<TestSourceRead> featureStartedHandler = this::handleFeatureStartedHandler;
   private final EventHandler<TestCaseStarted> caseStartedHandler = this::handleTestCaseStarted;
   private final EventHandler<TestCaseFinished> caseFinishedHandler = this::handleTestCaseFinished;
   private final EventHandler<TestStepStarted> stepStartedHandler = this::handleTestStepStarted;
   private final EventHandler<TestStepFinished> stepFinishedHandler = this::handleTestStepFinished;
+  private final EventHandler<SnippetsSuggestedEvent> snippetsSuggestedEventEventHandler = this::snippetHandler;
   private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
   private EventHandler<EmbedEvent> embedEventhandler = event -> handleEmbed(event);
 
@@ -57,19 +61,19 @@ public class Testra implements Formatter {
     }
     else{
       LOGGER.info("Property file not found at " + propertyFile.getAbsolutePath() + " using default");
-      PropertyHelper.loadProperties(getEnv() + ".environment.properties", Testra.class.getClassLoader());
+      PropertyHelper.loadPropertiesFromAbsolute(".testra");
     }
     setup();
-    commonData.getTestraRestClient().setURLs(prop("host"));
-    projectID = commonData.getTestraRestClient().getProjectID(prop("project"));
+    TestraRestClient.setURLs(prop("host"));
+    projectID = TestraRestClient.getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
+    commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
     createExecution();
   }
 
   public Testra() {
-    PropertyHelper.loadProperties(getEnv() + ".environment.properties", Testra.class.getClassLoader());
+    PropertyHelper.loadPropertiesFromAbsolute(".testra");
     setup();
-
     LOGGER.info("Project ID is " + projectID);
     createExecution();
   }
@@ -82,6 +86,7 @@ public class Testra implements Formatter {
     publisher.registerHandlerFor(TestStepStarted.class, stepStartedHandler);
     publisher.registerHandlerFor(TestStepFinished.class, stepFinishedHandler);
     publisher.registerHandlerFor(EmbedEvent.class, embedEventhandler);
+    publisher.registerHandlerFor(SnippetsSuggestedEvent.class, snippetsSuggestedEventEventHandler);
 
   }
 
@@ -96,6 +101,9 @@ public class Testra implements Formatter {
     LOGGER.info("Scenario setup - End");
   }
 
+  private void snippetHandler(SnippetsSuggestedEvent event){
+    commonData.snippetLine.add(event.snippets.get(0));
+  }
 
   private void handleFeatureStartedHandler(final TestSourceRead event) {
 
@@ -106,9 +114,14 @@ public class Testra implements Formatter {
     processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri));
   }
   private void createExecution() {
-    if (executionID == null) {
-      executionID = commonData.getTestraRestClient().createExecution();
-    }
+      if(TestraRestClient.getExecutionid() == null) {
+        if(commonData.isRetry){
+          TestraRestClient.setExecutionid(prop("previousexecutionID"));
+        }
+        else {
+          TestraRestClient.createExecution();
+        }
+      }
   }
 
   private void handleEmbed(EmbedEvent event) {
@@ -140,6 +153,7 @@ public class Testra implements Formatter {
 
 
   private void handleTestCaseStarted(final TestCaseStarted event) {
+    commonData.startTime = System.currentTimeMillis();
     commonData.currentFeatureFile = event.testCase.getUri();
     commonData.currentFeature = commonData.cucumberSourceUtils.getFeature(commonData.currentFeatureFile);
     commonData.currentTestCase = event.testCase;
@@ -159,24 +173,57 @@ public class Testra implements Formatter {
         return testStep;}).collect(Collectors.toList()));
     List<TestStep> testStepList = new ArrayList<>();
     for(int i = commonData.backgroundSteps.size(); i<commonData.currentTestCase.getTestSteps().size(); i++){
-      if(!commonData.currentTestCase.getTestSteps().get(i).isHook()) {
+      if(!(commonData.currentTestCase.getTestSteps().get(i) instanceof HookTestStep)) {
         TestStep testStep = new TestStep();
         testStep.setIndex(i - commonData.backgroundSteps.size());
-        testStep.setText(commonData.currentTestCase.getTestSteps().get(i).getStepText());
+        testStep.setText(((PickleStepTestStep)(commonData.currentTestCase.getTestSteps().get(i))).getStepText());
         testStepList.add(testStep);
 
       }
     }
     scenarioRequest.setSteps(testStepList);
-    commonData.currentScenarioID = commonData.getTestraRestClient().createScenario(scenarioRequest);
+    commonData.currentScenarioID = TestraRestClient.createScenario(scenarioRequest);
 
+
+    if(Boolean.parseBoolean(prop("isrerun"))){
+      List<TestResult> testResults = TestraRestClient.getResults(prop("previousexecutionID"));
+      TestResult testResult = testResults.stream().filter(x -> x.getTargetId().equals(commonData.currentScenarioID))
+          .collect(Collectors.toList()).get(0);
+      commonData.currentTestResultID = testResult.getId();
+      Boolean isFailed = false;
+      if(testResult.getResult().equals(TestResult.ResultEnum.FAILED)){
+        isFailed = true;
+      }
+      if(!isFailed){
+//        TestResultRequest testResultRequest = new TestResultRequest();
+//        testResultRequest.setTargetId(commonData.currentScenarioID);
+//        testResultRequest.setDurationInMs(testResult.getDurationInMs());
+//        testResultRequest.setResultType(ResultTypeEnum.SCENARIO);
+//        testResultRequest.setResult(TRtoTRR(testResult.getResult()));
+//        testResultRequest.setStartTime(testResult.getStartTime());
+//        testResultRequest.setEndTime(testResult.getEndTime());
+//        testResultRequest.setStepResults(testResult.getStepResults());
+//        testResultRequest.setRetryCount(testResult.getRetryCount());
+//        TestraRestClient.createResult(testResultRequest);
+        throw new SkipException("Skip this test");
+      }
+      else{
+        commonData.retryCount = testResult.getRetryCount() + 1;
+
+      }
+    }
+
+  }
+
+  static TestResultRequest.ResultEnum TRtoTRR(TestResult.ResultEnum value) {
+    return TestResultRequest.ResultEnum.values()[value.ordinal()];
   }
 
   private void handleTestStepStarted(final TestStepStarted event) {
   }
 
   private void handleTestStepFinished(final TestStepFinished event) {
-    if (event.testStep.isHook() && event.testStep instanceof UnskipableStep) {
+    if (event.testStep instanceof HookTestStep) {
       handleHookStep(event);
     } else {
       handlePickleStep(event);
@@ -187,18 +234,21 @@ public class Testra implements Formatter {
   }
 
   private void handleTestCaseFinished(final TestCaseFinished event) {
-    String TYPE_SCENARIO = "SCENARIO";
+    commonData.endTime = System.currentTimeMillis();
     TestResultRequest testResultRequest = new TestResultRequest();
     testResultRequest.setTargetId(commonData.currentScenarioID);
     testResultRequest.setDurationInMs(event.result.getDuration());
     testResultRequest.setResultType(ResultTypeEnum.SCENARIO);
     testResultRequest.setResult(resultToEnum(event.result.getStatus()));
     testResultRequest.setStepResults(commonData.stepResultsNew);
+    testResultRequest.setStartTime(commonData.startTime);
+    testResultRequest.setEndTime(commonData.endTime);
+    testResultRequest.setRetryCount(commonData.retryCount);
     if(event.result.getStatus().equals(Type.FAILED)){
       testResultRequest.setError(event.result.getErrorMessage());
       if(commonData.embedEvent != null){
         Attachment attachment = new Attachment();
-        attachment.setName(commonData.embedEvent.mimeType);
+        attachment.setMimeType(commonData.embedEvent.mimeType);
         attachment.setBase64EncodedByteArray(new String(Base64.getEncoder().encode(commonData.embedEvent.data)));
         testResultRequest
             .setAttachments(Collections.singletonList(attachment));
@@ -206,7 +256,12 @@ public class Testra implements Formatter {
     }
 
     commonData.embedEvent = null;
-    commonData.getTestraRestClient().createResult(testResultRequest);
+    if(commonData.isRetry){
+      testResultRequest.setId(commonData.currentTestResultID);
+      TestraRestClient.updateResult(commonData.currentTestResultID,testResultRequest);
+    }
+    else
+      TestraRestClient.createResult(testResultRequest);
     commonData.stepResultsNew = new ArrayList<>();
   }
 
@@ -249,14 +304,23 @@ public class Testra implements Formatter {
   }
 
   private void handlePickleStep(final TestStepFinished event) {
+    PickleStepTestStep testStep = (PickleStepTestStep)event.testStep;
     StepResult stepResult = new StepResult();
     stepResult.setDurationInMs(event.result.getDuration());
-    stepResult.setIndex(event.testStep.getStepLine());
+    stepResult.setIndex(testStep.getStepLine());
     stepResult.setResult(StepResultToEnum(event.result.getStatus()));
     if(event.result.getStatus().equals(Type.UNDEFINED)){
-      stepResult.setError("No step found for scenario line: " + event.testStep.getPickleStep().getText());
+      if(commonData.snippetLine.size()>0){
+        stepResult.setError(commonData.snippetLine.get(commonData.snippetCount));
+        commonData.snippetCount++;
+      }
+      else {
+        stepResult.setError(
+            "No step found for scenario line: " + testStep.getPickleStep().getText());
+      }
     }
     if(event.result.getStatus().equals(Type.FAILED)){
+
       stepResult.setError(event.result.getErrorMessage());
     }
     commonData.stepResultsNew.add(stepResult);

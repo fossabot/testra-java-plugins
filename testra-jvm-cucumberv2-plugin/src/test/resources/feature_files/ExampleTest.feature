@@ -7,13 +7,14 @@ Feature: Example Test Feature
 
   Scenario: First example scenario
     Then 4 minus 2 equal 2
+    And fake step
 
   Scenario: Second example scenario
     Then 6 minus 4 equals 2
 
   @tag1
   Scenario: Third example scenario
-    And 4 minus 2 equals 3
+    And 4 minus 2 equals 2
     And 4 minus 0 equals 4
     Then 2 plus 2 does not equal 5
 

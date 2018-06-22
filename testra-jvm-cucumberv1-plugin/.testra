@@ -1,0 +1,5 @@
+host=http://localhost:8080/api/v1
+project=First Test Project
+branch=develop
+environment=pp2
+debug=true
