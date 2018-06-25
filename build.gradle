@@ -117,6 +117,9 @@ task allJar(type: Jar, dependsOn: subprojects.assemble) {
         from subproject.configurations.archives.allArtifacts.files.collect {
             zipTree(it)
         }
+
+        from { configurations. { it.isDirectory() ? it : zipTree(it) } }
+
     }
 }
 
@@ -125,7 +128,7 @@ apply plugin: 'maven-publish'
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'com.williamhill.whgtf.testra'
+            groupId 'tech.testra'
             artifactId 'jvm-plugin'
             version '1.0'
 

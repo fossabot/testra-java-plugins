@@ -3,6 +3,8 @@ package tech.testra.jvm.plugin.cucumberv2.utils;
 import cucumber.api.TestCase;
 import cucumber.api.event.EmbedEvent;
 import gherkin.ast.Feature;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.testra.jvm.api.client.api.TestraRestClient;
@@ -29,5 +31,7 @@ public class CommonData {
   public int retryCount = 0;
   public Boolean isRetry;
   public String currentTestResultID;
+  public Map<String,String> failedScenarioIDs = new HashMap<>();
+  public Map<String,Integer> failedRetryMap = new HashMap<>();
 
   }

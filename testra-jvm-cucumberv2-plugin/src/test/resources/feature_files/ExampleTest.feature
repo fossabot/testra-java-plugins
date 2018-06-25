@@ -14,7 +14,7 @@ Feature: Example Test Feature
 
   @tag1
   Scenario: Third example scenario
-    And 4 minus 2 equals 2
+    And 4 minus 2 equals 1
     And 4 minus 0 equals 4
     Then 2 plus 2 does not equal 5
 

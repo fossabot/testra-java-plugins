@@ -17,15 +17,15 @@ produces:
 - application/json
 tags:
 - name: "project"
-  description: "Everything about your Projects"
+  description: "Everything about Projects"
 - name: "scenario"
-  description: "Everything about your Test Scenarios"
+  description: "Everything about Test Scenarios"
 - name: "testcase"
-  description: "Everything about your Test Cases"
+  description: "Everything about Test Cases"
 - name: "execution"
-  description: "Everything about your Executions"
+  description: "Everything about Executions"
 - name: "result"
-  description: "Everything about your Test Results"
+  description: "Everything about Test Results"
 paths:
   /projects:
     get:
@@ -140,9 +140,7 @@ paths:
         200:
           description: 'Successful update of given Project'
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Project'
+            $ref: '#/definitions/Project'
           examples:
             application/json:
             - id: 5ae7ea5fb969e16b0e4cfb41
@@ -179,15 +177,8 @@ paths:
             $ref: '#/definitions/Project'
           examples:
             application/json:
-            - id: 5ae7ea5fb969e16b0e4cfb42
-              projectId: 5ae7ea5fb969e16b0e4cfb42
-              featureId: 5ae7ea5fb969e16b0e4cfb43
-              featureDescription: >-
-                As a google search user
-                I want to input text in double quoted words
-                So that I can get all the pages which contains all the words
-              tags: '@smoke'
-              name: Test Scenario
+            - id: 5ae7ea5fb969e16b0e4cfb41
+              name: Test Project
         404:
           description: 'Project not found'
           schema:
@@ -216,6 +207,11 @@ paths:
         required: true
         type: string
         description: Project Id
+      - name: featureId
+        in: query
+        required: false
+        type: string
+        description: Feature Id
       responses:
         200:
           description: Successful Response
@@ -223,10 +219,15 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Scenario'
+        404:
+          description: 'Project not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
           examples:
             application/json:
-            - id: 5ae7ea5fb969e16b0e4cfb41
-              name: Test Scenario
+            - error: ProjectNotFoundException
+              message: Invalid project id
+              timestamp: 15678902394
         default:
           description: Any other errors
           schema:
@@ -256,6 +257,15 @@ paths:
           description: 'Successful creation of Scenario'
           schema:
             $ref: '#/definitions/Scenario'
+        404:
+          description: 'Project not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+            - error: ProjectNotFoundException
+              message: Invalid project id
+              timestamp: 15678902394
         default:
           description: Any other errors
           schema:
@@ -285,7 +295,7 @@ paths:
           schema:
             $ref: '#/definitions/Scenario'
         404:
-          description: 'Scenario not found'
+          description: 'Scenario/Project not found'
           schema:
             $ref: '#/definitions/ErrorResponse'
           examples:
@@ -387,6 +397,11 @@ paths:
         required: true
         type: string
         description: Project Id
+      - name: namespaceId
+        in: query
+        required: false
+        type: string
+        description: Namespace Id
       responses:
         200:
           description: Successful Response
@@ -491,9 +506,7 @@ paths:
         200:
           description: 'Successful update of given Testcase'
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Testcase'
+            $ref: '#/definitions/Testcase'
         404:
           description: 'Testcase not found'
           schema:
@@ -656,9 +669,7 @@ paths:
         200:
           description: 'Successful update of given Execution'
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Execution'
+            $ref: '#/definitions/Execution'
         404:
           description: 'Execution not found'
           schema:
@@ -726,6 +737,10 @@ paths:
         required: true
         type: string
         description: Execution Id
+      - name: result
+        in: query
+        type: string
+        description: Filter test results by the given result status
       responses:
         200:
           description: Successful Response
@@ -845,9 +860,7 @@ paths:
         200:
           description: 'Successful update of given Result'
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/TestResult'
+            $ref: '#/definitions/TestResult'
         404:
           description: 'Test result not found'
           schema:
@@ -902,18 +915,97 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResponse'
 
+  /projects/{projectId}/executions/{executionId}/groups:
+    get:
+      tags:
+      - "test-group"
+      summary: List all test groups under execution
+      description: |
+        Returns list of all test groups (features or namespaces) within given project and execution
+      operationId: getTestGroupsInExecution
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        type: string
+        description: Project Id
+      - name: executionId
+        in: path
+        required: true
+        type: string
+        description: Execution Id
+      responses:
+        200:
+          description: Successful Response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TestGroup'
+        default:
+          description: Any other errors
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /projects/{projectId}/test-groups:
+    get:
+      tags:
+      - "test-group"
+      summary: List all test groups
+      description: |
+        Returns list of all test groups within given project
+      operationId: getTestGroups
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        type: string
+        description: Project Id
+      - name: type
+        in: query
+        required: false
+        type: string
+        description: Filter results by group type. Group type can be either FEATURE or NAMESPACE
+      responses:
+        200:
+          description: Successful Response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TestGroup'
+
+  /counters:
+    get:
+      tags:
+      - "counter"
+      summary: Counters
+      description: |
+        Returns counters for Projects, Test executions, Test scenarions, Test cases and Test results
+      operationId: getCounters
+      responses:
+        200:
+          description: Successful Response
+          schema:
+            $ref: '#/definitions/Counter'
+          examples:
+            application/json:
+            - projectsSize: 10
+              testScenariosSize: 10
+              testCasesSize: 10
+              testExecutionsSize: 10
+              testResultsSize: 10
+
 definitions:
   Project:
     title: Project
-    allOf:
-    - type: object
-      properties:
-        id:
-          type: string
-    - $ref: '#/definitions/ProjectRequest'
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
     required:
-    - id
-    - name
+      - id
+      - name
 
   ProjectRequest:
     title: Project Request
@@ -922,7 +1014,7 @@ definitions:
       name:
         type: string
     required:
-    - name
+      - name
     example:
       name: Test Project
 
@@ -960,6 +1052,17 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/TestStep'
+    required:
+      - id
+      - projectId
+      - name
+      - featureId
+      - featureDescription
+      - tags
+      - before
+      - after
+      - backgroundSteps
+      - steps
 
   ScenarioRequest:
     title: Scenario Request
@@ -1011,14 +1114,21 @@ definitions:
 
   Testcase:
     title: TestCase
-    allOf:
-    - type: object
-      properties:
-        id:
-          type: string
-        projectId:
-          type: string
-    - $ref: '#/definitions/TestcaseRequest'
+    type: object
+    properties:
+      id:
+        type: string
+      projectId:
+        type: string
+      name:
+        type: string
+      namespaceId:
+        type: string
+    required:
+      - id
+      - projectId
+      - name
+      - namespaceId
 
   TestcaseRequest:
     title: TestCaseRequest
@@ -1028,20 +1138,54 @@ definitions:
         type: string
       namespace:
         type: string
+      className:
+        type: string
     required:
-    - name
-    - namespace
+      - name
+      - namespace
+      - className
 
   Execution:
     title: TestExecution
-    allOf:
-    - type: object
-      properties:
-        id:
+    type: object
+    properties:
+      id:
+        type: string
+      projectId:
+        type: string
+      isParallel:
+        type: boolean
+      host:
+        type: string
+      startTime:
+        type: integer
+        format: int64
+      endTime:
+        type: integer
+        format: int64
+      environment:
+        type: string
+      branch:
+        type: string
+      tags:
+        type: array
+        items:
           type: string
-        projectId:
+      groupIds:
+        type: array
+        items:
           type: string
-    - $ref: '#/definitions/ExecutionRequest'
+    required:
+      - id
+      - projectId
+      - isParallel
+      - host
+      - startTime
+      - endTime
+      - environment
+      - branch
+      - tags
+      - groupIds
 
   ExecutionRequest:
     title: TestExecutionRequest
@@ -1069,30 +1213,69 @@ definitions:
   Result:
     type: string
     enum: &RESULT_ENUM
-    - PASSED
-    - FAILED
-    - PENDING
-    - SKIPPED
-    - AMBIGUOUS
-    - UNDEFINED
-    - UNKNOWN
+      - PASSED
+      - FAILED
+      - PENDING
+      - SKIPPED
+      - AMBIGUOUS
+      - UNDEFINED
+      - UNKNOWN
 
   TestResult:
     title: TestResult
-    allOf:
-    - type: object
-      properties:
-        id:
-          type: string
-    - $ref: '#/definitions/TestResultRequest'
-
-  TestResultRequest:
-    title: TestResultRequest
     type: object
     properties:
       id:
         type: string
       targetId:
+        type: string
+      groupId:
+        type: string
+      resultType:
+        type: string
+        enum: [SCENARIO, TESTCASE]
+      result:
+        type: string
+        enum: *RESULT_ENUM
+      error:
+        type: string
+      durationInMs:
+        type: integer
+        format: int64
+      startTime:
+        type: integer
+        format: int64
+      endTime:
+        type: integer
+        format: int64
+      retryCount:
+        type: integer
+      stepResults:
+        type: array
+        items:
+          $ref: '#/definitions/StepResult'
+      attachments:
+        type: array
+        items:
+          $ref: '#/definitions/Attachment'
+    required:
+      - id
+      - targetId
+      - groupId
+      - resultType
+      - result
+      - durationInMs
+      - startTime
+      - endTime
+      - retryCount
+
+  TestResultRequest:
+    title: TestResultRequest
+    type: object
+    properties:
+      targetId:
+        type: string
+      groupId:
         type: string
       resultType:
         type: string
@@ -1123,6 +1306,7 @@ definitions:
           $ref: '#/definitions/Attachment'
     required:
       - targetId
+      - groupId
       - resultType
       - result
       - durationInMs
@@ -1162,6 +1346,59 @@ definitions:
     required:
       - mimeType
       - base64EncodedByteArray
+
+  TestGroup:
+    title: TestGroup
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      projectId:
+        type: string
+      type:
+        type: string
+        enum:
+          - FEATURE
+          - NAMESPACE
+      description:
+        type: string
+      subGroup:
+        type: string
+    required:
+      - id
+      - name
+      - projectId
+      - type
+      - description
+      - subGroup
+
+  Counter:
+    title: Counter
+    type: object
+    properties:
+      projectsCount:
+        type: integer
+        format: int64
+      testScenariosCount:
+        type: integer
+        format: int64
+      testCasesCount:
+        type: integer
+        format: int64
+      testExecutionsCount:
+        type: integer
+        format: int64
+      testResultsCount:
+        type: integer
+        format: int64
+    required:
+      - projectsCount
+      - testScenariosCount
+      - testCasesCount
+      - testExecutionsCount
+      - testResultsCount
 
   ErrorResponse:
     title: ErrorResponse

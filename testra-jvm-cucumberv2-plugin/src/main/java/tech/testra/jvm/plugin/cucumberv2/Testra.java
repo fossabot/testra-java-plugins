@@ -112,8 +112,14 @@ public class Testra implements Formatter {
     createExecution();
     cucumberSourceUtils.getFeature(event.uri);
     processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri));
+    commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
+    if(commonData.isRetry) {
+      List<TestResult> failedTests = TestraRestClient.getFailedResults(prop("previousexecutionID"));
+      failedTests.forEach(x -> {commonData.failedScenarioIDs.put(x.getTargetId(),x.getId());
+      commonData.failedRetryMap.put(x.getTargetId(), x.getRetryCount());});
+    }
   }
-  private void createExecution() {
+  private synchronized void createExecution() {
       if(TestraRestClient.getExecutionid() == null) {
         if(commonData.isRetry){
           TestraRestClient.setExecutionid(prop("previousexecutionID"));
@@ -157,7 +163,6 @@ public class Testra implements Formatter {
     commonData.currentFeatureFile = event.testCase.getUri();
     commonData.currentFeature = commonData.cucumberSourceUtils.getFeature(commonData.currentFeatureFile);
     commonData.currentTestCase = event.testCase;
-
     final List<String> tagList = new ArrayList<>();
     event.testCase.getTags().forEach(x -> tagList.add(x.getName()));
     ScenarioRequest scenarioRequest = new tech.testra.jvm.client.model.ScenarioRequest();
@@ -183,34 +188,13 @@ public class Testra implements Formatter {
     }
     scenarioRequest.setSteps(testStepList);
     commonData.currentScenarioID = TestraRestClient.createScenario(scenarioRequest);
+    if(commonData.isRetry&&!commonData.failedScenarioIDs.containsKey(commonData.currentScenarioID)){
+      throw new SkipException("Test passed in previous test run, skipping");
+    }
 
-
-    if(Boolean.parseBoolean(prop("isrerun"))){
-      List<TestResult> testResults = TestraRestClient.getResults(prop("previousexecutionID"));
-      TestResult testResult = testResults.stream().filter(x -> x.getTargetId().equals(commonData.currentScenarioID))
-          .collect(Collectors.toList()).get(0);
-      commonData.currentTestResultID = testResult.getId();
-      Boolean isFailed = false;
-      if(testResult.getResult().equals(TestResult.ResultEnum.FAILED)){
-        isFailed = true;
-      }
-      if(!isFailed){
-//        TestResultRequest testResultRequest = new TestResultRequest();
-//        testResultRequest.setTargetId(commonData.currentScenarioID);
-//        testResultRequest.setDurationInMs(testResult.getDurationInMs());
-//        testResultRequest.setResultType(ResultTypeEnum.SCENARIO);
-//        testResultRequest.setResult(TRtoTRR(testResult.getResult()));
-//        testResultRequest.setStartTime(testResult.getStartTime());
-//        testResultRequest.setEndTime(testResult.getEndTime());
-//        testResultRequest.setStepResults(testResult.getStepResults());
-//        testResultRequest.setRetryCount(testResult.getRetryCount());
-//        TestraRestClient.createResult(testResultRequest);
-        throw new SkipException("Skip this test");
-      }
-      else{
-        commonData.retryCount = testResult.getRetryCount() + 1;
-
-      }
+    if(commonData.isRetry){
+      commonData.currentTestResultID = commonData.failedScenarioIDs.get(commonData.currentScenarioID);
+      commonData.retryCount = commonData.failedRetryMap.get(commonData.currentScenarioID) + 1;
     }
 
   }
@@ -236,6 +220,7 @@ public class Testra implements Formatter {
   private void handleTestCaseFinished(final TestCaseFinished event) {
     commonData.endTime = System.currentTimeMillis();
     TestResultRequest testResultRequest = new TestResultRequest();
+    testResultRequest.setGroupId("");
     testResultRequest.setTargetId(commonData.currentScenarioID);
     testResultRequest.setDurationInMs(event.result.getDuration());
     testResultRequest.setResultType(ResultTypeEnum.SCENARIO);
@@ -257,7 +242,6 @@ public class Testra implements Formatter {
 
     commonData.embedEvent = null;
     if(commonData.isRetry){
-      testResultRequest.setId(commonData.currentTestResultID);
       TestraRestClient.updateResult(commonData.currentTestResultID,testResultRequest);
     }
     else
