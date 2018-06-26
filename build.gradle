@@ -136,3 +136,7 @@ configure(subprojects
         .findAll { it.name == 'testra-java-cucumberv2-plugin' || it.name == 'testra-java-cucumberv1-plugin' }) {
     apply plugin: 'com.energizedwork.webdriver-binaries'
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.8.1'
+}
