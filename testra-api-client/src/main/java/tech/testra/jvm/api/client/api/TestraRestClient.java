@@ -137,16 +137,16 @@ public final class TestraRestClient {
       return executionIDString;
   }
 
-  public static List<TestResult> getFailedResults(String executionID){
-      return getResults(executionID, Result.FAILED.getValue());
+  public static List<TestResult> getFailedResults(){
+      return getResults(Result.FAILED.getValue());
   }
 
-  public static List<TestResult> getResults(String executionID, String resultType){
+  public static List<TestResult> getResults(String resultType){
     try {
-      return resultApi.getResults(projectIDString,executionID,resultType);
+      return resultApi.getResults(projectIDString,executionIDString,resultType);
     } catch (ApiException e) {
       e.printStackTrace();
-      throw new IllegalArgumentException("No results found with execution ID " + executionID);
+      throw new IllegalArgumentException("No results found with execution ID " + executionIDString);
     }
   }
 }

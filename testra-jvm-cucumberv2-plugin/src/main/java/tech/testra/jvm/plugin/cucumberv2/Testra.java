@@ -50,6 +50,37 @@ public class Testra implements Formatter {
   private final EventHandler<TestStepStarted> stepStartedHandler = this::handleTestStepStarted;
   private final EventHandler<TestStepFinished> stepFinishedHandler = this::handleTestStepFinished;
   private final EventHandler<SnippetsSuggestedEvent> snippetsSuggestedEventEventHandler = this::snippetHandler;
+  private final EventHandler<TestRunFinished> runFinishedEventHandler = this::handleRunFinishedEventHandler;
+
+  private void handleRunFinishedEventHandler(TestRunFinished testRunFinished) {
+    List<TestResult> results = TestraRestClient.getResults(null);
+    int passed = 0;
+    int failed = 0;
+    int skipped = 0;
+    int undefined = 0;
+    for(TestResult testResult : results){
+      switch(testResult.getResult()){
+        case PASSED:
+          passed++;
+          break;
+        case SKIPPED:
+          skipped++;
+          break;
+        case FAILED:
+          failed++;
+          break;
+        case UNDEFINED:
+          undefined++;
+          break;
+      }
+    }
+    LOGGER.info("RESULTS:");
+    LOGGER.info("PASSED:" + passed);
+    LOGGER.info("SKIPPED:" + skipped);
+    LOGGER.info("FAILED:" + failed);
+    LOGGER.info("UNDEFINED: " + undefined);
+  }
+
   private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
   private EventHandler<EmbedEvent> embedEventhandler = event -> handleEmbed(event);
 
@@ -87,6 +118,7 @@ public class Testra implements Formatter {
     publisher.registerHandlerFor(TestStepFinished.class, stepFinishedHandler);
     publisher.registerHandlerFor(EmbedEvent.class, embedEventhandler);
     publisher.registerHandlerFor(SnippetsSuggestedEvent.class, snippetsSuggestedEventEventHandler);
+    publisher.registerHandlerFor(TestRunFinished.class, runFinishedEventHandler);
 
   }
 
@@ -114,7 +146,7 @@ public class Testra implements Formatter {
     processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri));
     commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
     if(commonData.isRetry) {
-      List<TestResult> failedTests = TestraRestClient.getFailedResults(prop("previousexecutionID"));
+      List<TestResult> failedTests = TestraRestClient.getFailedResults();
       failedTests.forEach(x -> {commonData.failedScenarioIDs.put(x.getTargetId(),x.getId());
       commonData.failedRetryMap.put(x.getTargetId(), x.getRetryCount());});
     }

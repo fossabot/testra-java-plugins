@@ -117,8 +117,7 @@ task allJar(type: Jar, dependsOn: subprojects.assemble) {
         from subproject.configurations.archives.allArtifacts.files.collect {
             zipTree(it)
         }
-
-        from { configurations. { it.isDirectory() ? it : zipTree(it) } }
+//        from { subproject.configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 
     }
 }
