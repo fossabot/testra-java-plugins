@@ -44,7 +44,7 @@ ext.fluentLeniumVersion = '3.5.0'
 ext.seleniumVersion = '3.8.1'
 
 allprojects {
-    group 'tech.testra.plugin.jvm'
+    group 'tech.testra'
     version '1.0'
 
     apply plugin: 'idea'
@@ -73,6 +73,7 @@ allprojects {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'maven-publish'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -98,40 +99,40 @@ subprojects {
         }
     }
 
-}
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                pom {
+                    url = 'https://github.com/testra-tech/testra-java-plugins'
+                    licenses {
+                        license {
+                            name = 'GNU GENERAL PUBLIC LICENSE, Version 3.0'
+                            url = 'https://www.gnu.org/licenses/gpl.txt'
+                            distribution = 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'paulsjohnson91'
+                            name = 'Paul Johnson'
+                        }
+                        developer {
+                            id = 'sudokar'
+                            name = 'sudokar'
+                        }
+                    }
 
-
-configure(subprojects.findAll { it.name == 'testra-jvm-cucumberv2-plugin' }) {
-    apply plugin: 'com.energizedwork.webdriver-binaries'
-}
-
-configure(subprojects.findAll { it.name == 'testra-jvm-cucumberv1-plugin' }) {
-    apply plugin: 'com.energizedwork.webdriver-binaries'
-}
-
-subprojects.each { subproject -> evaluationDependsOn(subproject.path)}
-
-task allJar(type: Jar, dependsOn: subprojects.assemble) {
-    baseName = 'jvm-plugin'
-    subprojects.each { subproject ->
-        from subproject.configurations.archives.allArtifacts.files.collect {
-            zipTree(it)
-        }
-//        from { subproject.configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-
-    }
-}
-
-apply plugin: "java"
-apply plugin: 'maven-publish'
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId 'tech.testra'
-            artifactId 'jvm-plugin'
-            version '1.0'
-
-            artifact allJar
+                    scm {
+                        url = 'https://github.com/testra-tech/testra-java-plugins'
+                    }
+                }
+            }
         }
     }
+}
+
+configure(subprojects
+        .findAll { it.name == 'testra-java-cucumberv2-plugin' || it.name == 'testra-java-cucumberv1-plugin' }) {
+    apply plugin: 'com.energizedwork.webdriver-binaries'
 }

@@ -1,9 +1,0 @@
-dependencies {
-    compile project(':testra-api-client')
-    compile project(':testra-jvm-commons')
-    compile group: 'org.assertj', name: 'assertj-core-java8'
-    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.2.0'
-
-
-}
