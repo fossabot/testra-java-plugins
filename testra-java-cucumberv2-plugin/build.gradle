@@ -5,6 +5,7 @@ plugins {
 def cucumber_version = '3.0.2'
 dependencies {
     compile project(':testra-java-api-client')
+    compile project(':testra-java-commons')
     compile group: 'io.cucumber', name: 'cucumber-core', version: "${cucumber_version}"
     compile group: 'io.cucumber', name: 'cucumber-java', version: "${cucumber_version}"
     compile group: 'io.cucumber', name: 'cucumber-testng', version: "${cucumber_version}"

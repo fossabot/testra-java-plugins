@@ -16,7 +16,7 @@ import tech.testra.java.client.TestraRestClient;
 import tech.testra.java.client.model.*;
 import tech.testra.java.client.model.TestResultRequest.ResultEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
-import tech.testra.java.util.PropertyHelper;
+import tech.testra.jvm.commons.util.PropertyHelper;
 import tech.testra.jvm.plugin.cucumberv2.utils.CommonData;
 import tech.testra.jvm.plugin.cucumberv2.utils.CommonDataProvider;
 import tech.testra.jvm.plugin.cucumberv2.utils.CucumberSourceUtils;
@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static tech.testra.java.util.PropertyHelper.prop;
+import static tech.testra.jvm.commons.util.PropertyHelper.prop;
 
 
 public class Testra implements Formatter {

@@ -1,5 +1,7 @@
 package tech.testra.jvm.plugin.cucumberv1;
 
+import static tech.testra.jvm.commons.util.PropertyHelper.prop;
+
 import cucumber.runtime.StepDefinitionMatch;
 import gherkin.formatter.Formatter;
 import gherkin.formatter.Reporter;
@@ -12,7 +14,7 @@ import tech.testra.java.client.TestraRestClient;
 import tech.testra.java.client.model.*;
 import tech.testra.java.client.model.TestResultRequest.ResultEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
-import tech.testra.java.util.PropertyHelper;
+import tech.testra.jvm.commons.util.PropertyHelper;
 import tech.testra.jvm.plugin.cucumberv1.templates.ErrorTemplate;
 import tech.testra.jvm.plugin.cucumberv1.templates.ScenarioTemplate;
 import tech.testra.jvm.plugin.cucumberv1.templates.StepTemplate;
@@ -24,7 +26,6 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static tech.testra.java.util.PropertyHelper.prop;
 
 public class Testra implements Reporter, Formatter {
 

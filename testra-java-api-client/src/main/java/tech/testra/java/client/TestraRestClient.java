@@ -1,5 +1,8 @@
 package tech.testra.java.client;
 
+import static tech.testra.jvm.commons.util.PropertyHelper.getEnv;
+import static tech.testra.jvm.commons.util.PropertyHelper.prop;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.testra.java.client.api.ExecutionApi;
@@ -13,8 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static tech.testra.java.util.PropertyHelper.getEnv;
-import static tech.testra.java.util.PropertyHelper.prop;
 
 public final class TestraRestClient {
 

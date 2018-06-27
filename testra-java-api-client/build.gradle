@@ -78,7 +78,7 @@ dependencies {
     swaggerCompile 'com.google.code.gson:gson:2.8.1'
 
     compile sourceSets.swagger.output
-
+    compile project(':testra-java-commons')
     compile "com.sun.jersey:jersey-client:$jersey_version"
     compile "com.sun.jersey.contribs:jersey-multipart:$jersey_version"
     compile "com.fasterxml.jackson.core:jackson-core:$jackson_version"

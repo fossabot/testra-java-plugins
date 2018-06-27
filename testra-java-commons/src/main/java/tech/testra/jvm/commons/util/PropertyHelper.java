@@ -1,13 +1,12 @@
-package tech.testra.java.util;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package tech.testra.jvm.commons.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class PropertyHelper {
 

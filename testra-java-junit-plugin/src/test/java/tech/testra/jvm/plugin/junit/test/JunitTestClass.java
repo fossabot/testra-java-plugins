@@ -2,7 +2,8 @@ package tech.testra.jvm.plugin.junit.test;
 
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.core.LauncherFactory;
 import tech.testra.jvm.commons.Epic;
 import tech.testra.jvm.commons.Feature;
 
@@ -10,7 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JunitTestClass {
 
-  @TestFactory
+  Launcher launcher = LauncherFactory.create();
+
   @Test
   @Epic("Test Epic")
   @Feature("feature1")
@@ -31,6 +33,7 @@ public class JunitTestClass {
   public void equalToTest() {
     assertThat(developer).isEqualTo("Paul");
   }
+
 
 
 }
