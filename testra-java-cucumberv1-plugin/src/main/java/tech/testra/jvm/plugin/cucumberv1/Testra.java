@@ -49,7 +49,7 @@ public class Testra implements Reporter, Formatter {
     }
     else{
       LOGGER.info("Property file not found at " + propertyFile.getAbsolutePath() + " using default");
-      PropertyHelper.loadProperties(".testra", Testra.class.getClassLoader());
+      PropertyHelper.loadPropertiesFromAbsolute(".testra");
     }
     setup();
     TestraRestClient.setURLs(prop("host"));
@@ -59,7 +59,7 @@ public class Testra implements Reporter, Formatter {
   }
 
   public Testra() {
-    PropertyHelper.loadProperties(".testra", Testra.class.getClassLoader());
+    PropertyHelper.loadPropertiesFromAbsolute(".testra");
     setup();
     TestraRestClient.setURLs(prop("host"));
     projectID = TestraRestClient.getProjectID(prop("project"));

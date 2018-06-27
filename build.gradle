@@ -99,37 +99,37 @@ subprojects {
         }
     }
 
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                pom {
-                    url = 'https://github.com/testra-tech/testra-java-plugins'
-                    licenses {
-                        license {
-                            name = 'GNU GENERAL PUBLIC LICENSE, Version 3.0'
-                            url = 'https://www.gnu.org/licenses/gpl.txt'
-                            distribution = 'repo'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = 'paulsjohnson91'
-                            name = 'Paul Johnson'
-                        }
-                        developer {
-                            id = 'sudokar'
-                            name = 'sudokar'
-                        }
-                    }
-
-                    scm {
-                        url = 'https://github.com/testra-tech/testra-java-plugins'
-                    }
-                }
-            }
-        }
-    }
+//    publishing {
+//        publications {
+//            mavenJava(MavenPublication) {
+//                from components.java
+//                pom {
+//                    url = 'https://github.com/testra-tech/testra-java-plugins'
+//                    licenses {
+//                        license {
+//                            name = 'GNU GENERAL PUBLIC LICENSE, Version 3.0'
+//                            url = 'https://www.gnu.org/licenses/gpl.txt'
+//                            distribution = 'repo'
+//                        }
+//                    }
+//                    developers {
+//                        developer {
+//                            id = 'paulsjohnson91'
+//                            name = 'Paul Johnson'
+//                        }
+//                        developer {
+//                            id = 'sudokar'
+//                            name = 'sudokar'
+//                        }
+//                    }
+//
+//                    scm {
+//                        url = 'https://github.com/testra-tech/testra-java-plugins'
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 configure(subprojects
