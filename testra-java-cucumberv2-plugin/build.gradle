@@ -2,7 +2,7 @@ plugins {
     id "io.spring.dependency-management"
     id "net.ltgt.apt"
 }
-def cucumber_version = '3.0.2'
+def cucumber_version = '2.4.0'
 dependencies {
     compile project(':testra-java-api-client')
     compile project(':testra-java-commons')

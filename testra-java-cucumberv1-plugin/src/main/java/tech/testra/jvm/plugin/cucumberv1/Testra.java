@@ -142,6 +142,7 @@ public class Testra implements Reporter, Formatter {
     testResultRequest.setResultType(ResultTypeEnum.SCENARIO);
     testResultRequest.setDurationInMs(timeAtEnd - commonData.startTime);
     testResultRequest.setTargetId(scenarioID);
+    testResultRequest.setGroupId("");
     testResultRequest.setStartTime(commonData.startTime);
     testResultRequest.setEndTime(timeAtEnd);
     List<StepResult> results = commonData.currentScenarioTemplate.getBackgroundSteps().stream()

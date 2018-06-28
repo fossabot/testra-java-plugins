@@ -1,7 +1,5 @@
 package tech.testra.jvm.plugin.cucumberv2;
 
-import cucumber.api.HookTestStep;
-import cucumber.api.PickleStepTestStep;
 import cucumber.api.Result;
 import cucumber.api.Result.Type;
 import cucumber.api.event.*;
@@ -93,6 +91,7 @@ public class Testra implements Formatter {
     projectID = TestraRestClient.getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
     commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
+    commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
     createExecution();
   }
 
@@ -135,10 +134,8 @@ public class Testra implements Formatter {
 
     cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
     commonData.cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
-    createExecution();
     cucumberSourceUtils.getFeature(event.uri);
     processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri));
-    commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
     if(commonData.isRetry) {
       List<TestResult> failedTests = TestraRestClient.getFailedResults();
       failedTests.forEach(x -> {commonData.failedScenarioIDs.put(x.getTargetId(),x.getId());
@@ -148,6 +145,9 @@ public class Testra implements Formatter {
   private synchronized void createExecution() {
       if(TestraRestClient.getExecutionid() == null) {
         if(commonData.isRetry){
+          TestraRestClient.setExecutionid(prop("previousexecutionID"));
+        }
+        else if(commonData.setExecutionID){
           TestraRestClient.setExecutionid(prop("previousexecutionID"));
         }
         else {
@@ -204,10 +204,10 @@ public class Testra implements Formatter {
         return testStep;}).collect(Collectors.toList()));
     List<TestStep> testStepList = new ArrayList<>();
     for(int i = commonData.backgroundSteps.size(); i<commonData.currentTestCase.getTestSteps().size(); i++){
-      if(!(commonData.currentTestCase.getTestSteps().get(i) instanceof HookTestStep)) {
+      if(!(commonData.currentTestCase.getTestSteps().get(i).isHook())) {
         TestStep testStep = new TestStep();
         testStep.setIndex(i - commonData.backgroundSteps.size());
-        testStep.setText(((PickleStepTestStep)(commonData.currentTestCase.getTestSteps().get(i))).getStepText());
+        testStep.setText(((commonData.currentTestCase.getTestSteps().get(i))).getStepText());
         testStepList.add(testStep);
 
       }
@@ -215,6 +215,7 @@ public class Testra implements Formatter {
     scenarioRequest.setSteps(testStepList);
     commonData.currentScenarioID = TestraRestClient.createScenario(scenarioRequest);
     if(commonData.isRetry&&!commonData.failedScenarioIDs.containsKey(commonData.currentScenarioID)){
+      LOGGER.info("Test has already passed in a previous test run");
       throw new SkipException("Test passed in previous test run, skipping");
     }
 
@@ -233,7 +234,7 @@ public class Testra implements Formatter {
   }
 
   private void handleTestStepFinished(final TestStepFinished event) {
-    if (event.testStep instanceof HookTestStep) {
+    if (event.testStep.isHook()) {
       handleHookStep(event);
     } else {
       handlePickleStep(event);
@@ -314,7 +315,7 @@ public class Testra implements Formatter {
   }
 
   private void handlePickleStep(final TestStepFinished event) {
-    PickleStepTestStep testStep = (PickleStepTestStep)event.testStep;
+    cucumber.api.TestStep testStep = event.testStep;
     StepResult stepResult = new StepResult();
     stepResult.setDurationInMs(event.result.getDuration());
     stepResult.setIndex(testStep.getStepLine());

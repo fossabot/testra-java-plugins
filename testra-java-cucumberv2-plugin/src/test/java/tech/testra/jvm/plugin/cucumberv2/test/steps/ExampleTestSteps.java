@@ -1,5 +1,7 @@
 package tech.testra.jvm.plugin.cucumberv2.test.steps;
 
+import cucumber.api.PendingException;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 
@@ -30,4 +32,8 @@ public class ExampleTestSteps {
   }
 
 
+  @And("^(.*) is true$")
+  public void trueIsTrue(boolean var){
+    assertThat(var);
+  }
 }

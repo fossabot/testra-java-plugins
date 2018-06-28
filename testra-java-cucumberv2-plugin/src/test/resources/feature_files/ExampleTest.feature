@@ -30,3 +30,6 @@ Feature: Example Test Feature
     |1   |1   |2   |
     |1   |2   |3   |
 
+  Scenario: Arguement types
+    And true is true
+
