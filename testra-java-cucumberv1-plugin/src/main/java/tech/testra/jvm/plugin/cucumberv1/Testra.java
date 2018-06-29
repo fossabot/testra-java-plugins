@@ -135,14 +135,16 @@ public class Testra implements Reporter, Formatter {
     scenarioRequest.setBackgroundSteps(backgroundSteps);
     scenarioRequest.setSteps(steps);
 
-    String scenarioID = TestraRestClient.createScenario(scenarioRequest);
+    tech.testra.java.client.model.Scenario scenario1 = TestraRestClient.createScenario(scenarioRequest);
+    commonData.currentScenarioID = scenario1.getId();
+    commonData.currentFeatureID = scenario1.getFeatureId();
 
     TestResultRequest testResultRequest = new TestResultRequest();
     testResultRequest.setResult(resultToEnum(commonData.result));
     testResultRequest.setResultType(ResultTypeEnum.SCENARIO);
     testResultRequest.setDurationInMs(timeAtEnd - commonData.startTime);
-    testResultRequest.setTargetId(scenarioID);
-    testResultRequest.setGroupId("");
+    testResultRequest.setTargetId(commonData.currentScenarioID);
+    testResultRequest.setGroupId(commonData.currentFeatureID);
     testResultRequest.setStartTime(commonData.startTime);
     testResultRequest.setEndTime(timeAtEnd);
     List<StepResult> results = commonData.currentScenarioTemplate.getBackgroundSteps().stream()

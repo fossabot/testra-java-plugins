@@ -219,7 +219,10 @@ public class Testra implements Formatter {
       }
     }
     scenarioRequest.setSteps(testStepList);
-    commonData.currentScenarioID = TestraRestClient.createScenario(scenarioRequest);
+    Scenario scenario = TestraRestClient.createScenario(scenarioRequest);
+    commonData.currentScenarioID = scenario.getId();
+    commonData.currentFeatureID = scenario.getFeatureId();
+
     if(commonData.isRetry&&!commonData.failedScenarioIDs.containsKey(commonData.currentScenarioID)){
       LOGGER.info("Test has already passed in a previous test run");
       throw new SkipException("Test passed in previous test run, skipping");
@@ -253,7 +256,7 @@ public class Testra implements Formatter {
   private void handleTestCaseFinished(final TestCaseFinished event) {
     commonData.endTime = System.currentTimeMillis();
     TestResultRequest testResultRequest = new TestResultRequest();
-    testResultRequest.setGroupId("");
+    testResultRequest.setGroupId(commonData.currentFeatureID);
     testResultRequest.setTargetId(commonData.currentScenarioID);
     testResultRequest.setDurationInMs(event.result.getDuration());
     testResultRequest.setResultType(ResultTypeEnum.SCENARIO);

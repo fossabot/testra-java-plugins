@@ -22,6 +22,7 @@ public class CommonData {
   public List<tech.testra.java.client.model.StepResult> stepResultsNew = new ArrayList<>();
   public final String TYPE_SCENARIO = "SCENARIO";
   public String currentScenarioID;
+  public String currentFeatureID;
   public EmbedEvent embedEvent;
   public List<String> snippetLine = new ArrayList<>();
   public int snippetCount = 0;

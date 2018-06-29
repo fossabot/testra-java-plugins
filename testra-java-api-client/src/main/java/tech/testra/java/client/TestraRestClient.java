@@ -76,10 +76,10 @@ public final class TestraRestClient {
       }
   }
 
-    public static String createScenario(ScenarioRequest scenarioRequest) {
+    public static Scenario createScenario(ScenarioRequest scenarioRequest) {
     try {
         Scenario scenario = scenarioApi.createScenario(projectIDString, scenarioRequest);
-      return scenario.getId();
+      return scenario;
     } catch (ApiException e) {
       LOGGER.error("Error Creating Scenario " + scenarioRequest.getName());
       LOGGER.error(e.getResponseBody());

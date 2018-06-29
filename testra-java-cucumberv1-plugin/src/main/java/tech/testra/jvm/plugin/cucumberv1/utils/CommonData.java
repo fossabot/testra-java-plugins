@@ -18,6 +18,7 @@ public class CommonData {
   public byte[] attachmentByteArray;
   public String currentScenarioID;
   public Scenario currentScenario;
+  public String currentFeatureID;
   public long startTime;
   public boolean isScenarioOutline = false;
   public int scenarioOutlineIndex;
