@@ -42,25 +42,8 @@ public class Testra implements Reporter, Formatter {
   private static String projectID;
   private final Long threadId = Thread.currentThread().getId();
 
-  public Testra(String properties) {
-    File propertyFile = new File(properties);
-    if(propertyFile.isFile()){
-      PropertyHelper.loadPropertiesFromAbsolute(propertyFile.getAbsolutePath());
-      LOGGER.info("Loaded properties from filepath " + propertyFile.getAbsolutePath());
-    }
-    else{
-      LOGGER.info("Property file not found at " + propertyFile.getAbsolutePath() + " using default");
-      PropertyHelper.loadPropertiesFromAbsolute(".testra");
-    }
-    setup();
-    TestraRestClient.setURLs(prop("host"));
-    projectID = TestraRestClient.getProjectID(prop("project"));
-    LOGGER.info("Project ID is " + projectID);
-    createExecution();
-  }
-
   public Testra() {
-    PropertyHelper.loadPropertiesFromAbsolute(".testra");
+    PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
     setup();
     TestraRestClient.setURLs(prop("host"));
     projectID = TestraRestClient.getProjectID(prop("project"));

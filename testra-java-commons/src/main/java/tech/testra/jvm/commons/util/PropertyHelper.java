@@ -17,21 +17,6 @@ public final class PropertyHelper {
   private PropertyHelper() {
   }
 
-  @SuppressWarnings("squid:S00112")
-  public static synchronized void loadProperties(String resourceFileName, ClassLoader classLoader) {
-    try {
-      if (!resourceFileNames.contains(resourceFileName)) {
-        LOGGER.info("Loading property resource : {}", resourceFileName);
-        properties.load(classLoader.getResourceAsStream(resourceFileName));
-        resourceFileNames.add(resourceFileName);
-      }
-    } catch (IOException ex) {
-      ex.fillInStackTrace();
-      throw new RuntimeException(
-          String.format("Property resource loading error for %s", resourceFileName));
-    }
-  }
-
   public static synchronized void loadPropertiesFromAbsolute(String resourceFileName) {
     try {
       if (!resourceFileNames.contains(resourceFileName)) {
@@ -41,6 +26,7 @@ public final class PropertyHelper {
         resourceFileNames.add(resourceFileName);
       }
     } catch (IOException ex) {
+      LOGGER.error(".testra file not found");
       ex.fillInStackTrace();
       throw new RuntimeException(
           String.format("Property resource loading error for %s", resourceFileName));
@@ -54,21 +40,5 @@ public final class PropertyHelper {
 
   public static String prop(String value, String defaultValue) {
     return properties.getProperty(value, defaultValue);
-  }
-
-  public static String sysArg(String arg) {
-    return System.getProperty(arg);
-  }
-
-  public static String sysArg(String arg, String defaultValue) {
-    return System.getProperty(arg, defaultValue);
-  }
-
-  public static boolean isBrowserstack() {
-    return sysArg("browserstack", "false").equals("true");
-  }
-
-  public static boolean isRemoteDriver() {
-    return sysArg("remote", "false").equals("true");
   }
 }

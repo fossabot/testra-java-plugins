@@ -76,16 +76,8 @@ public class Testra implements Formatter {
   private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
   private EventHandler<EmbedEvent> embedEventhandler = event -> handleEmbed(event);
 
-  public Testra(String properties) {
-    File propertyFile = new File(properties);
-    if(propertyFile.isFile()){
-      PropertyHelper.loadPropertiesFromAbsolute(propertyFile.getAbsolutePath());
-      LOGGER.info("Loaded properties from filepath " + propertyFile.getAbsolutePath());
-    }
-    else{
-      LOGGER.info("Property file not found at " + propertyFile.getAbsolutePath() + " using default");
-      PropertyHelper.loadPropertiesFromAbsolute(".testra");
-    }
+  public Testra() {
+    PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
     setup();
     TestraRestClient.setURLs(prop("host"));
     projectID = TestraRestClient.getProjectID(prop("project"));
@@ -98,13 +90,6 @@ public class Testra implements Formatter {
     if(prop("testra.execution.description")!=null){
       TestraRestClient.executionDescription = prop("testra.execution.description");
     }
-    createExecution();
-  }
-
-  public Testra() {
-    PropertyHelper.loadPropertiesFromAbsolute(".testra");
-    setup();
-    LOGGER.info("Project ID is " + projectID);
     createExecution();
   }
 
@@ -137,7 +122,6 @@ public class Testra implements Formatter {
   }
 
   private void handleFeatureStartedHandler(final TestSourceRead event) {
-
     cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
     commonData.cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
     cucumberSourceUtils.getFeature(event.uri);
@@ -150,10 +134,7 @@ public class Testra implements Formatter {
   }
   private synchronized void createExecution() {
       if(TestraRestClient.getExecutionid() == null) {
-        if(commonData.isRetry){
-          TestraRestClient.setExecutionid(prop("previousexecutionID"));
-        }
-        else if(commonData.setExecutionID){
+        if(commonData.isRetry||commonData.setExecutionID){
           TestraRestClient.setExecutionid(prop("previousexecutionID"));
         }
         else {
