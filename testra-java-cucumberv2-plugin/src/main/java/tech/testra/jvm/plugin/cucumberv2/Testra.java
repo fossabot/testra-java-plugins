@@ -34,7 +34,6 @@ public class Testra implements Formatter {
   private static final Logger LOGGER = LoggerFactory.getLogger(Testra.class);
 
   private final Long threadId = Thread.currentThread().getId();
-  private static String projectID;
   private CommonData commonData;
   private final EventHandler<TestSourceRead> featureStartedHandler = this::handleFeatureStartedHandler;
   private final EventHandler<TestCaseStarted> caseStartedHandler = this::handleTestCaseStarted;
@@ -80,8 +79,7 @@ public class Testra implements Formatter {
     PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
     setup();
     TestraRestClient.setURLs(prop("host"));
-    projectID = TestraRestClient.getProjectID(prop("project"));
-    LOGGER.info("Project ID is " + projectID);
+    LOGGER.info("Project ID is " + TestraRestClient.getProjectID(prop("project")));
     commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
     commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
     if(prop("buildRef")!=null){
@@ -214,10 +212,6 @@ public class Testra implements Formatter {
       commonData.retryCount = commonData.failedRetryMap.get(commonData.currentScenarioID) + 1;
     }
 
-  }
-
-  static TestResultRequest.ResultEnum TRtoTRR(TestResult.ResultEnum value) {
-    return TestResultRequest.ResultEnum.values()[value.ordinal()];
   }
 
   private void handleTestStepStarted(final TestStepStarted event) {
