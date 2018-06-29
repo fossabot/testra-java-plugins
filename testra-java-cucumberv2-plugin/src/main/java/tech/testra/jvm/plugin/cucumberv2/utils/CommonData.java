@@ -34,4 +34,5 @@ public class CommonData {
   public Map<String,String> failedScenarioIDs = new HashMap<>();
   public Map<String,Integer> failedRetryMap = new HashMap<>();
 
+
   }

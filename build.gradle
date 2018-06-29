@@ -103,6 +103,7 @@ subprojects {
 //        publications {
 //            mavenJava(MavenPublication) {
 //                from components.java
+//                version '1.0'
 //                pom {
 //                    url = 'https://github.com/testra-tech/testra-java-plugins'
 //                    licenses {

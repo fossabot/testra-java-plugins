@@ -92,6 +92,12 @@ public class Testra implements Formatter {
     LOGGER.info("Project ID is " + projectID);
     commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
     commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
+    if(prop("buildRef")!=null){
+      TestraRestClient.buildRef = prop("buildRef");
+    }
+    if(prop("testra.execution.description")!=null){
+      TestraRestClient.executionDescription = prop("testra.execution.description");
+    }
     createExecution();
   }
 
@@ -112,7 +118,6 @@ public class Testra implements Formatter {
     publisher.registerHandlerFor(EmbedEvent.class, embedEventhandler);
     publisher.registerHandlerFor(SnippetsSuggestedEvent.class, snippetsSuggestedEventEventHandler);
     publisher.registerHandlerFor(TestRunFinished.class, runFinishedEventHandler);
-
   }
 
   private void setup(){
@@ -120,7 +125,8 @@ public class Testra implements Formatter {
     CommonDataProvider.newCommonData(threadId);
     if ((commonData = CommonDataProvider.get(threadId)) == null) {
       throw new RuntimeException("Common data not found for id : " + threadId);
-    } else {
+    }
+    else {
       LOGGER.info("Initialised common data instance for scenario");
     }
     LOGGER.info("Scenario setup - End");

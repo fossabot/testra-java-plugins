@@ -64,10 +64,6 @@ public final class PropertyHelper {
     return System.getProperty(arg, defaultValue);
   }
 
-  public static String getEnv() {
-    return sysArg("env", "local");
-  }
-
   public static boolean isBrowserstack() {
     return sysArg("browserstack", "false").equals("true");
   }

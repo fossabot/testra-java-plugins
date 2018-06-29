@@ -1,8 +1,6 @@
 package tech.testra.java.client;
 
-import static tech.testra.jvm.commons.util.PropertyHelper.getEnv;
 import static tech.testra.jvm.commons.util.PropertyHelper.prop;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.testra.java.client.api.ExecutionApi;
@@ -10,7 +8,6 @@ import tech.testra.java.client.api.ProjectApi;
 import tech.testra.java.client.api.ResultApi;
 import tech.testra.java.client.api.ScenarioApi;
 import tech.testra.java.client.model.*;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +23,8 @@ public final class TestraRestClient {
   private static ScenarioApi scenarioApi = new ScenarioApi();
   private static ExecutionApi executionApi = new ExecutionApi();
   private static ResultApi resultApi = new ResultApi();
+  public static String buildRef;
+  public static String executionDescription;
 
     public TestraRestClient() {
     projectApi.getApiClient().setDebugging(true);
@@ -94,8 +93,14 @@ public final class TestraRestClient {
     executionRequest.setIsParallel(false);
     if(prop("branch")!= null)
       executionRequest.setBranch(prop("branch"));
-    if(prop("environment")!=null)
-      executionRequest.setEnvironment(getEnv());
+    if(prop("testra.environment")!=null)
+      executionRequest.setEnvironment(prop("testra.environment"));
+    if(executionDescription!= null){
+      executionRequest.setDescription(executionDescription);
+    }
+    if(buildRef!= null){
+      executionRequest.buildRef(buildRef);
+    }
     executionRequest.setHost(prop("host"));
     executionRequest.setTags(Collections.singletonList(""));
     try {

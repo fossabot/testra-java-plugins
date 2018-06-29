@@ -739,6 +739,7 @@ paths:
         description: Execution Id
       - name: result
         in: query
+        required: false
         type: string
         description: Filter test results by the given result status
       responses:
@@ -1003,6 +1004,8 @@ definitions:
         type: string
       name:
         type: string
+      description:
+        type: string
     required:
       - id
       - name
@@ -1012,6 +1015,8 @@ definitions:
     type: object
     properties:
       name:
+        type: string
+      description:
         type: string
     required:
       - name
@@ -1201,6 +1206,10 @@ definitions:
       environment:
         type: string
       branch:
+        type: string
+      description:
+        type: string
+      buildRef:
         type: string
       tags:
         type: array
