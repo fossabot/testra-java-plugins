@@ -11,19 +11,11 @@ It includes plugins for both cukes cucumber version 1 and io.cucumber version 2.
 
 ## Table of Contents
 
-- [Background](#background)
 - [Install](#install)
 - [Usage](#usage)
 - [Contribute](#contribute)
 - [License](#license)
 
-## Security
-
-### Any optional sections
-
-## Background
-
-### Any optional sections
 
 ## Install
 
