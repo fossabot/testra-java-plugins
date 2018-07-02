@@ -17,7 +17,7 @@ dependencies {
 
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
 
-    apt "org.projectlombok:lombok"
+    apt "org.projectlombok:lombok:1.16.18"
 }
 
 webdriverBinaries {
