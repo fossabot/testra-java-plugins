@@ -141,7 +141,9 @@ public final class TestraRestClient {
       if(eid == null){
         createExecution();
       }
-      executionIDString = eid;
+      else {
+        executionIDString = eid;
+      }
   }
 
   public static String getExecutionid(){
