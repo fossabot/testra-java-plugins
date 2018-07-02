@@ -7,9 +7,12 @@ import cucumber.api.formatter.Formatter;
 import gherkin.ast.Feature;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.Step;
+import java.io.FileWriter;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.SkipException;
+import org.testng.reporters.Files;
 import tech.testra.java.client.TestraRestClient;
 import tech.testra.java.client.model.*;
 import tech.testra.java.client.model.TestResultRequest.ResultEnum;
@@ -134,13 +137,45 @@ public class Testra implements Formatter {
   }
   private synchronized void createExecution() {
       if(TestraRestClient.getExecutionid() == null) {
-        if(commonData.isRetry||commonData.setExecutionID){
+        if(commonData.isRetry){
+          File file = new File("executionID.testra");
+          if(file.isFile()){
+            try {
+              TestraRestClient.setExecutionid(Files.readFile(file).trim());
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+          }
+          else {
+            TestraRestClient.setExecutionid(prop("previousexecutionID"));
+          }
+        }
+        else if(commonData.setExecutionID){
           TestraRestClient.setExecutionid(prop("previousexecutionID"));
         }
         else {
           TestraRestClient.createExecution();
+          createExecutionIDFile();
         }
       }
+  }
+
+  private void createExecutionIDFile(){
+    File file = new File("executionID.testra");
+    FileWriter writer = null;
+    try {
+      if (file.createNewFile()){
+        System.out.println("File is created!");
+      }else{
+        System.out.println("File already exists.");
+      }
+      writer = new FileWriter(file);
+      writer.write(TestraRestClient.getExecutionid());
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
   }
 
   private void handleEmbed(EmbedEvent event) {
