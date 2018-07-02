@@ -14,4 +14,4 @@ cache:
 script:
 - "./gradlew check"
 - "./gradlew compileJava compileTestJava"
-- "./gradlew bintrayPublish"
+- "./gradlew bintrayUpload bintrayPublish -Dbintray.user=$BINTRAY_USER -Dbintray.key=$BINTRAY_KEY"
