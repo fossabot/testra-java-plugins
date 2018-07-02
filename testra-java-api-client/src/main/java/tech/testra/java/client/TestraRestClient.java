@@ -91,7 +91,7 @@ public final class TestraRestClient {
     }
   }
 
-    public static String createExecution() {
+    private static synchronized String createExecution() {
     ExecutionRequest executionRequest = new ExecutionRequest();
     executionRequest.setIsParallel(false);
     if(prop("branch")!= null)
@@ -137,8 +137,13 @@ public final class TestraRestClient {
     }
   }
 
-  public static void setExecutionid(String eid){
-      executionIDString = eid;
+  public static synchronized void setExecutionid(String eid){
+      if(eid == null){
+        createExecution();
+      }
+      else {
+        executionIDString = eid;
+      }
   }
 
   public static String getExecutionid(){

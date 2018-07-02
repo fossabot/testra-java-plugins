@@ -4,6 +4,7 @@ import cucumber.api.Result;
 import cucumber.api.Result.Type;
 import cucumber.api.event.*;
 import cucumber.api.formatter.Formatter;
+import cucumber.runner.PickleTestStep;
 import gherkin.ast.Feature;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.Step;
@@ -154,7 +155,7 @@ public class Testra implements Formatter {
           TestraRestClient.setExecutionid(prop("previousexecutionID"));
         }
         else {
-          TestraRestClient.createExecution();
+          TestraRestClient.setExecutionid(null);
           createExecutionIDFile();
         }
       }
@@ -227,14 +228,16 @@ public class Testra implements Formatter {
         testStep.setText(s.getGherkinStep());
         return testStep;}).collect(Collectors.toList()));
     List<TestStep> testStepList = new ArrayList<>();
-    for(int i = commonData.backgroundSteps.size(); i<commonData.currentTestCase.getTestSteps().size(); i++){
-      if(!(commonData.currentTestCase.getTestSteps().get(i).isHook())) {
+    List<PickleTestStep> pickleSteps = commonData.currentTestCase.getTestSteps().stream()
+        .filter(x -> !x.isHook())
+        .map(x -> (PickleTestStep)x)
+        .collect(Collectors.toList());
+    for(int i = commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).size(); i<pickleSteps.size(); i++){
         TestStep testStep = new TestStep();
-        testStep.setIndex(i - commonData.backgroundSteps.size());
-        testStep.setText(((commonData.currentTestCase.getTestSteps().get(i))).getStepText());
+        testStep.setIndex(i - commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).size());
+        testStep.setText(((pickleSteps.get(i))).getStepText());
         testStepList.add(testStep);
 
-      }
     }
     scenarioRequest.setSteps(testStepList);
     Scenario scenario = TestraRestClient.createScenario(scenarioRequest);
