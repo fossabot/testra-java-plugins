@@ -18,7 +18,7 @@ public class CommonData {
   public Feature currentFeature;
   public String currentFeatureFile;
   public TestCase currentTestCase;
-  public List<StepTemplate> backgroundSteps = new ArrayList<>();
+  public Map<String,List<StepTemplate>> backgroundSteps = new HashMap<>();
   public List<tech.testra.java.client.model.StepResult> stepResultsNew = new ArrayList<>();
   public final String TYPE_SCENARIO = "SCENARIO";
   public String currentScenarioID;

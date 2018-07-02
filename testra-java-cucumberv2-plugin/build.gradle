@@ -13,6 +13,8 @@ dependencies {
     compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.8.1'
     compile 'org.projectlombok:lombok:1.16.18'
     compile group: 'com.google.guava', name: 'guava', version: '24.0-jre'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
+
     apt "org.projectlombok:lombok:1.16.18"
 }
 

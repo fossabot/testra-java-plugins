@@ -7,7 +7,7 @@ import cucumber.api.testng.AbstractTestNGCucumberTests;
  * A sample test to demonstrate
  */
 //@CucumberOptions(
-//    tags = "@example",
+//    tags = "",
 //    features = "src/test/resources/feature_files",
 //    glue = {""},
 //    plugin = {"tech.testra.jvm.plugin.cucumberv2.Testra"}

@@ -96,6 +96,9 @@ subprojects {
             dependency group: 'com.jleth.util', name: 'okhttp2-logging', version: "${okHttpLoggingVersion}"
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: seleniumVersion
             dependency group: 'com.google.guava', name: 'guava', version: '24.0-jre'
+            // https://mvnrepository.com/artifact/org.mockito/mockito-core
+            dependency group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
+
         }
     }
 

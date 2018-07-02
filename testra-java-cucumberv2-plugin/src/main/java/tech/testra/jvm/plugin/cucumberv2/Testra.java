@@ -14,6 +14,7 @@ import tech.testra.java.client.TestraRestClient;
 import tech.testra.java.client.model.*;
 import tech.testra.java.client.model.TestResultRequest.ResultEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
+import tech.testra.jvm.commons.util.MD5;
 import tech.testra.jvm.commons.util.PropertyHelper;
 import tech.testra.jvm.plugin.cucumberv2.utils.CommonData;
 import tech.testra.jvm.plugin.cucumberv2.utils.CommonDataProvider;
@@ -70,6 +71,7 @@ public class Testra implements Formatter {
     LOGGER.info("SKIPPED:" + skipped);
     LOGGER.info("FAILED:" + failed);
     LOGGER.info("UNDEFINED: " + undefined);
+
   }
 
   private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
@@ -123,7 +125,7 @@ public class Testra implements Formatter {
     cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
     commonData.cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
     cucumberSourceUtils.getFeature(event.uri);
-    processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri));
+    processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri), MD5.generateMD5(event.uri));
     if(commonData.isRetry) {
       List<TestResult> failedTests = TestraRestClient.getFailedResults();
       failedTests.forEach(x -> {commonData.failedScenarioIDs.put(x.getTargetId(),x.getId());
@@ -145,8 +147,9 @@ public class Testra implements Formatter {
     commonData.embedEvent = event;
   }
 
-  private void processBackgroundSteps(Feature feature)
+  private void processBackgroundSteps(Feature feature, String featureHash)
   {
+    List<StepTemplate> backgroundSteps = new ArrayList<>();
     List<String> featureTags = new ArrayList<>();
     feature.getTags().forEach(x -> featureTags.add(x.getName()));
     ScenarioDefinition background = feature.getChildren().stream()
@@ -162,9 +165,10 @@ public class Testra implements Formatter {
         stepTemplate.setIndex(counter);
         stepTemplate.setLine(step.getLocation().getLine());
         counter ++;
-        commonData.backgroundSteps.add(stepTemplate);
+        backgroundSteps.add(stepTemplate);
       }
     }
+    commonData.backgroundSteps.put(featureHash,backgroundSteps);
   }
 
 
@@ -181,7 +185,7 @@ public class Testra implements Formatter {
     scenarioRequest.setFeatureName(commonData.currentFeature.getName());
     scenarioRequest.setFeatureDescription(commonData.currentFeature.getDescription());
     scenarioRequest.setTags(tagList);
-    scenarioRequest.setBackgroundSteps(commonData.backgroundSteps.stream()
+    scenarioRequest.setBackgroundSteps(commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).stream()
         .map(s -> {
           TestStep testStep = new TestStep();
           testStep.setIndex(s.getIndex());
