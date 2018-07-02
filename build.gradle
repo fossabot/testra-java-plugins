@@ -24,6 +24,8 @@ buildscript {
 
 plugins {
     id 'net.ltgt.apt' version '0.10'
+    id 'com.jfrog.bintray' version '1.8.3'
+    id 'maven-publish'
 }
 
 // Dependency versions
@@ -45,7 +47,7 @@ ext.seleniumVersion = '3.8.1'
 
 allprojects {
     group 'tech.testra'
-    version '1.0'
+    version '1.0-SNAPSHOT'
 
     apply plugin: 'idea'
     apply plugin: 'project-report'
@@ -74,6 +76,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'maven-publish'
+    apply plugin: 'com.jfrog.bintray'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -102,38 +105,58 @@ subprojects {
         }
     }
 
-//    publishing {
-//        publications {
-//            mavenJava(MavenPublication) {
-//                from components.java
-//                version '1.0'
-//                pom {
-//                    url = 'https://github.com/testra-tech/testra-java-plugins'
-//                    licenses {
-//                        license {
-//                            name = 'GNU GENERAL PUBLIC LICENSE, Version 3.0'
-//                            url = 'https://www.gnu.org/licenses/gpl.txt'
-//                            distribution = 'repo'
-//                        }
-//                    }
-//                    developers {
-//                        developer {
-//                            id = 'paulsjohnson91'
-//                            name = 'Paul Johnson'
-//                        }
-//                        developer {
-//                            id = 'sudokar'
-//                            name = 'sudokar'
-//                        }
-//                    }
-//
-//                    scm {
-//                        url = 'https://github.com/testra-tech/testra-java-plugins'
-//                    }
-//                }
-//            }
-//        }
-//    }
+    publishing {
+        publications {
+            mavenPublication(MavenPublication) {
+                from components.java
+                pom {
+                    url = 'https://github.com/testra-tech/testra-java-plugins'
+                    licenses {
+                        license {
+                            name = 'GNU GENERAL PUBLIC LICENSE, Version 3.0'
+                            url = 'https://www.gnu.org/licenses/gpl.txt'
+                            distribution = 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'paulsjohnson91'
+                            name = 'Paul Johnson'
+                        }
+                        developer {
+                            id = 'sudokar'
+                            name = 'sudokar'
+                        }
+                    }
+                    scm {
+                        url = 'https://github.com/testra-tech/testra-java-plugins'
+                    }
+                }
+            }
+        }
+    }
+
+    bintray {
+        user = System.getProperty('bintray.user')
+        key = System.getProperty('bintray.key')
+        publications = ['mavenPublication']
+        override = true
+        dryRun = false
+        publish = true
+        pkg {
+            repo = 'testra'
+            name = "$project.name"
+            publicDownloadNumbers = true
+            desc = 'Testra plugins for Java'
+            licenses = ['GPL-3.0']
+            vcsUrl = 'https://github.com/testra-tech/testra-java-plugins'
+            version {
+                name = "$project.version"
+                desc = "$project.version"
+                released  = new Date()
+            }
+        }
+    }
 }
 
 configure(subprojects

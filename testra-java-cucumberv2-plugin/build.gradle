@@ -6,6 +6,7 @@ def cucumber_version = '2.4.0'
 dependencies {
     compile project(':testra-java-api-client')
     compile project(':testra-java-commons')
+
     compile group: 'io.cucumber', name: 'cucumber-core', version: "${cucumber_version}"
     compile group: 'io.cucumber', name: 'cucumber-java', version: "${cucumber_version}"
     compile group: 'io.cucumber', name: 'cucumber-testng', version: "${cucumber_version}"
@@ -13,9 +14,10 @@ dependencies {
     compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.8.1'
     compile 'org.projectlombok:lombok:1.16.18'
     compile group: 'com.google.guava', name: 'guava', version: '24.0-jre'
+
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
 
-    apt "org.projectlombok:lombok:1.16.18"
+    apt "org.projectlombok:lombok"
 }
 
 webdriverBinaries {
