@@ -36,7 +36,6 @@ public class Testra implements Reporter, Formatter {
   private static final String SKIPPED = "skipped";
   private static final String PENDING = "pending";
   private static final String UNDEFINED = "undefined";
-  private String executionID;
 
   private CommonData commonData;
   private static String projectID;
@@ -161,8 +160,8 @@ public class Testra implements Reporter, Formatter {
   }
 
   private void createExecution() {
-    if (executionID == null) {
-      executionID = TestraRestClient.createExecution();
+    if (TestraRestClient.getExecutionid() == null) {
+      TestraRestClient.setExecutionid(null);
     }
   }
   private ResultEnum resultToEnum(Result result){

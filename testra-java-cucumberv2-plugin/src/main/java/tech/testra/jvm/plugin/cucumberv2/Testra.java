@@ -154,7 +154,7 @@ public class Testra implements Formatter {
           TestraRestClient.setExecutionid(prop("previousexecutionID"));
         }
         else {
-          TestraRestClient.createExecution();
+          TestraRestClient.setExecutionid(null);
           createExecutionIDFile();
         }
       }
