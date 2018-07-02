@@ -92,6 +92,9 @@ public final class TestraRestClient {
   }
 
     private static synchronized String createExecution() {
+      if(executionIDString != null){
+        return executionIDString;
+      }
     ExecutionRequest executionRequest = new ExecutionRequest();
     executionRequest.setIsParallel(false);
     if(prop("branch")!= null)
