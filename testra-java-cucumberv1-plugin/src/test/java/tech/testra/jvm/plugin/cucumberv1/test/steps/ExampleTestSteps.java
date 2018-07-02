@@ -23,7 +23,7 @@ public class ExampleTestSteps {
   }
 
   @Then("^(\\d+) plus (\\d+) does not equal (\\d+)$")
-  public void plusDoesNotEqual(int arg0, int arg1, int arg2) throws Throwable {
+  public void plusDoesNotEqual(int arg0, int arg1, int arg2) {
     assertThat(arg0+arg1)
         .as("Error args " + arg0 + " + " + arg1 + " should not equal " + arg2 + " but was " + (arg0+arg1))
         .isNotEqualTo(arg2);

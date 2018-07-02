@@ -8,8 +8,6 @@ import cucumber.api.java.en.Then;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 
-import java.net.MalformedURLException;
-
 public class SeleniumSteps extends AbstractSeleniumClass {
 
   private WebDriver webDriver;
@@ -26,7 +24,7 @@ public class SeleniumSteps extends AbstractSeleniumClass {
   public void the_webdriver_is_loaded() {
     try {
       webDriver = getNewWebDriver();
-    } catch (MalformedURLException e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }

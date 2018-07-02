@@ -1,6 +1,5 @@
 package tech.testra.java.client;
 
-import static tech.testra.jvm.commons.util.PropertyHelper.prop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.testra.java.client.api.ExecutionApi;
@@ -8,10 +7,14 @@ import tech.testra.java.client.api.ProjectApi;
 import tech.testra.java.client.api.ResultApi;
 import tech.testra.java.client.api.ScenarioApi;
 import tech.testra.java.client.model.*;
+import tech.testra.java.client.utils.HostNameUtil;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static tech.testra.jvm.commons.util.PropertyHelper.prop;
 
 
 public final class TestraRestClient {
@@ -35,7 +38,7 @@ public final class TestraRestClient {
     executionApi.getApiClient().setBasePath(url);
     resultApi.getApiClient().setBasePath(url);
     scenarioApi.getApiClient().setBasePath(url);
-    if(Boolean.parseBoolean(prop("debug"))) {
+      if (Boolean.parseBoolean(prop("testra.debug"))) {
       projectApi.getApiClient().setDebugging(true);
       executionApi.getApiClient().setDebugging(true);
       resultApi.getApiClient().setDebugging(true);
@@ -101,7 +104,7 @@ public final class TestraRestClient {
     if(buildRef!= null){
       executionRequest.buildRef(buildRef);
     }
-    executionRequest.setHost(prop("host"));
+      executionRequest.setHost(HostNameUtil.hostName());
     executionRequest.setTags(Collections.singletonList(""));
     try {
         Execution execution = executionApi.createExecution(projectIDString, executionRequest);
