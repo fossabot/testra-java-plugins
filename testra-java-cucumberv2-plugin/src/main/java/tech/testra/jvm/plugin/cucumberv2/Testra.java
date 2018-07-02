@@ -138,7 +138,7 @@ public class Testra implements Formatter {
   private synchronized void createExecution() {
       if(TestraRestClient.getExecutionid() == null) {
         if(commonData.isRetry){
-          File file = new File("executionID.testra");
+          File file = new File("testra.exec");
           if(file.isFile()){
             try {
               TestraRestClient.setExecutionid(Files.readFile(file).trim());
@@ -161,7 +161,7 @@ public class Testra implements Formatter {
   }
 
   private void createExecutionIDFile(){
-    File file = new File("executionID.testra");
+    File file = new File("testra.exec");
     FileWriter writer = null;
     try {
       if (file.createNewFile()){
