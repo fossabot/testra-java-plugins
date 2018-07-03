@@ -59,6 +59,8 @@ previousexecutionID=5b34b3b5c83c6c2f86b65e99
 If isrerun is set to true, set the previousexecutionID to the last execution id and the plugin will skipp all previously passed scenarios.
 Note any of these properties can be set as jvm arguments.
 
+Run testra.disabled=true as a jvm argument to disable the Testra Plugin
+
 
 ## Contribute
 

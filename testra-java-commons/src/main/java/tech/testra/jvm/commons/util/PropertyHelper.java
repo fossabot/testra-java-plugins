@@ -35,10 +35,16 @@ public final class PropertyHelper {
 
 
   public static String prop(String value) {
+    if(System.getProperty(value) !=null){
+      return System.getProperty(value);
+    }
     return properties.getProperty(value);
   }
 
   public static String prop(String value, String defaultValue) {
+    if(System.getProperty(value) !=null){
+      return System.getProperty(value);
+    }
     return properties.getProperty(value, defaultValue);
   }
 }

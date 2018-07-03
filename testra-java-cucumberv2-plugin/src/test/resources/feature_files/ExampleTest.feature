@@ -32,4 +32,5 @@ Feature: Example Test Feature
 
   Scenario: Arguement types
     And true is true
+    Then 4 minus 2 equals 2
 

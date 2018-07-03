@@ -1,5 +1,6 @@
 package tech.testra.jvm.plugin.cucumberv2;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import cucumber.api.Result;
 import cucumber.api.Result.Type;
 import cucumber.api.event.*;
@@ -40,43 +41,12 @@ public class Testra implements Formatter {
 
   private final Long threadId = Thread.currentThread().getId();
   private CommonData commonData;
-  private final EventHandler<TestSourceRead> featureStartedHandler = this::handleFeatureStartedHandler;
-  private final EventHandler<TestCaseStarted> caseStartedHandler = this::handleTestCaseStarted;
-  private final EventHandler<TestCaseFinished> caseFinishedHandler = this::handleTestCaseFinished;
-  private final EventHandler<TestStepStarted> stepStartedHandler = this::handleTestStepStarted;
-  private final EventHandler<TestStepFinished> stepFinishedHandler = this::handleTestStepFinished;
-  private final EventHandler<SnippetsSuggestedEvent> snippetsSuggestedEventEventHandler = this::snippetHandler;
-  private final EventHandler<TestRunFinished> runFinishedEventHandler = this::handleRunFinishedEventHandler;
-
-  private void handleRunFinishedEventHandler(TestRunFinished testRunFinished) {
-    List<TestResult> results = TestraRestClient.getResults(null);
-    int passed = 0;
-    int failed = 0;
-    int skipped = 0;
-    int undefined = 0;
-    for(TestResult testResult : results){
-      switch(testResult.getResult()){
-        case PASSED:
-          passed++;
-          break;
-        case SKIPPED:
-          skipped++;
-          break;
-        case FAILED:
-          failed++;
-          break;
-        case UNDEFINED:
-          undefined++;
-          break;
-      }
-    }
-    LOGGER.info("RESULTS:");
-    LOGGER.info("PASSED:" + passed);
-    LOGGER.info("SKIPPED:" + skipped);
-    LOGGER.info("FAILED:" + failed);
-    LOGGER.info("UNDEFINED: " + undefined);
-
-  }
+  private final EventHandler<TestSourceRead> featureStartedHandler;
+  private final EventHandler<TestCaseStarted> caseStartedHandler;
+  private final EventHandler<TestCaseFinished> caseFinishedHandler;
+  private final EventHandler<TestStepStarted> stepStartedHandler;
+  private final EventHandler<TestStepFinished> stepFinishedHandler;
+  private final EventHandler<SnippetsSuggestedEvent> snippetsSuggestedEventEventHandler;
 
   private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
   private EventHandler<EmbedEvent> embedEventhandler = event -> handleEmbed(event);
@@ -84,17 +54,52 @@ public class Testra implements Formatter {
   public Testra() {
     PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
     setup();
-    TestraRestClient.setURLs(prop("host"));
-    LOGGER.info("Project ID is " + TestraRestClient.getProjectID(prop("project")));
-    commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
-    commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
-    if(prop("buildRef")!=null){
-      TestraRestClient.buildRef = prop("buildRef");
+    if(Boolean.parseBoolean(prop("testra.disabled" ,"false"))){
+      featureStartedHandler = this::handleFeatureStartedHandlerDisabled;
+      caseStartedHandler = this::handleTestCaseStartedDisabled;
+      caseFinishedHandler = this::handleTestCaseFinishedDisabled;
+      stepStartedHandler = this::handleTestStepStartedDisabled;
+      stepFinishedHandler = this::handleTestStepFinishedDisabled;
+      snippetsSuggestedEventEventHandler = this::snippetHandler;
     }
-    if(prop("testra.execution.description")!=null){
-      TestraRestClient.executionDescription = prop("testra.execution.description");
+    else{
+      featureStartedHandler = this::handleFeatureStartedHandler;
+      caseStartedHandler = this::handleTestCaseStarted;
+      caseFinishedHandler = this::handleTestCaseFinished;
+      stepStartedHandler = this::handleTestStepStarted;
+      stepFinishedHandler = this::handleTestStepFinished;
+      snippetsSuggestedEventEventHandler = this::snippetHandler;
+      TestraRestClient.setURLs(prop("host"));
+      LOGGER.info("Project ID is " + TestraRestClient.getProjectID(prop("project")));
+      commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
+      commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
+      if(prop("buildRef")!=null){
+        TestraRestClient.buildRef = prop("buildRef");
+      }
+      if(prop("testra.execution.description")!=null){
+        TestraRestClient.executionDescription = prop("testra.execution.description");
+      }
+      createExecution();
     }
-    createExecution();
+
+  }
+
+  private void handleFeatureStartedHandlerDisabled(final TestSourceRead event) {
+
+  }
+
+  private void handleTestCaseStartedDisabled(TestCaseStarted event){
+
+  }
+
+  private void handleTestStepStartedDisabled(final TestStepStarted event) {
+  }
+
+  private void handleTestStepFinishedDisabled(final TestStepFinished event) {
+  }
+
+  private void handleTestCaseFinishedDisabled(final TestCaseFinished event) {
+
   }
 
   @Override
@@ -106,7 +111,6 @@ public class Testra implements Formatter {
     publisher.registerHandlerFor(TestStepFinished.class, stepFinishedHandler);
     publisher.registerHandlerFor(EmbedEvent.class, embedEventhandler);
     publisher.registerHandlerFor(SnippetsSuggestedEvent.class, snippetsSuggestedEventEventHandler);
-    publisher.registerHandlerFor(TestRunFinished.class, runFinishedEventHandler);
   }
 
   private void setup(){
@@ -159,6 +163,7 @@ public class Testra implements Formatter {
           createExecutionIDFile();
         }
       }
+      LOGGER.info("Execution ID is: " + TestraRestClient.getExecutionid());
   }
 
   private void createExecutionIDFile(){
