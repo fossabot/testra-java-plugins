@@ -25,6 +25,7 @@ buildscript {
 plugins {
     id 'net.ltgt.apt' version '0.10'
     id 'com.jfrog.bintray' version '1.8.3'
+    id 'com.jfrog.artifactory' version '4.7.5'
     id 'maven-publish'
 }
 
@@ -47,7 +48,7 @@ ext.seleniumVersion = '3.8.1'
 
 allprojects {
     group 'tech.testra'
-    version '0.4'
+    version '1.0-SNAPSHOT'
 
     apply plugin: 'idea'
     apply plugin: 'project-report'
@@ -77,6 +78,7 @@ subprojects {
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'maven-publish'
     apply plugin: 'com.jfrog.bintray'
+    apply plugin: 'com.jfrog.artifactory'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -105,10 +107,32 @@ subprojects {
         }
     }
 
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    javadoc.failOnError = false
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+
     publishing {
         publications {
             mavenPublication(MavenPublication) {
                 from components.java
+                artifact sourcesJar {
+                    classifier "sources"
+                }
+                artifact javadocJar {
+                    classifier "javadoc"
+                }
                 pom {
                     url = 'https://github.com/testra-tech/testra-java-plugins'
                     licenses {
@@ -134,6 +158,26 @@ subprojects {
                 }
             }
         }
+    }
+
+    artifactory {
+        contextUrl = 'http://oss.jfrog.org'
+        publish {
+            repository {
+                repoKey = 'oss-snapshot-local'
+                username = System.getProperty('bintray.user')
+                password = System.getProperty('bintray.key')
+            }
+            defaults {
+                publications('mavenPublication')
+                publishArtifacts = true
+                publishPom = true
+            }
+        }
+        resolve {
+            repoKey = 'jcenter'
+        }
+        clientConfig.info.setBuildNumber(System.getProperty('build.number'))
     }
 
     bintray {
