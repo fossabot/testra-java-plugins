@@ -748,7 +748,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/TestResult'
+              $ref: '#/definitions/EnrichedTestResult'
         default:
           description: Any other errors
           schema:
@@ -1267,6 +1267,58 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Attachment'
+    required:
+      - id
+      - targetId
+      - groupId
+      - resultType
+      - result
+      - durationInMs
+      - startTime
+      - endTime
+      - retryCount
+
+  EnrichedTestResult:
+    title: TestResult
+    type: object
+    properties:
+      id:
+        type: string
+      targetId:
+        type: string
+      groupId:
+        type: string
+      resultType:
+        type: string
+        enum: [SCENARIO, TESTCASE]
+      result:
+        type: string
+        enum: *RESULT_ENUM
+      error:
+        type: string
+      durationInMs:
+        type: integer
+        format: int64
+      startTime:
+        type: integer
+        format: int64
+      endTime:
+        type: integer
+        format: int64
+      retryCount:
+        type: integer
+      stepResults:
+        type: array
+        items:
+          $ref: '#/definitions/StepResult'
+      attachments:
+        type: array
+        items:
+          $ref: '#/definitions/Attachment'
+      scenario:
+        $ref: '#/definitions/Scenario'
+      testcase:
+        $ref: '#/definitions/Testcase'
     required:
       - id
       - targetId

@@ -1,6 +1,5 @@
 package tech.testra.jvm.plugin.cucumberv2;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import cucumber.api.Result;
 import cucumber.api.Result.Type;
 import cucumber.api.event.*;
@@ -135,7 +134,7 @@ public class Testra implements Formatter {
     cucumberSourceUtils.getFeature(event.uri);
     processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri), MD5.generateMD5(event.uri));
     if(commonData.isRetry) {
-      List<TestResult> failedTests = TestraRestClient.getFailedResults();
+      List<EnrichedTestResult> failedTests = TestraRestClient.getFailedResults();
       failedTests.forEach(x -> {commonData.failedScenarioIDs.put(x.getTargetId(),x.getId());
       commonData.failedRetryMap.put(x.getTargetId(), x.getRetryCount());});
     }
@@ -239,7 +238,7 @@ public class Testra implements Formatter {
         .collect(Collectors.toList());
     for(int i = commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).size(); i<pickleSteps.size(); i++){
         TestStep testStep = new TestStep();
-        testStep.setIndex(i - commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).size());
+        testStep.setIndex(i);
         testStep.setText(((pickleSteps.get(i))).getStepText());
         testStepList.add(testStep);
 
@@ -276,6 +275,7 @@ public class Testra implements Formatter {
   }
 
   private void handleTestCaseFinished(final TestCaseFinished event) {
+    commonData.resultCounter = 0;
     commonData.endTime = System.currentTimeMillis();
     TestResultRequest testResultRequest = new TestResultRequest();
     testResultRequest.setGroupId(commonData.currentFeatureID);
@@ -349,7 +349,8 @@ public class Testra implements Formatter {
     cucumber.api.TestStep testStep = event.testStep;
     StepResult stepResult = new StepResult();
     stepResult.setDurationInMs(event.result.getDuration());
-    stepResult.setIndex(testStep.getStepLine());
+    stepResult.setIndex(commonData.resultCounter);
+    commonData.resultCounter = commonData.resultCounter + 1;
     stepResult.setResult(StepResultToEnum(event.result.getStatus()));
     if(event.result.getStatus().equals(Type.UNDEFINED)){
       if(commonData.snippetLine.size()>0){
