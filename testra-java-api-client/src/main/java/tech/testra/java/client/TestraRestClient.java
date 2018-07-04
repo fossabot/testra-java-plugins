@@ -7,6 +7,8 @@ import tech.testra.java.client.api.ProjectApi;
 import tech.testra.java.client.api.ResultApi;
 import tech.testra.java.client.api.ScenarioApi;
 import tech.testra.java.client.model.*;
+import tech.testra.java.client.model.StepResult.ResultEnum;
+import tech.testra.java.client.model.TestResult.ResultTypeEnum;
 import tech.testra.java.client.utils.HostNameUtil;
 
 import java.util.ArrayList;
@@ -153,11 +155,11 @@ public final class TestraRestClient {
       return executionIDString;
   }
 
-  public static List<TestResult> getFailedResults(){
-      return getResults(Result.FAILED.getValue());
+  public static List<EnrichedTestResult> getFailedResults(){
+      return getResults(ResultEnum.FAILED.toString());
   }
 
-  public static List<TestResult> getResults(String resultType){
+  public static List<EnrichedTestResult> getResults(String resultType){
     try {
       return resultApi.getResults(projectIDString,executionIDString,resultType);
     } catch (ApiException e) {

@@ -1,6 +1,5 @@
 package tech.testra.jvm.plugin.cucumberv2;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import cucumber.api.Result;
 import cucumber.api.Result.Type;
 import cucumber.api.event.*;
@@ -135,7 +134,7 @@ public class Testra implements Formatter {
     cucumberSourceUtils.getFeature(event.uri);
     processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri), MD5.generateMD5(event.uri));
     if(commonData.isRetry) {
-      List<TestResult> failedTests = TestraRestClient.getFailedResults();
+      List<EnrichedTestResult> failedTests = TestraRestClient.getFailedResults();
       failedTests.forEach(x -> {commonData.failedScenarioIDs.put(x.getTargetId(),x.getId());
       commonData.failedRetryMap.put(x.getTargetId(), x.getRetryCount());});
     }
