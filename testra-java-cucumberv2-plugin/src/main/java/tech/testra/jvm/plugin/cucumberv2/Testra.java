@@ -250,10 +250,12 @@ public class Testra implements Formatter {
 
     if(commonData.isRetry&&!commonData.failedScenarioIDs.containsKey(commonData.currentScenarioID)){
       LOGGER.info("Test has already passed in a previous test run");
-      throw new SkipException("Test passed in previous test run, skipping");
+      if(prop("junit") ==null || !Boolean.parseBoolean(prop("junit"))){
+          throw new SkipException("Test already passed, skipping");
+      }
     }
 
-    if(commonData.isRetry){
+    else if(commonData.isRetry){
       commonData.currentTestResultID = commonData.failedScenarioIDs.get(commonData.currentScenarioID);
       commonData.retryCount = commonData.failedRetryMap.get(commonData.currentScenarioID) + 1;
     }
@@ -275,6 +277,12 @@ public class Testra implements Formatter {
   }
 
   private void handleTestCaseFinished(final TestCaseFinished event) {
+    if(commonData.skip){
+      commonData.skip = false;
+      commonData.stepResultsNew = new ArrayList<>();
+      commonData.embedEvent = null;
+      return;
+    }
     commonData.resultCounter = 0;
     commonData.endTime = System.currentTimeMillis();
     TestResultRequest testResultRequest = new TestResultRequest();

@@ -1,5 +1,5 @@
 @selenium
-Feature: Example Test Feature
+Feature: Example Selenium Feature
 
   Background:
     Given the webdriver is loaded
