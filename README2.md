@@ -32,7 +32,7 @@ Either add the plugin as a command line argument:
 ```
 -Dcucumber.options="--plugin tech.testra.jvm.plugin.cucumberv2.Testra"
 ```
-Or to the cucumber options of your runner
+Or to the cucumber options of your runner (TestNG)
 ```$xslt
 @CucumberOptions(
     tags = "@example",
@@ -43,6 +43,32 @@ Or to the cucumber options of your runner
 public class ExampleTestRunner extends AbstractTestNGCucumberTests {
 }
 ```
+
+Or to the cucumber options of your runner (Junit)
+```aidl
+@RunWith(Cucumber.class)
+@CucumberOptions(
+    tags = "@example",
+    features = "src/test/resources/feature_files",
+    glue = {""},
+    plugin = {
+        "tech.testra.jvm.plugin.cucumberv2.Testra"
+    }
+)
+public class ExampleTestRunnerJunit {
+
+}
+```
+
+If you wish to use the retry functionality to rerun failed tests you must add the following to your test steps @Before
+```$xslt
+  @Before
+  public void setup(){
+    TestraJunitHelper junitHelper = new TestraJunitHelper();
+    junitHelper.checkSkip();
+  }
+```
+And you must have junit=true as a jvm arg or in .testra
 You must have a .testra file in the root directory for the module which defines
 ```$xslt
 host=http://localhost:8080/api/v1
