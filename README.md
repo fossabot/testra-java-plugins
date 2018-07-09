@@ -1,13 +1,7 @@
 # Testra Java Plugin
 
-![banner]()
-
-![badge]()
-![badge]()
-
-
 This is the test plugin including API Client for Testra.
-It includes plugins for both cukes cucumber version 1 and io.cucumber version 2.
+It includes plugins for cucumber versions 1.2.5, 2.4.0 and 3.0.2
 
 ## Table of Contents
 
@@ -19,13 +13,11 @@ It includes plugins for both cukes cucumber version 1 and io.cucumber version 2.
 
 ## Install
 
-Add the following dependency groups to your build.gradle file (swapping v2 for v1 if you're using cukes cucumber v1)
+Add the following dependency group to your build.gradle file
 ```
 dependency group: 'tech.testra', name: 'testra-java-cucumberv2-plugin', version: "${testraPluginVersion}"
-dependency group: 'tech.testra', name: 'testra-java-api-client', version: "${testraPluginVersion}"
-dependency group: 'tech.testra', name: 'testra-java-commons', version: "${testraPluginVersion}"
 ```
-
+Replacing v2 with the version of cucumber you are using 1,2 or 3
 
 ## Usage
 Either add the plugin as a command line argument:
@@ -60,7 +52,7 @@ public class ExampleTestRunnerJunit {
 }
 ```
 
-If you wish to use the retry functionality to rerun failed tests you must add the following to your test steps @Before
+If you are using junit and wish to use the retry functionality to rerun failed tests you must add the following to your test steps @Before
 ```$xslt
   @Before
   public void setup(){
@@ -87,9 +79,12 @@ junit=false
 If isrerun is set to true, set the previousexecutionID to the last execution id and the plugin will skipp all previously passed scenarios.
 Note any of these properties can be set as jvm arguments.
 
+Each time you complete a test run, a testra.exec file will be created with the previous execution id.
+If this file is present, there is no need to add previousexecutionID to the .testra file.
+
 Run testra.disabled=true as a jvm argument to disable the Testra Plugin
 
-Any .testra properties that are passed as jvm args, the jvm arg will be used.
+Any .testra properties that are passed as jvm args, the jvm arg will be used first.
 
 
 ## Contribute
