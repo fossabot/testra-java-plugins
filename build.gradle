@@ -204,7 +204,7 @@ subprojects {
 }
 
 configure(subprojects
-        .findAll { it.name == 'testra-java-cucumberv2-plugin' || it.name == 'testra-java-cucumberv1-plugin' }) {
+        .findAll { it.name == 'testra-java-cucumberv2-plugin' || it.name == 'testra-java-cucumberv1-plugin'|| it.name == 'testra-java-cucumberv3-plugin'}) {
     apply plugin: 'com.energizedwork.webdriver-binaries'
 }
 

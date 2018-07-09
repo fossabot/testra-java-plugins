@@ -1,0 +1,31 @@
+plugins {
+    id "io.spring.dependency-management"
+    id "net.ltgt.apt"
+}
+def cucumber_version = '3.0.2'
+dependencies {
+    compile project(':testra-java-api-client')
+    compile project(':testra-java-commons')
+
+    compile group: 'io.cucumber', name: 'cucumber-core', version: "${cucumber_version}"
+    compile group: 'io.cucumber', name: 'cucumber-java', version: "${cucumber_version}"
+    compile group: 'io.cucumber', name: 'cucumber-testng', version: "${cucumber_version}"
+    compile group: 'io.cucumber', name: 'cucumber-junit', version: "${cucumber_version}"
+
+    compile group: 'org.assertj', name: 'assertj-core-java8'
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.8.1'
+    compile 'org.projectlombok:lombok:1.16.18'
+    compile group: 'com.google.guava', name: 'guava', version: '24.0-jre'
+
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
+// https://mvnrepository.com/artifact/junit/junit
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+
+    apt "org.projectlombok:lombok:1.16.18"
+}
+
+webdriverBinaries {
+    chromedriver '2.37'
+    downloadRoot new File("${project.projectDir}/src/test/resources")
+}
