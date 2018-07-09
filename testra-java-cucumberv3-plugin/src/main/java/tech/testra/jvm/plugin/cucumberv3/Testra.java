@@ -1,9 +1,9 @@
-package tech.testra.jvm.plugin.cucumberv2;
+package tech.testra.jvm.plugin.cucumberv3;
 
+import cucumber.api.PickleStepTestStep;
 import cucumber.api.Result.Type;
 import cucumber.api.event.*;
 import cucumber.api.formatter.Formatter;
-import cucumber.runner.PickleTestStep;
 import gherkin.ast.Feature;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.Step;
@@ -19,9 +19,9 @@ import tech.testra.java.client.model.TestResultRequest.ResultEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
 import tech.testra.jvm.commons.util.MD5;
 import tech.testra.jvm.commons.util.PropertyHelper;
-import tech.testra.jvm.plugin.cucumberv2.utils.CommonData;
-import tech.testra.jvm.plugin.cucumberv2.utils.CommonDataProvider;
-import tech.testra.jvm.plugin.cucumberv2.utils.CucumberSourceUtils;
+import tech.testra.jvm.plugin.cucumberv3.utils.CommonData;
+import tech.testra.jvm.plugin.cucumberv3.utils.CommonDataProvider;
+import tech.testra.jvm.plugin.cucumberv3.utils.CucumberSourceUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import tech.testra.jvm.plugin.cucumberv2.utils.StepTemplate;
+import tech.testra.jvm.plugin.cucumberv3.utils.StepTemplate;
 
 import static tech.testra.jvm.commons.util.PropertyHelper.prop;
 
@@ -230,9 +230,9 @@ public class Testra implements Formatter {
         testStep.setText(s.getGherkinStep());
         return testStep;}).collect(Collectors.toList()));
     List<TestStep> testStepList = new ArrayList<>();
-    List<PickleTestStep> pickleSteps = commonData.currentTestCase.getTestSteps().stream()
+    List<PickleStepTestStep> pickleSteps = commonData.currentTestCase.getTestSteps().stream()
         .filter(x -> !x.isHook())
-        .map(x -> (PickleTestStep)x)
+        .map(x -> (PickleStepTestStep)x)
         .collect(Collectors.toList());
     for(int i = commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).size(); i<pickleSteps.size(); i++){
         TestStep testStep = new TestStep();

@@ -1,4 +1,4 @@
-package tech.testra.jvm.plugin.cucumberv2.utils;
+package tech.testra.jvm.plugin.cucumberv3.utils;
 
 import cucumber.api.TestCase;
 import cucumber.api.event.EmbedEvent;

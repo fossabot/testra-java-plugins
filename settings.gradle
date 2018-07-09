@@ -1,6 +1,7 @@
 rootProject.name = 'testra-cucumber-plugin'
 include 'testra-java-cucumberv1-plugin'
 include 'testra-java-cucumberv2-plugin'
+include 'testra-java-cucumberv3-plugin'
 include 'testra-java-junit-plugin'
 include 'testra-java-commons'
 include 'testra-java-api-client'

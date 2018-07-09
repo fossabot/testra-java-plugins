@@ -15,9 +15,9 @@ import tech.testra.java.client.model.*;
 import tech.testra.java.client.model.TestResultRequest.ResultEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
 import tech.testra.jvm.commons.util.PropertyHelper;
+import tech.testra.jvm.plugin.cucumberv1.templates.StepTemplate;
 import tech.testra.jvm.plugin.cucumberv1.templates.ErrorTemplate;
 import tech.testra.jvm.plugin.cucumberv1.templates.ScenarioTemplate;
-import tech.testra.jvm.plugin.cucumberv1.templates.StepTemplate;
 import tech.testra.jvm.plugin.cucumberv1.utils.CommonData;
 import tech.testra.jvm.plugin.cucumberv1.utils.CommonDataProvider;
 import tech.testra.jvm.plugin.cucumberv1.utils.Utils;
@@ -94,13 +94,14 @@ public class Testra implements Reporter, Formatter {
     scenarioRequest.setFeatureName(commonData.currentFeature.getName());
     scenarioRequest.setFeatureDescription(commonData.currentFeature.getDescription());
     scenarioRequest.setName(scenario.getName());
-    List<String> tags = commonData.currentFeature.getTags().stream().map(x -> x.getName()).collect(Collectors.toList());
-    tags.addAll(scenario.getTags().stream().map(x -> x.getName()).collect(Collectors.toList()));
+    List<String> tags = commonData.currentFeature.getTags().stream().map(Tag::getName).collect(Collectors.toList());
+    tags.addAll(scenario.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
     scenarioRequest.setTags(tags);
 
     List<TestStep> backgroundSteps = commonData.currentScenarioTemplate.getBackgroundSteps()
         .stream()
-        .map(s -> {TestStep testStep = new TestStep(); testStep.setIndex(s.getIndex());
+        .map(s -> {TestStep testStep = new TestStep();
+        testStep.setIndex(s.getIndex());
         testStep.setText(s.getGherkinStep());
         return testStep;})
         .collect(Collectors.toList());
@@ -152,7 +153,7 @@ public class Testra implements Reporter, Formatter {
   private StepResult getStepResult(StepTemplate x) {
     StepResult stepResult = new StepResult();
     stepResult.setIndex(x .getIndex());
-    stepResult.setResult(resultToTestResult(x.getStatus()));
+    stepResult.setResult(StepResult.ResultEnum.fromValue(x.getStatus().toString()));
     if (x.getStatus().equals(ResultEnum.FAILED)) {
       stepResult.setError(commonData.currentScenarioTemplate.getError().getErrorMessage());
     }
@@ -241,7 +242,7 @@ public class Testra implements Reporter, Formatter {
       commonData.currentScenarioTemplate.setError(setErrors(stepTemplate, result));
       commonData.currentScenarioTemplate.setIsFailed(true);
     }
-    stepTemplate.setStatus(resultToEnum(result));
+    stepTemplate.setStatus(result);
 
     if (scenarioLine > stepTemplate.getLine()) {
       commonData.currentScenarioTemplate.getBackgroundSteps().add(stepTemplate);

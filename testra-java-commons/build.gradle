@@ -1,3 +1,4 @@
 dependencies{
     compile group: 'org.slf4j', name: 'slf4j-api', version: "${slf4jVersion}"
+    compile 'org.projectlombok:lombok:1.16.18'
 }
