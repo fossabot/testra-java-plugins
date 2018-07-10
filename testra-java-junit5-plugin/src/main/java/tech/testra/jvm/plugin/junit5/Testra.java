@@ -115,6 +115,9 @@ public class Testra implements TestExecutionListener {
 
   @Override
   public void executionStarted(TestIdentifier testIdentifier) {
+    if(commonData.isDisabled){
+      return;
+    }
     commonData.startTime = System.currentTimeMillis();
     if(!testIdentifier.isTest()){
       return;
@@ -139,6 +142,9 @@ public class Testra implements TestExecutionListener {
 
   @Override
   public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+    if(commonData.isDisabled){
+      return;
+    }
     commonData.endTime = System.currentTimeMillis();
     TestResultRequest testResultRequest = new TestResultRequest();
     switch(testExecutionResult.getStatus()){
