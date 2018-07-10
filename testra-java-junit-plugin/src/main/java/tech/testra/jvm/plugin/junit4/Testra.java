@@ -126,8 +126,8 @@ public class Testra extends RunListener {
     TestcaseRequest testCaseRequest = new TestcaseRequest();
 //    testCaseRequest.setTags(labels.stream().map(Label::getValue).collect(Collectors.toList()));
     testCaseRequest.setName(description.getMethodName());
-    testCaseRequest.setClassName(description.getClassName());
-    testCaseRequest.setNamespace("");
+    testCaseRequest.setClassName(description.getClassName().substring(description.getClassName().lastIndexOf(".")+1));
+    testCaseRequest.setNamespace(description.getClassName().substring(0,description.getClassName().lastIndexOf(".")));
     commonData.currentTestCaseID = TestraRestClient.createTestcase(testCaseRequest).getId();
   }
 

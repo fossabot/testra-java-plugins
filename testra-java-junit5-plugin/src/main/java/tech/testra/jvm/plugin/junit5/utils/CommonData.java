@@ -1,4 +1,4 @@
-package tech.testra.jvm.plugin.junit4.utils;
+package tech.testra.jvm.plugin.junit5.utils;
 
 import java.util.HashMap;
 import java.util.Map;
