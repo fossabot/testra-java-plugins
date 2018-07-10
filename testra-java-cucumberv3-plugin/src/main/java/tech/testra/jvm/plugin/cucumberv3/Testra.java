@@ -158,28 +158,12 @@ public class Testra implements Formatter {
         }
         else {
           TestraRestClient.setExecutionid(null);
-          createExecutionIDFile();
+          TestraRestClient.createExecutionIDFile();
         }
       }
       LOGGER.info("Execution ID is: " + TestraRestClient.getExecutionid());
   }
 
-  private void createExecutionIDFile(){
-    File file = new File("testra.exec");
-    FileWriter writer = null;
-    try {
-      if (file.createNewFile()){
-        System.out.println("File is created!");
-      }else{
-        System.out.println("File already exists.");
-      }
-      writer = new FileWriter(file);
-      writer.write(TestraRestClient.getExecutionid());
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
 
   private void handleEmbed(EmbedEvent event) {
     commonData.embedEvent = event;

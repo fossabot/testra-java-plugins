@@ -31,7 +31,7 @@ plugins {
 
 // Dependency versions
 ext.logbackVersion = '1.1.2'
-ext.slf4jVersion = '1.7.25'
+ext.slf4jVersion = '1.7.2'
 ext.junitVersion = '4.12'
 ext.jacksonVersion = '2.8.8'
 ext.apacheCommondLangVersion = '3.5'
@@ -103,6 +103,8 @@ subprojects {
             dependency group: 'com.google.guava', name: 'guava', version: '24.0-jre'
             // https://mvnrepository.com/artifact/org.mockito/mockito-core
             dependency group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
+            dependency group: 'ch.qos.logback', name:'logback-classic', version: '1.0.9'
+            dependency group: 'ch.qos.logback', name:'logback-core', version: '1.0.9'
 
         }
     }
@@ -123,84 +125,84 @@ subprojects {
         archives javadocJar
     }
 
-    publishing {
-        publications {
-            mavenPublication(MavenPublication) {
-                from components.java
-                artifact sourcesJar {
-                    classifier "sources"
-                }
-                artifact javadocJar {
-                    classifier "javadoc"
-                }
-                pom {
-                    url = 'https://github.com/testra-tech/testra-java-plugins'
-                    licenses {
-                        license {
-                            name = 'GNU GENERAL PUBLIC LICENSE, Version 3.0'
-                            url = 'https://www.gnu.org/licenses/gpl.txt'
-                            distribution = 'repo'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = 'paulsjohnson91'
-                            name = 'Paul Johnson'
-                        }
-                        developer {
-                            id = 'sudokar'
-                            name = 'sudokar'
-                        }
-                    }
-                    scm {
-                        url = 'https://github.com/testra-tech/testra-java-plugins'
-                    }
-                }
-            }
-        }
-    }
-
-    artifactory {
-        contextUrl = 'http://oss.jfrog.org'
-        publish {
-            repository {
-                repoKey = 'oss-snapshot-local'
-                username = System.getProperty('bintray.user')
-                password = System.getProperty('bintray.key')
-            }
-            defaults {
-                publications('mavenPublication')
-                publishArtifacts = true
-                publishPom = true
-            }
-        }
-        resolve {
-            repoKey = 'jcenter'
-        }
-        clientConfig.info.setBuildNumber(System.getProperty('build.number'))
-    }
-
-    bintray {
-        user = System.getProperty('bintray.user')
-        key = System.getProperty('bintray.key')
-        publications = ['mavenPublication']
-        override = true
-        dryRun = false
-        publish = true
-        pkg {
-            repo = 'testra'
-            name = "$project.name"
-            publicDownloadNumbers = true
-            desc = 'Testra plugins for Java'
-            licenses = ['GPL-3.0']
-            vcsUrl = 'https://github.com/testra-tech/testra-java-plugins'
-            version {
-                name = "$project.version"
-                desc = "$project.version"
-                released  = new Date()
-            }
-        }
-    }
+//    publishing {
+//        publications {
+//            mavenPublication(MavenPublication) {
+//                from components.java
+//                artifact sourcesJar {
+//                    classifier "sources"
+//                }
+//                artifact javadocJar {
+//                    classifier "javadoc"
+//                }
+//                pom {
+//                    url = 'https://github.com/testra-tech/testra-java-plugins'
+//                    licenses {
+//                        license {
+//                            name = 'GNU GENERAL PUBLIC LICENSE, Version 3.0'
+//                            url = 'https://www.gnu.org/licenses/gpl.txt'
+//                            distribution = 'repo'
+//                        }
+//                    }
+//                    developers {
+//                        developer {
+//                            id = 'paulsjohnson91'
+//                            name = 'Paul Johnson'
+//                        }
+//                        developer {
+//                            id = 'sudokar'
+//                            name = 'sudokar'
+//                        }
+//                    }
+//                    scm {
+//                        url = 'https://github.com/testra-tech/testra-java-plugins'
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    artifactory {
+//        contextUrl = 'http://oss.jfrog.org'
+//        publish {
+//            repository {
+//                repoKey = 'oss-snapshot-local'
+//                username = System.getProperty('bintray.user')
+//                password = System.getProperty('bintray.key')
+//            }
+//            defaults {
+//                publications('mavenPublication')
+//                publishArtifacts = true
+//                publishPom = true
+//            }
+//        }
+//        resolve {
+//            repoKey = 'jcenter'
+//        }
+//        clientConfig.info.setBuildNumber(System.getProperty('build.number'))
+//    }
+//
+//    bintray {
+//        user = System.getProperty('bintray.user')
+//        key = System.getProperty('bintray.key')
+//        publications = ['mavenPublication']
+//        override = true
+//        dryRun = false
+//        publish = true
+//        pkg {
+//            repo = 'testra'
+//            name = "$project.name"
+//            publicDownloadNumbers = true
+//            desc = 'Testra plugins for Java'
+//            licenses = ['GPL-3.0']
+//            vcsUrl = 'https://github.com/testra-tech/testra-java-plugins'
+//            version {
+//                name = "$project.version"
+//                desc = "$project.version"
+//                released  = new Date()
+//            }
+//        }
+//    }
 }
 
 configure(subprojects

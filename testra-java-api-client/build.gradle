@@ -80,6 +80,8 @@ dependencies {
     compile sourceSets.swagger.output
     compile project(':testra-java-commons')
     compile group: 'org.slf4j', name: 'slf4j-api'
+    compile group: 'ch.qos.logback', name:'logback-classic', version: '1.0.9'
+    compile group: 'ch.qos.logback', name:'logback-core', version: '1.0.9'
     testCompile "junit:junit:$junit_version"
 
     runtime 'com.squareup.okhttp:okhttp:2.7.5'
