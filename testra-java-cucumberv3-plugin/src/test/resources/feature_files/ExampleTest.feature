@@ -30,7 +30,12 @@ Feature: Example Test Feature
     |1   |1   |2   |
     |1   |2   |3   |
 
+  @ExpectedFailure
   Scenario: Arguement types
     And true is true
     Then 4 minus 2 equals 2
 
+  @Manual
+  Scenario: Manual Test
+    And true is true
+    Then 4 minus 2 equals 2

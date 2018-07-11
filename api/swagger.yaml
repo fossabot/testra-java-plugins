@@ -717,6 +717,43 @@ paths:
           description: Any other errors
           schema:
             $ref: '#/definitions/ErrorResponse'
+            
+  /projects/{projectId}/executions/{id}/result-stats:
+    get:
+      tags:
+      - "execution"
+      summary: Get test execution's result stats
+      description: Returns passed, failed and other results count
+      operationId: getExecutionResultStats
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        type: string
+        description: Project Id
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: Execution Id
+      responses:
+        200:
+          description: 'Successful response of given Execution'
+          schema:
+            $ref: '#/definitions/TestExecutionStats'
+        404:
+          description: 'Execution not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+            - error: ExecutionNotFoundException
+              message: Invalid execution id
+              timestamp: 15678902394
+        default:
+          description: Any other errors
+          schema:
+            $ref: '#/definitions/ErrorResponse'
 
   /projects/{projectId}/executions/{executionId}/results:
     get:
@@ -915,7 +952,7 @@ paths:
           description: Any other errors
           schema:
             $ref: '#/definitions/ErrorResponse'
-
+            
   /projects/{projectId}/executions/{executionId}/groups:
     get:
       tags:
@@ -973,12 +1010,12 @@ paths:
             type: array
             items:
               $ref: '#/definitions/TestGroup'
-
+  
   /counters:
     get:
       tags:
       - "counter"
-      summary: Counters
+      summary: Counters 
       description: |
         Returns counters for Projects, Test executions, Test scenarions, Test cases and Test results
       operationId: getCounters
@@ -1005,6 +1042,8 @@ definitions:
       name:
         type: string
       description:
+        type: string
+      creationDate:
         type: string
     required:
       - id
@@ -1035,6 +1074,8 @@ definitions:
         type: string
       featureDescription:
         type: string
+      manual:
+        type: boolean
       tags:
         type: array
         items:
@@ -1079,6 +1120,8 @@ definitions:
         type: string
       featureDescription:
         type: string
+      manual:
+        type: boolean
       tags:
         type: array
         items:
@@ -1129,6 +1172,12 @@ definitions:
         type: string
       namespaceId:
         type: string
+      manual:
+        type: boolean
+      tags:
+        type: array
+        items: 
+          type: string
     required:
       - id
       - projectId
@@ -1145,6 +1194,12 @@ definitions:
         type: string
       className:
         type: string
+      manual:
+        type: boolean
+      tags:
+        type: array
+        items: 
+          type: string
     required:
       - name
       - namespace
@@ -1158,7 +1213,7 @@ definitions:
         type: string
       projectId:
         type: string
-      isParallel:
+      parallel:
         type: boolean
       host:
         type: string
@@ -1176,6 +1231,10 @@ definitions:
         type: array
         items:
           type: string
+      description:
+        type: string
+      buildRef:
+        type: string
       groupIds:
         type: array
         items:
@@ -1196,7 +1255,7 @@ definitions:
     title: TestExecutionRequest
     type: object
     properties:
-      isParallel:
+      parallel:
         type: boolean
       host:
         type: string
@@ -1218,6 +1277,26 @@ definitions:
     required:
       - isParallel
       - host
+      
+  TestExecutionStats:
+    title: TestExecutionStats
+    type: object
+    properties:
+      id:
+        type: string
+      executionId:
+        type: string
+      projectId:
+        type: string
+      passedResults:
+        type: integer
+        format: int64
+      failedResults:
+        type: integer
+        format: int64
+      otherResults:
+        type: integer
+        format: int64
 
   Result:
     type: string
@@ -1243,7 +1322,7 @@ definitions:
       resultType:
         type: string
         enum: [SCENARIO, TEST_CASE]
-      result:
+      status:
         type: string
         enum: *RESULT_ENUM
       error:
@@ -1259,6 +1338,8 @@ definitions:
         format: int64
       retryCount:
         type: integer
+      expectedToFail:
+        type: boolean
       stepResults:
         type: array
         items:
@@ -1277,7 +1358,7 @@ definitions:
       - startTime
       - endTime
       - retryCount
-
+      
   EnrichedTestResult:
     title: TestResult
     type: object
@@ -1291,7 +1372,7 @@ definitions:
       resultType:
         type: string
         enum: [SCENARIO, TEST_CASE]
-      result:
+      status:
         type: string
         enum: *RESULT_ENUM
       error:
@@ -1307,6 +1388,8 @@ definitions:
         format: int64
       retryCount:
         type: integer
+      expectedToFail:
+        type: boolean
       stepResults:
         type: array
         items:
@@ -1341,7 +1424,7 @@ definitions:
       resultType:
         type: string
         enum: [SCENARIO, TEST_CASE]
-      result:
+      status:
         type: string
         enum: *RESULT_ENUM
       error:
@@ -1357,6 +1440,8 @@ definitions:
         format: int64
       retryCount:
         type: integer
+      expectedToFail:
+        type: boolean
       stepResults:
         type: array
         items:
@@ -1381,7 +1466,7 @@ definitions:
     properties:
       index:
         type: integer
-      result:
+      status:
         type: string
         enum: *RESULT_ENUM
       durationInMs:
@@ -1407,7 +1492,7 @@ definitions:
     required:
       - mimeType
       - base64EncodedByteArray
-
+      
   TestGroup:
     title: TestGroup
     type: object
@@ -1434,7 +1519,7 @@ definitions:
       - type
       - description
       - subGroup
-
+      
   Counter:
     title: Counter
     type: object

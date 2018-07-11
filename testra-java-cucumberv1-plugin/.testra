@@ -1,7 +1,11 @@
-host=http://localhost:8080/api/v1
+host=http://10.210.200.82:8080/api/v1
 project=First Test Project
 branch=develop
-environment=pp2
+testra.environment=pp2
+testra.execution.description=execution description example
+buildRef = jenkinsref
 debug=true
 isrerun=false
-previousexecutionID=5b30b8bfdfabbc3a70812dd0
+setExecutionID=false
+previousexecutionID=5b34b3b5c83c6c2f86b65e99
+junit=true

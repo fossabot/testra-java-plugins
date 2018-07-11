@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.reporting.ReportEntry;
 import org.junit.platform.engine.support.descriptor.MethodSource;
@@ -18,9 +19,11 @@ import org.slf4j.LoggerFactory;
 import tech.testra.java.client.TestraRestClient;
 import tech.testra.java.client.model.EnrichedTestResult;
 import tech.testra.java.client.model.TestResultRequest;
-import tech.testra.java.client.model.TestResultRequest.ResultEnum;
+import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
+import tech.testra.java.client.model.Testcase;
 import tech.testra.java.client.model.TestcaseRequest;
+import tech.testra.jvm.commons.Label;
 import tech.testra.jvm.commons.util.PropertyHelper;
 import tech.testra.jvm.plugin.junit5.utils.CommonData;
 import tech.testra.jvm.plugin.junit5.utils.CommonDataProvider;
@@ -30,6 +33,8 @@ public class Testra implements TestExecutionListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(Testra.class);
   private final Long threadId = Thread.currentThread().getId();
   private CommonData commonData;
+  private String projectID;
+  private String executionID;
 
   public Testra(){
     PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
@@ -39,7 +44,8 @@ public class Testra implements TestExecutionListener {
       return;
     }
     TestraRestClient.setURLs(prop("host"));
-    LOGGER.info("Project ID is " + TestraRestClient.getProjectID(prop("project")));
+    projectID = TestraRestClient.getProjectID(prop("project"));
+    LOGGER.info("Project ID is " + projectID);
     commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
     commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
     if(prop("buildRef")!=null){
@@ -80,7 +86,9 @@ public class Testra implements TestExecutionListener {
         TestraRestClient.createExecutionIDFile();
       }
     }
-    LOGGER.info("Execution ID is: " + TestraRestClient.getExecutionid());
+    executionID = TestraRestClient.getExecutionid();
+    LOGGER.info("Execution ID is: " + executionID);
+    LOGGER.info(prop("host") + "/projects/" + projectID + "/executions/"+ executionID);
   }
 
 
@@ -127,7 +135,6 @@ public class Testra implements TestExecutionListener {
         .map(MethodSource.class::cast);
     TestcaseRequest testcaseRequest = new TestcaseRequest();
     testcaseRequest.setName(testIdentifier.getDisplayName());
-    testcaseRequest.setNamespace("");
     methodSource.ifPresent(source -> {
       String namespace = source.getClassName().substring(0,source.getClassName().lastIndexOf("."));
       String classname = source.getClassName().substring(source.getClassName().lastIndexOf(".")+1);
@@ -137,7 +144,27 @@ public class Testra implements TestExecutionListener {
       testcaseRequest.setClassName("NOCLASSPROVIDED");
       testcaseRequest.setNamespace("NONAMESPACEPROVIDED");
     }
-    commonData.currentTestCaseID = TestraRestClient.createTestcase(testcaseRequest).getId();
+    List<String> tagList = testIdentifier.getTags().stream().map(x -> x.getName()).collect(Collectors.toList());
+
+
+    if(tagList.contains("@Manual")||tagList.contains("Manual")){
+      commonData.isManual = true;
+    }
+    else{
+      commonData.isManual = false;
+    }
+    if(tagList.contains("@ExpectedFailure")||tagList.contains("ExpectedFailure")){
+      commonData.isExpectedFailure = true;
+    }
+    else{
+      commonData.isExpectedFailure = false;
+    }
+    testcaseRequest.setTags(tagList);
+    testcaseRequest.setManual(commonData.isManual);
+    Testcase testcase = TestraRestClient.createTestcase(testcaseRequest);
+    commonData.currentTestCaseID = testcase.getId();
+    commonData.currentGroupID = testcase.getNamespaceId();
+
   }
 
   @Override
@@ -147,21 +174,34 @@ public class Testra implements TestExecutionListener {
     }
     commonData.endTime = System.currentTimeMillis();
     TestResultRequest testResultRequest = new TestResultRequest();
+    if(commonData.isManual){
+      testResultRequest.setStartTime(0L);
+      testResultRequest.setEndTime(0L);
+      testResultRequest.setGroupId(commonData.currentGroupID);
+      testResultRequest.setDurationInMs(0L);
+      testResultRequest.setResultType(ResultTypeEnum.TEST_CASE);
+      testResultRequest.setTargetId(commonData.currentTestCaseID);
+      testResultRequest.setRetryCount(0);
+      testResultRequest.setStatus(StatusEnum.SKIPPED);
+      testResultRequest.setExpectedToFail(commonData.isExpectedFailure);
+      TestraRestClient.createResult(testResultRequest);
+      return;
+    }
     switch(testExecutionResult.getStatus()){
       case FAILED:
-        testResultRequest.setResult(ResultEnum.FAILED);
-        testResultRequest.setError(testExecutionResult.getThrowable().map(x -> x.toString()).orElse(null));
+        testResultRequest.setStatus(StatusEnum.FAILED);
+        testResultRequest.setError(testExecutionResult.getThrowable().map(Throwable::toString).orElse(null));
         break;
       case ABORTED:
-        testResultRequest.setResult(ResultEnum.FAILED);
-        testResultRequest.setError(testExecutionResult.getThrowable().map(x -> x.toString()).orElse(null));
+        testResultRequest.setStatus(StatusEnum.FAILED);
+        testResultRequest.setError(testExecutionResult.getThrowable().map(Throwable::toString).orElse(null));
 
         break;
       case SUCCESSFUL:
-        testResultRequest.setResult(ResultEnum.PASSED);
+        testResultRequest.setStatus(StatusEnum.PASSED);
         break;
       default:
-        testResultRequest.setResult(ResultEnum.FAILED);
+        testResultRequest.setStatus(StatusEnum.FAILED);
         break;
     }
     if(commonData.isDisabled)
@@ -172,6 +212,7 @@ public class Testra implements TestExecutionListener {
     testResultRequest.setDurationInMs(commonData.endTime-commonData.startTime);
     testResultRequest.setResultType(ResultTypeEnum.TEST_CASE);
     testResultRequest.setTargetId(commonData.currentTestCaseID);
+    testResultRequest.setExpectedToFail(commonData.isExpectedFailure);
     testResultRequest.setRetryCount(0);
     TestraRestClient.createResult(testResultRequest);
   }

@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class CommonData {
   public String currentTestCaseID;
+  public String currentGroupID;
   public long startTime;
   public long endTime;
   public Boolean isRetry;
@@ -17,4 +18,6 @@ public class CommonData {
   public String failureMessage = "";
   public boolean isFailure = false;
   public boolean isIgnored = false;
+  public boolean isManual = false;
+  public boolean isExpectedFailure = false;
   }

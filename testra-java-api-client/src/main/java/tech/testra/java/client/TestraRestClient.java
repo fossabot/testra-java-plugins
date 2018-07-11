@@ -11,8 +11,7 @@ import tech.testra.java.client.api.ResultApi;
 import tech.testra.java.client.api.ScenarioApi;
 import tech.testra.java.client.api.TestcaseApi;
 import tech.testra.java.client.model.*;
-import tech.testra.java.client.model.StepResult.ResultEnum;
-import tech.testra.java.client.model.TestResult.ResultTypeEnum;
+import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.java.client.utils.HostNameUtil;
 
 import java.util.ArrayList;
@@ -117,7 +116,7 @@ public final class TestraRestClient {
         return executionIDString;
       }
     ExecutionRequest executionRequest = new ExecutionRequest();
-    executionRequest.setIsParallel(false);
+    executionRequest.setParallel(false);
     if(prop("branch")!= null)
       executionRequest.setBranch(prop("branch"));
     if(prop("testra.environment")!=null)
@@ -175,7 +174,7 @@ public final class TestraRestClient {
   }
 
   public static List<EnrichedTestResult> getFailedResults(){
-      return getResults(ResultEnum.FAILED.toString());
+      return getResults(StatusEnum.FAILED.toString());
   }
 
   public static List<EnrichedTestResult> getResults(String resultType){

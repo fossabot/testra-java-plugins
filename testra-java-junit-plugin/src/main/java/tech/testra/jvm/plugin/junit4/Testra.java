@@ -24,8 +24,9 @@ import org.slf4j.LoggerFactory;
 import tech.testra.java.client.TestraRestClient;
 import tech.testra.java.client.model.EnrichedTestResult;
 import tech.testra.java.client.model.TestResultRequest;
-import tech.testra.java.client.model.TestResultRequest.ResultEnum;
+import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
+import tech.testra.java.client.model.Testcase;
 import tech.testra.java.client.model.TestcaseRequest;
 import tech.testra.jvm.commons.Label;
 import tech.testra.jvm.commons.Tag;
@@ -38,6 +39,8 @@ public class Testra extends RunListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(Testra.class);
   private final Long threadId = Thread.currentThread().getId();
   private CommonData commonData;
+  private String projectID;
+  private String executionID;
 
   public Testra(){
     PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
@@ -47,7 +50,8 @@ public class Testra extends RunListener {
       return;
     }
     TestraRestClient.setURLs(prop("host"));
-    LOGGER.info("Project ID is " + TestraRestClient.getProjectID(prop("project")));
+    projectID = TestraRestClient.getProjectID(prop("project"));
+    LOGGER.info("Project ID is " + projectID);
     commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
     commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
     if(prop("buildRef")!=null){
@@ -88,7 +92,9 @@ public class Testra extends RunListener {
         TestraRestClient.createExecutionIDFile();
       }
     }
-    LOGGER.info("Execution ID is: " + TestraRestClient.getExecutionid());
+    executionID = TestraRestClient.getExecutionid();
+    LOGGER.info("Execution ID is: " + executionID);
+    LOGGER.info(prop("host") + "/projects/" + projectID + "/executions/"+ executionID);
   }
 
 
@@ -124,11 +130,26 @@ public class Testra extends RunListener {
       return;
     List<Label> labels = getLabels(description);
     TestcaseRequest testCaseRequest = new TestcaseRequest();
-//    testCaseRequest.setTags(labels.stream().map(Label::getValue).collect(Collectors.toList()));
+    testCaseRequest.setTags(labels.stream().map(Label::getValue).collect(Collectors.toList()));
     testCaseRequest.setName(description.getMethodName());
     testCaseRequest.setClassName(description.getClassName().substring(description.getClassName().lastIndexOf(".")+1));
     testCaseRequest.setNamespace(description.getClassName().substring(0,description.getClassName().lastIndexOf(".")));
-    commonData.currentTestCaseID = TestraRestClient.createTestcase(testCaseRequest).getId();
+    if(labels.stream().map(Label::getValue).collect(Collectors.toList()).contains("Manual")){
+      commonData.isManual = true;
+    }
+    else{
+      commonData.isManual = false;
+    }
+    if(labels.stream().map(Label::getValue).collect(Collectors.toList()).contains("ExpectedFailure")){
+      commonData.isExpectedFailure = true;
+    }
+    else{
+      commonData.isExpectedFailure = false;
+    }
+    testCaseRequest.setManual(commonData.isManual);
+    Testcase testcase = TestraRestClient.createTestcase(testCaseRequest);
+    commonData.currentTestCaseID = testcase.getId();
+    commonData.currentGroupID = testcase.getNamespaceId();
   }
 
   @Override
@@ -137,24 +158,38 @@ public class Testra extends RunListener {
     if(commonData.isDisabled)
       return;
     TestResultRequest testResultRequest = new TestResultRequest();
+    if(commonData.isManual){
+      testResultRequest.setStartTime(0L);
+      testResultRequest.setEndTime(0L);
+      testResultRequest.setGroupId(commonData.currentGroupID);
+      testResultRequest.setDurationInMs(0L);
+      testResultRequest.setResultType(ResultTypeEnum.TEST_CASE);
+      testResultRequest.setTargetId(commonData.currentTestCaseID);
+      testResultRequest.setRetryCount(0);
+      testResultRequest.setStatus(StatusEnum.SKIPPED);
+      testResultRequest.setExpectedToFail(commonData.isExpectedFailure);
+      TestraRestClient.createResult(testResultRequest);
+      return;
+    }
     if(commonData.isFailure){
-      testResultRequest.setResult(ResultEnum.FAILED);
+      testResultRequest.setStatus(StatusEnum.FAILED);
       testResultRequest.setError(commonData.failureMessage);
       commonData.isFailure = false;
     }
     else if(commonData.isIgnored){
-      testResultRequest.setResult(ResultEnum.SKIPPED);
+      testResultRequest.setStatus(StatusEnum.SKIPPED);
       commonData.isIgnored = false;
     }
     else{
-      testResultRequest.setResult(ResultEnum.PASSED);
+      testResultRequest.setStatus(StatusEnum.PASSED);
     }
     testResultRequest.setStartTime(commonData.startTime);
     testResultRequest.setEndTime(commonData.endTime);
-    testResultRequest.setGroupId("");
+    testResultRequest.setGroupId(commonData.currentGroupID);
     testResultRequest.setDurationInMs(commonData.endTime-commonData.startTime);
     testResultRequest.setResultType(ResultTypeEnum.TEST_CASE);
     testResultRequest.setTargetId(commonData.currentTestCaseID);
+    testResultRequest.setExpectedToFail(commonData.isExpectedFailure);
     testResultRequest.setRetryCount(0);
     TestraRestClient.createResult(testResultRequest);
   }
@@ -163,7 +198,7 @@ public class Testra extends RunListener {
   public void testFailure(Failure failure) throws Exception {
     if(commonData.isDisabled)
       return;
-    commonData.failureMessage = failure.getMessage();
+    commonData.failureMessage = failure.getMessage() + failure.getTrace();
     commonData.isFailure = true;
   }
 
@@ -171,7 +206,7 @@ public class Testra extends RunListener {
   public void testAssumptionFailure(Failure failure) {
     if(commonData.isDisabled)
       return;
-    commonData.failureMessage = failure.getMessage();
+    commonData.failureMessage = failure.getMessage() + failure.getTrace();
     commonData.isFailure = true;
   }
 

@@ -35,4 +35,6 @@ public class CommonData {
   public Map<String,Integer> failedRetryMap = new HashMap<>();
   public int resultCounter = 0;
   public boolean skip = false;
+  public boolean isManual = false;
+  public boolean isExpectedFailure = false;
   }
