@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.testra.java.client.TestraRestClient;
 import tech.testra.java.client.model.*;
-import tech.testra.java.client.model.TestResultRequest.ResultEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
+import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.jvm.commons.util.PropertyHelper;
 import tech.testra.jvm.plugin.cucumberv1.templates.StepTemplate;
 import tech.testra.jvm.plugin.cucumberv1.templates.ErrorTemplate;
@@ -123,7 +123,7 @@ public class Testra implements Reporter, Formatter {
     commonData.currentFeatureID = scenario1.getFeatureId();
 
     TestResultRequest testResultRequest = new TestResultRequest();
-    testResultRequest.setResult(resultToEnum(commonData.result));
+    testResultRequest.setStatus(resultToEnum(commonData.result));
     testResultRequest.setResultType(ResultTypeEnum.SCENARIO);
     testResultRequest.setDurationInMs(timeAtEnd - commonData.startTime);
     testResultRequest.setTargetId(commonData.currentScenarioID);
@@ -153,8 +153,8 @@ public class Testra implements Reporter, Formatter {
   private StepResult getStepResult(StepTemplate x) {
     StepResult stepResult = new StepResult();
     stepResult.setIndex(x .getIndex());
-    stepResult.setResult(StepResult.ResultEnum.fromValue(x.getStatus().toString()));
-    if (x.getStatus().equals(ResultEnum.FAILED)) {
+    stepResult.setStatus(StepResult.StatusEnum.fromValue(x.getStatus().getStatus().toUpperCase()));
+    if (x.getStatus().equals(StatusEnum.FAILED)) {
       stepResult.setError(commonData.currentScenarioTemplate.getError().getErrorMessage());
     }
     return stepResult;
@@ -165,62 +165,23 @@ public class Testra implements Reporter, Formatter {
       TestraRestClient.setExecutionid(null);
     }
   }
-  private ResultEnum resultToEnum(Result result){
+  private StatusEnum resultToEnum(Result result){
     switch(result.getStatus()){
       case FAILED:
-        return ResultEnum.FAILED;
+        return StatusEnum.FAILED;
       case PASSED:
-        return ResultEnum.PASSED;
+        return StatusEnum.PASSED;
       case PENDING:
-        return ResultEnum.PENDING;
+        return StatusEnum.PENDING;
       case SKIPPED:
-        return ResultEnum.SKIPPED;
+        return StatusEnum.SKIPPED;
       case UNDEFINED:
-        return ResultEnum.UNDEFINED;
+        return StatusEnum.UNDEFINED;
       default:
         throw new IllegalArgumentException("Result type " + result.toString() + " not found");
     }
 
   }
-
-  private StepResult.ResultEnum resultToTestResult(ResultEnum resultEnum){
-    switch(resultEnum){
-      case FAILED:
-        return StepResult.ResultEnum.FAILED;
-      case PASSED:
-        return StepResult.ResultEnum.PASSED;
-      case PENDING:
-        return StepResult.ResultEnum.PENDING;
-      case SKIPPED:
-        return StepResult.ResultEnum.SKIPPED;
-      case UNDEFINED:
-        return StepResult.ResultEnum.UNDEFINED;
-      default:
-        throw new IllegalArgumentException("Result type " + resultEnum.toString() + " not found");
-    }
-
-  }
-
-
-//  private StepResult.ResultEnum StepResultToEnum(Result result){
-//    switch(result){
-//      case FAILED:
-//        return StepResult.ResultEnum.FAILED;
-//      case PASSED:
-//        return StepResult.ResultEnum.PASSED;
-//      case PENDING:
-//        return StepResult.ResultEnum.PENDING;
-//      case SKIPPED:
-//        return StepResult.ResultEnum.SKIPPED;
-//      case AMBIGUOUS:
-//        return StepResult.ResultEnum.AMBIGUOUS;
-//      case UNDEFINED:
-//        return StepResult.ResultEnum.UNDEFINED;
-//      default:
-//        throw new IllegalArgumentException("Result type " + result.toString() + " not found");
-//    }
-//  }
-
   @Override
   public void result(final Result result) {
     commonData.result = result;

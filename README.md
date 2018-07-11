@@ -6,7 +6,8 @@ It includes plugins for cucumber versions 1.2.5, 2.4.0 and 3.0.2
 ## Table of Contents
 
 - [Install](#install)
-- [Usage](#usage)
+- [Cucumber Usage](#cucumber)
+- [Junit Usage](#junit)
 - [Contribute](#contribute)
 - [License](#license)
 
@@ -19,7 +20,7 @@ dependency group: 'tech.testra', name: 'testra-java-cucumberv2-plugin', version:
 ```
 Replacing v2 with the version of cucumber you are using 1,2 or 3
 
-## Usage
+## Cucumber
 Either add the plugin as a command line argument:
 ```
 -Dcucumber.options="--plugin tech.testra.jvm.plugin.cucumberv2.Testra"
@@ -86,6 +87,12 @@ Run testra.disabled=true as a jvm argument to disable the Testra Plugin
 
 Any .testra properties that are passed as jvm args, the jvm arg will be used first.
 
+## Junit
+To run with Junit4, run with the testra junit runner
+```$xslt
+@RunWith(TestraJunitRunner.class)
+```
+Use the @Tag annotation to add tags to both the class and tests.
 
 ## Contribute
 

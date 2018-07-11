@@ -31,7 +31,7 @@ plugins {
 
 // Dependency versions
 ext.logbackVersion = '1.1.2'
-ext.slf4jVersion = '1.7.25'
+ext.slf4jVersion = '1.7.2'
 ext.junitVersion = '4.12'
 ext.jacksonVersion = '2.8.8'
 ext.apacheCommondLangVersion = '3.5'
@@ -48,7 +48,7 @@ ext.seleniumVersion = '3.8.1'
 
 allprojects {
     group 'tech.testra'
-    version '0.7'
+    version '0.8'
 
     apply plugin: 'idea'
     apply plugin: 'project-report'
@@ -103,6 +103,8 @@ subprojects {
             dependency group: 'com.google.guava', name: 'guava', version: '24.0-jre'
             // https://mvnrepository.com/artifact/org.mockito/mockito-core
             dependency group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
+            dependency group: 'ch.qos.logback', name:'logback-classic', version: '1.0.9'
+            dependency group: 'ch.qos.logback', name:'logback-core', version: '1.0.9'
 
         }
     }

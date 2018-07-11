@@ -1,14 +1,17 @@
 package tech.testra.java.client;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.testra.java.client.api.ExecutionApi;
 import tech.testra.java.client.api.ProjectApi;
 import tech.testra.java.client.api.ResultApi;
 import tech.testra.java.client.api.ScenarioApi;
+import tech.testra.java.client.api.TestcaseApi;
 import tech.testra.java.client.model.*;
-import tech.testra.java.client.model.StepResult.ResultEnum;
-import tech.testra.java.client.model.TestResult.ResultTypeEnum;
+import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.java.client.utils.HostNameUtil;
 
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ public final class TestraRestClient {
   private static ScenarioApi scenarioApi = new ScenarioApi();
   private static ExecutionApi executionApi = new ExecutionApi();
   private static ResultApi resultApi = new ResultApi();
+  private static TestcaseApi testcaseApi = new TestcaseApi();
   public static String buildRef;
   public static String executionDescription;
 
@@ -45,6 +49,7 @@ public final class TestraRestClient {
       executionApi.getApiClient().setDebugging(true);
       resultApi.getApiClient().setDebugging(true);
       scenarioApi.getApiClient().setDebugging(true);
+      testcaseApi.getApiClient().setDebugging(true);
     }
   }
 
@@ -74,6 +79,7 @@ public final class TestraRestClient {
   public static String getProjectID(String projectName){
       try {
         projectIDString = projectApi.getProject(projectName).getId();
+        LOGGER.info("Project ID found");
         return projectIDString;
       } catch (ApiException e) {
         e.printStackTrace();
@@ -93,12 +99,24 @@ public final class TestraRestClient {
     }
   }
 
+  public static Testcase createTestcase(TestcaseRequest testcaseRequest) {
+    try {
+      Testcase testcase = testcaseApi.createTestcase(projectIDString, testcaseRequest);
+      return testcase;
+    } catch (ApiException e) {
+      LOGGER.error("Error Creating Test Case " + testcaseRequest.getName());
+      LOGGER.error(e.getResponseBody());
+      e.printStackTrace();
+      return null;
+    }
+  }
+
     private static synchronized String createExecution() {
       if(executionIDString != null){
         return executionIDString;
       }
     ExecutionRequest executionRequest = new ExecutionRequest();
-    executionRequest.setIsParallel(false);
+    executionRequest.setParallel(false);
     if(prop("branch")!= null)
       executionRequest.setBranch(prop("branch"));
     if(prop("testra.environment")!=null)
@@ -156,7 +174,7 @@ public final class TestraRestClient {
   }
 
   public static List<EnrichedTestResult> getFailedResults(){
-      return getResults(ResultEnum.FAILED.toString());
+      return getResults(StatusEnum.FAILED.toString());
   }
 
   public static List<EnrichedTestResult> getResults(String resultType){
@@ -165,6 +183,23 @@ public final class TestraRestClient {
     } catch (ApiException e) {
       e.printStackTrace();
       throw new IllegalArgumentException("No results found with execution ID " + executionIDString);
+    }
+  }
+
+  public static void createExecutionIDFile(){
+    File file = new File("testra.exec");
+    FileWriter writer = null;
+    try {
+      if (file.createNewFile()){
+        System.out.println("File is created!");
+      }else{
+        System.out.println("File already exists.");
+      }
+      writer = new FileWriter(file);
+      writer.write(TestraRestClient.getExecutionid());
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 }
