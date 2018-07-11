@@ -221,7 +221,7 @@ public class Testra implements Formatter {
     for(int i = commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).size(); i<pickleSteps.size(); i++){
         TestStep testStep = new TestStep();
         testStep.setIndex(i);
-        testStep.setText(((pickleSteps.get(i))).getStepText());
+        testStep.setText(commonData.cucumberSourceUtils.getKeywordFromSource(event.testCase.getUri(), pickleSteps.get(i).getStepLine()) + ((pickleSteps.get(i))).getStepText());
         testStepList.add(testStep);
     }
     scenarioRequest.setSteps(testStepList);

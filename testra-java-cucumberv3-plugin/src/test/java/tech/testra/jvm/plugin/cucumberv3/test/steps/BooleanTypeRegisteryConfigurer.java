@@ -15,7 +15,9 @@ public class BooleanTypeRegisteryConfigurer implements TypeRegistryConfigurer {
         "booleanType",
         "\\w+",
         Boolean.class,
-        (Transformer) (arg) -> Boolean.valueOf(arg)
+        ((Transformer) (arg) -> Boolean.valueOf(arg)),
+        false,
+        true
     ));
   }
 
