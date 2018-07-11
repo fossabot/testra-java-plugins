@@ -774,7 +774,7 @@ paths:
         required: true
         type: string
         description: Execution Id
-      - name: result
+      - name: status
         in: query
         required: false
         type: string
@@ -952,7 +952,7 @@ paths:
           description: Any other errors
           schema:
             $ref: '#/definitions/ErrorResponse'
-            
+
   /projects/{projectId}/executions/{executionId}/groups:
     get:
       tags:
@@ -1010,12 +1010,12 @@ paths:
             type: array
             items:
               $ref: '#/definitions/TestGroup'
-  
+
   /counters:
     get:
       tags:
       - "counter"
-      summary: Counters 
+      summary: Counters
       description: |
         Returns counters for Projects, Test executions, Test scenarions, Test cases and Test results
       operationId: getCounters
@@ -1044,7 +1044,8 @@ definitions:
       description:
         type: string
       creationDate:
-        type: string
+        type: integer
+        format: int64
     required:
       - id
       - name
@@ -1176,7 +1177,7 @@ definitions:
         type: boolean
       tags:
         type: array
-        items: 
+        items:
           type: string
     required:
       - id
@@ -1198,7 +1199,7 @@ definitions:
         type: boolean
       tags:
         type: array
-        items: 
+        items:
           type: string
     required:
       - name
@@ -1277,7 +1278,7 @@ definitions:
     required:
       - isParallel
       - host
-      
+
   TestExecutionStats:
     title: TestExecutionStats
     type: object

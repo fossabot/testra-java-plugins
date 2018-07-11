@@ -5,6 +5,7 @@ import static org.junit.Assume.assumeThat;
 
 import org.junit.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.runner.RunWith;
 
 
 @Tag("Assumptions")

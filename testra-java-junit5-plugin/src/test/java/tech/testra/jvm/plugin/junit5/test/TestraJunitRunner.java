@@ -13,7 +13,7 @@ import tech.testra.jvm.plugin.junit5.Testra;
 public class TestraJunitRunner {
 
 
-//    @Test
+    @Test
     void shouldProcessPassedTests() {
         runClasses(AssumptionTests.class);
     }

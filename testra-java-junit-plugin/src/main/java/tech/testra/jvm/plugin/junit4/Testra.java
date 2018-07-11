@@ -94,7 +94,7 @@ public class Testra extends RunListener {
     }
     executionID = TestraRestClient.getExecutionid();
     LOGGER.info("Execution ID is: " + executionID);
-    LOGGER.info(prop("host") + "/projects/" + projectID + "/executions/"+ executionID);
+    LOGGER.info(prop("host") + "/projects/" + projectID + "/executions/"+ executionID+"\n");
   }
 
 
@@ -150,12 +150,22 @@ public class Testra extends RunListener {
     Testcase testcase = TestraRestClient.createTestcase(testCaseRequest);
     commonData.currentTestCaseID = testcase.getId();
     commonData.currentGroupID = testcase.getNamespaceId();
+    if(commonData.isRetry &&!commonData.failedScenarioIDs.containsKey(commonData.currentTestCaseID)){
+      LOGGER.info("Test has already passed in a previous test run");
+      commonData.skip = true;
+    }
+    else{
+      if(commonData.isRetry) {
+        commonData.skip = false;
+        commonData.resultCounter = commonData.failedRetryMap.get(commonData.currentTestCaseID);
+      }
+    }
   }
 
   @Override
   public void testFinished(Description description) throws Exception {
     commonData.endTime = System.currentTimeMillis();
-    if(commonData.isDisabled)
+    if(commonData.isDisabled||commonData.skip)
       return;
     TestResultRequest testResultRequest = new TestResultRequest();
     if(commonData.isManual){
@@ -191,7 +201,13 @@ public class Testra extends RunListener {
     testResultRequest.setTargetId(commonData.currentTestCaseID);
     testResultRequest.setExpectedToFail(commonData.isExpectedFailure);
     testResultRequest.setRetryCount(0);
-    TestraRestClient.createResult(testResultRequest);
+    if(commonData.isRetry){
+      testResultRequest.setRetryCount(commonData.resultCounter+1);
+      commonData.resultCounter = 0;
+      TestraRestClient.updateResult(commonData.failedScenarioIDs.get(commonData.currentTestCaseID),testResultRequest);
+    }
+    else
+      TestraRestClient.createResult(testResultRequest);
   }
 
   @Override
