@@ -29,7 +29,8 @@ jobs:
     - "./gradlew check"
   - stage: snapshot
     script:
-    - "./gradlew artifactoryPublish -x test -Dsnapshot=true -Dbintray.user=$BINTRAY_USER -Dbintray.key=$BINTRAY_KEY -Dbuild.number=$TRAVIS_BUILD_NUMBER"
+      - echo "Disable until snapshot release is working. waiting for bintray' response"
+#     - "./gradlew artifactoryPublish -x test -Dsnapshot=true -Dbintray.user=$BINTRAY_USER -Dbintray.key=$BINTRAY_KEY -Dbuild.number=$TRAVIS_BUILD_NUMBER"
   - stage: release
     script:
     - "./gradlew bintrayUpload -x test bintrayPublish -Dbintray.user=$BINTRAY_USER -Dbintray.key=$BINTRAY_KEY"
