@@ -1,0 +1,6 @@
+dependencies {
+    compile project(':testra-java-api-client')
+    compile project(':testra-java-commons')
+    compile group: 'junit', name: 'junit', version: '4.12'
+
+}
