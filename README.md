@@ -8,6 +8,8 @@ It includes plugins for cucumber versions 1.2.5, 2.4.0 and 3.0.2
 - [Install](#install)
 - [Cucumber Usage](#cucumber)
 - [Junit Usage](#junit)
+- [Properties](#properties)
+- [Tags](#tags)
 - [Contribute](#contribute)
 - [License](#license)
 
@@ -63,6 +65,17 @@ If you are using junit and wish to use the retry functionality to rerun failed t
 ```
 And you must have junit=true as a jvm arg or in .testra
 
+
+
+## Junit
+To run with Junit4, run with the testra junit runner
+```$xslt
+@RunWith(TestraJunitRunner.class)
+```
+Use the @Tag annotation to add tags to both the class and tests.
+
+
+##Properties
 You must have a .testra file in the root directory for the module which defines
 ```$xslt
 host=http://localhost:8080/api/v1
@@ -87,13 +100,10 @@ Run testra.disabled=true as a jvm argument to disable the Testra Plugin
 
 Any .testra properties that are passed as jvm args, the jvm arg will be used first.
 
-## Junit
-To run with Junit4, run with the testra junit runner
-```$xslt
-@RunWith(TestraJunitRunner.class)
-```
-Use the @Tag annotation to add tags to both the class and tests.
+##Tags
+Adding @ExpectedFailure as a tag to a test will add the 'expectedtofail' flag to the test results for that test. In the testra user interface this will allow you to filter out expected failures from your reports.
 
+Adding @Manual as a tag to a test will add the manual flag to a scenario and will skip the test to be done manually at the end.
 ## Contribute
 
 
