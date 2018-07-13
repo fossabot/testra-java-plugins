@@ -318,7 +318,7 @@ public class Testra implements Formatter {
       testResultRequest.setRetryCount(commonData.retryCount);
       testResultRequest.setExpectedToFail(commonData.isExpectedFailure);
       commonData.stepResultsNew = new ArrayList<>();
-      TestraRestClient.createResult(testResultRequest);
+      commonData.resultID = TestraRestClient.createResult(testResultRequest).getId();
       return;
     }
     commonData.resultCounter = 0;
@@ -349,10 +349,10 @@ public class Testra implements Formatter {
     commonData.embedEvent = null;
     commonData.stepResultsNew = new ArrayList<>();
     if(commonData.isRetry){
-      TestraRestClient.updateResult(commonData.currentTestResultID,testResultRequest);
+      commonData.resultID = TestraRestClient.updateResult(commonData.currentTestResultID,testResultRequest).getId();
     }
     else
-      TestraRestClient.createResult(testResultRequest);
+      commonData.resultID = TestraRestClient.createResult(testResultRequest).getId();
   }
 
   private void handlePickleStep(final TestStepFinished event) {

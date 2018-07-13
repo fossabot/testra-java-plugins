@@ -141,19 +141,20 @@ public final class TestraRestClient {
     }
   }
 
-    public static void createResult(TestResultRequest testResultRequest) {
+    public static TestResult createResult(TestResultRequest testResultRequest) {
     try {
-        resultApi.createResult(projectIDString, executionIDString, testResultRequest);
+        return resultApi.createResult(projectIDString, executionIDString, testResultRequest);
     } catch (ApiException e) {
       LOGGER.error("Error Creating Result " + testResultRequest.getTargetId());
       LOGGER.error(e.getResponseBody());
       e.printStackTrace();
+      return null;
     }
   }
 
-  public static void updateResult(String resultID, TestResultRequest testResultRequest){
+  public static TestResult updateResult(String resultID, TestResultRequest testResultRequest){
     try {
-      resultApi.updateResult(projectIDString,executionIDString,resultID,testResultRequest);
+      return resultApi.updateResult(projectIDString,executionIDString,resultID,testResultRequest);
     } catch (ApiException e) {
       e.printStackTrace();
       throw new IllegalArgumentException("Could not update result");
