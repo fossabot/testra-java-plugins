@@ -11,14 +11,10 @@ import org.junit.platform.launcher.core.LauncherFactory;
 import tech.testra.jvm.plugin.junit5.Testra;
 
 public class TestraJunitRunner {
-
-
     @Test
     void shouldProcessPassedTests() {
         runClasses(AssumptionTests.class);
     }
-
-
     private void runClasses(Class<?>... classes) {
         final ClassSelector[] classSelectors = Stream.of(classes)
             .map(DiscoverySelectors::selectClass)

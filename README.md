@@ -74,8 +74,23 @@ To run with Junit4, run with the testra junit runner
 ```
 Use the @Tag annotation to add tags to both the class and tests.
 
+To run with Junit5, use a LauncherFactory similar to:
+```$xslt
+    private void runClasses(Class<?>... classes) {
+        final ClassSelector[] classSelectors = Stream.of(classes)
+            .map(DiscoverySelectors::selectClass)
+            .toArray(ClassSelector[]::new);
+        final LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+            .selectors(classSelectors)
+            .build();
 
-##Properties
+        final Launcher launcher = LauncherFactory.create();
+        launcher.execute(request, new Testra());
+    }
+```
+
+
+## Properties
 You must have a .testra file in the root directory for the module which defines
 ```$xslt
 host=http://localhost:8080/api/v1
@@ -90,7 +105,7 @@ setExecutionID=false
 previousexecutionID=5b34b3b5c83c6c2f86b65e99
 junit=false
 ```
-If isrerun is set to true, set the previousexecutionID to the last execution id and the plugin will skipp all previously passed scenarios.
+If isrerun is set to true, set the previousexecutionID to the last execution id and the plugin will skip all previously passed scenarios.
 Note any of these properties can be set as jvm arguments.
 
 Each time you complete a test run, a testra.exec file will be created with the previous execution id.
