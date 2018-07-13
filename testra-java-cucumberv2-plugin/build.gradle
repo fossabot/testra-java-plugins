@@ -17,8 +17,14 @@ dependencies {
     compile 'org.projectlombok:lombok:1.16.18'
     compile group: 'com.google.guava', name: 'guava', version: '24.0-jre'
 
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
-// https://mvnrepository.com/artifact/junit/junit
+    testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.19.0'
+// https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
+    testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.0-beta.5'
+
+    // https://mvnrepository.com/artifact/io.specto/hoverfly-java
+    testCompile group: 'io.specto', name: 'hoverfly-java', version: '0.11.0'
+
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
 

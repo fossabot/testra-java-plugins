@@ -37,4 +37,5 @@ public class CommonData {
   public boolean skip = false;
   public boolean isManual = false;
   public boolean isExpectedFailure = false;
+  public String resultID;
   }
