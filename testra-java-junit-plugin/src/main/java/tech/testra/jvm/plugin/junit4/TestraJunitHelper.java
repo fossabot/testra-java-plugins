@@ -3,6 +3,8 @@ package tech.testra.jvm.plugin.junit4;
 import static tech.testra.jvm.commons.util.PropertyHelper.prop;
 
 import org.junit.AssumptionViolatedException;
+import tech.testra.jvm.commons.util.CommonData;
+import tech.testra.jvm.commons.util.CommonDataProvider;
 
 public class TestraJunitHelper {
 
