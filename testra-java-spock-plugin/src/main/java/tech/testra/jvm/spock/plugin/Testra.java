@@ -1,9 +1,11 @@
-package tech.testra.jvm.plugin.junit4;
+package tech.testra.jvm.spock.plugin;
 
 import static tech.testra.jvm.commons.util.PropertyHelper.prop;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
 import java.lang.reflect.Method;
@@ -16,16 +18,18 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.runner.Description;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
-import org.junit.runner.notification.RunListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spockframework.runtime.AbstractRunListener;
+import org.spockframework.runtime.extension.IGlobalExtension;
+import org.spockframework.runtime.model.ErrorInfo;
+import org.spockframework.runtime.model.IterationInfo;
+import org.spockframework.runtime.model.SpecInfo;
 import tech.testra.java.client.TestraRestClient;
 import tech.testra.java.client.model.EnrichedTestResult;
 import tech.testra.java.client.model.TestResultRequest;
-import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
+import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.java.client.model.Testcase;
 import tech.testra.java.client.model.TestcaseRequest;
 import tech.testra.jvm.commons.Label;
@@ -34,7 +38,7 @@ import tech.testra.jvm.commons.util.CommonData;
 import tech.testra.jvm.commons.util.CommonDataProvider;
 import tech.testra.jvm.commons.util.PropertyHelper;
 
-public class Testra extends RunListener {
+public class Testra extends AbstractRunListener implements IGlobalExtension {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Testra.class);
   private final Long threadId = Thread.currentThread().getId();
@@ -97,8 +101,6 @@ public class Testra extends RunListener {
     LOGGER.info(prop("host") + "/projects/" + projectID + "/executions/"+ executionID+"\n");
   }
 
-
-
   private void setup(){
     LOGGER.info("Scenario setup - Begin");
     CommonDataProvider.newCommonData(threadId);
@@ -112,28 +114,31 @@ public class Testra extends RunListener {
   }
 
   @Override
-  public void testRunStarted(Description description) throws Exception {
-    if(commonData.isDisabled)
-      return;
+  public void start() {
+
   }
 
   @Override
-  public void testRunFinished(Result result) throws Exception {
-    if(commonData.isDisabled)
-      return;
+  public void visitSpec(SpecInfo specInfo) {
+    specInfo.addListener(this);
   }
 
   @Override
-  public void testStarted(Description description) throws Exception {
+  public void stop() {
+
+  }
+
+  @Override
+  public void beforeIteration(final IterationInfo iteration) {
     commonData.startTime = System.currentTimeMillis();
     if(commonData.isDisabled)
       return;
-    List<Label> labels = getLabels(description);
+    List<Label> labels = getLabels(iteration);
     TestcaseRequest testCaseRequest = new TestcaseRequest();
     testCaseRequest.setTags(labels.stream().map(Label::getValue).collect(Collectors.toList()));
-    testCaseRequest.setName(description.getMethodName());
-    testCaseRequest.setClassName(description.getClassName().substring(description.getClassName().lastIndexOf(".")+1));
-    testCaseRequest.setNamespace(description.getClassName().substring(0,description.getClassName().lastIndexOf(".")));
+    testCaseRequest.setName(iteration.getName());
+    testCaseRequest.setClassName(iteration.getDescription().getClassName().substring(iteration.getDescription().getClassName().lastIndexOf(".")+1));
+    testCaseRequest.setNamespace(iteration.getDescription().getClassName().substring(0,iteration.getDescription().getClassName().lastIndexOf(".")));
     if(labels.stream().map(Label::getValue).collect(Collectors.toList()).contains("Manual")){
       commonData.isManual = true;
     }
@@ -163,7 +168,14 @@ public class Testra extends RunListener {
   }
 
   @Override
-  public void testFinished(Description description) throws Exception {
+  public void error(final ErrorInfo error){
+    commonData.isFailure = true;
+    commonData.failureMessage = error.getException().getMessage() + "\n" + getStackTraceAsString(error.getException());
+
+  }
+
+  @Override
+  public void afterIteration(final IterationInfo iterationInfo){
     commonData.endTime = System.currentTimeMillis();
     if(commonData.isDisabled||commonData.skip)
       return;
@@ -210,63 +222,29 @@ public class Testra extends RunListener {
       TestraRestClient.createResult(testResultRequest);
   }
 
-  @Override
-  public void testFailure(Failure failure) throws Exception {
-    if(commonData.isDisabled)
-      return;
-    commonData.failureMessage = failure.getMessage() + failure.getTrace();
-    commonData.isFailure = true;
-  }
-
-  @Override
-  public void testAssumptionFailure(Failure failure) {
-    if(commonData.isDisabled)
-      return;
-    commonData.failureMessage = failure.getMessage() + failure.getTrace();
-    commonData.isFailure = true;
-  }
-
-  @Override
-  public void testIgnored(Description description) throws Exception {
-    if(commonData.isDisabled)
-      return;
-    commonData.isIgnored = true;
-  }
-
-  private List<Label> getLabels(final Description result) {
-    return Stream.of(
-        getLabels(result, Tag.class, this::createLabel)
-    ).reduce(Stream::concat).orElseGet(Stream::empty).collect(Collectors.toList());
-  }
 
   private Label createLabel(final Tag tag) {
     return new Label().withName("tag").withValue(tag.value());
   }
 
-  private <T extends Annotation> Stream<Label> getLabels(final Description result, final Class<T> labelAnnotation,
-      final Function<T, Label> extractor) {
+  private List<Label> getLabels(final IterationInfo iterationInfo) {
+    return Stream.of(
+        getLabels(iterationInfo, Tag.class, this::createLabel)
+    ).reduce(Stream::concat).orElseGet(Stream::empty).collect(Collectors.toList());
+  }
 
-    final List<Label> labels = getAnnotationsOnMethod(result, labelAnnotation).stream()
+  private <T extends Annotation> Stream<Label> getLabels(final IterationInfo iterationInfo, final Class<T> clazz,
+      final Function<T, Label> extractor) {
+    final List<Label> onFeature = getFeatureAnnotations(iterationInfo, clazz).stream()
         .map(extractor)
         .collect(Collectors.toList());
-
-    if (labelAnnotation.isAnnotationPresent(Repeatable.class) || labels.isEmpty()) {
-      final Stream<Label> onClassLabels = getAnnotationsOnClass(result, labelAnnotation).stream()
-          .map(extractor);
-      labels.addAll(onClassLabels.collect(Collectors.toList()));
+    if (!onFeature.isEmpty()) {
+      return onFeature.stream();
     }
-
-    return labels.stream();
+    return getSpecAnnotations(iterationInfo, clazz).stream()
+        .map(extractor);
   }
 
-  private <T extends Annotation> List<T> getAnnotationsOnClass(final Description result, final Class<T> clazz) {
-    return Stream.of(result)
-        .map(Description::getTestClass)
-        .filter(Objects::nonNull)
-        .map(testClass -> testClass.getAnnotationsByType(clazz))
-        .flatMap(Stream::of)
-        .collect(Collectors.toList());
-  }
 
   private <T extends Annotation> List<T> getAnnotationsOnMethod(final Description result, final Class<T> clazz) {
     final T annotation = result.getAnnotation(clazz);
@@ -276,8 +254,9 @@ public class Testra extends RunListener {
     ).collect(Collectors.toList());
   }
 
+  @SuppressWarnings("unchecked")
   private <T extends Annotation> List<T> extractRepeatable(final Description result, final Class<T> clazz) {
-    if (clazz != null && clazz.isAnnotationPresent(Repeatable.class)) {
+    if (clazz.isAnnotationPresent(Repeatable.class)) {
       final Repeatable repeatable = clazz.getAnnotation(Repeatable.class);
       final Class<? extends Annotation> wrapper = repeatable.value();
       final Annotation annotation = result.getAnnotation(wrapper);
@@ -293,4 +272,29 @@ public class Testra extends RunListener {
     }
     return Collections.emptyList();
   }
+
+  private <T extends Annotation> List<T> getAnnotationsOnClass(final Description result, final Class<T> clazz) {
+    return Stream.of(result)
+        .map(Description::getTestClass)
+        .map(testClass -> testClass.getAnnotationsByType(clazz))
+        .flatMap(Stream::of)
+        .collect(Collectors.toList());
+  }
+
+  private <T extends Annotation> List<T> getFeatureAnnotations(final IterationInfo iteration, final Class<T> clazz) {
+    return getAnnotationsOnMethod(iteration.getFeature().getDescription(), clazz);
+  }
+
+  private <T extends Annotation> List<T> getSpecAnnotations(final IterationInfo iteration, final Class<T> clazz) {
+    final SpecInfo spec = iteration.getFeature().getSpec();
+    return getAnnotationsOnClass(spec.getDescription(), clazz);
+  }
+
+  private static String getStackTraceAsString(final Throwable throwable) {
+    final StringWriter stringWriter = new StringWriter();
+    throwable.printStackTrace(new PrintWriter(stringWriter));
+    return stringWriter.toString();
+  }
+
+
 }

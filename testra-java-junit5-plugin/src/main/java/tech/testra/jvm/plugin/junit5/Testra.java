@@ -23,10 +23,9 @@ import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
 import tech.testra.java.client.model.Testcase;
 import tech.testra.java.client.model.TestcaseRequest;
-import tech.testra.jvm.commons.Label;
 import tech.testra.jvm.commons.util.PropertyHelper;
-import tech.testra.jvm.plugin.junit5.utils.CommonData;
-import tech.testra.jvm.plugin.junit5.utils.CommonDataProvider;
+import tech.testra.jvm.commons.util.CommonData;
+import tech.testra.jvm.commons.util.CommonDataProvider;
 
 public class Testra implements TestExecutionListener {
 

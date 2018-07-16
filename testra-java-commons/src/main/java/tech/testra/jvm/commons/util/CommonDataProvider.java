@@ -1,4 +1,4 @@
-package tech.testra.jvm.plugin.junit5.utils;
+package tech.testra.jvm.commons.util;
 
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
