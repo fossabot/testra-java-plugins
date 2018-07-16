@@ -8,6 +8,7 @@ It includes plugins for cucumber versions 1.2.5, 2.4.0 and 3.0.2
 - [Install](#install)
 - [Cucumber Usage](#cucumber)
 - [Junit Usage](#junit)
+- [Spock Usage](#spock)
 - [Properties](#properties)
 - [Tags](#tags)
 - [Contribute](#contribute)
@@ -89,6 +90,26 @@ To run with Junit5, use a LauncherFactory similar to:
     }
 ```
 
+## Spock
+To run with Spock, use a spock runner
+```$xslt
+    private final static NOTIFIER = new RunNotifier()
+    static void run(Class clazz){
+        SpecInfo spec = new SpecInfoBuilder(clazz).build()
+        spec.addListener(new Testra())
+        new JUnitDescriptionGenerator(spec).describeSpecMethods()
+        new JUnitDescriptionGenerator(spec).describeSpec()
+        RunContext.get().createSpecRunner(spec, NOTIFIER).run()
+    } 
+```
+Then run the tests with Junit
+```$xslt
+    @Test
+    void shouldStartTest(){
+        TestraRunner.run(TestGroovy)
+    }
+```
+Where TestGroovy is the name of your Spock class
 
 ## Properties
 You must have a .testra file in the root directory for the module which defines
