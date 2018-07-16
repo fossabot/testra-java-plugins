@@ -7,6 +7,7 @@ class TestraTest {
     @Test
     void shouldStartTest(){
         TestraRunner.run(TestGroovy)
+        TestraRunner.run(TestExamples)
     }
 
 }

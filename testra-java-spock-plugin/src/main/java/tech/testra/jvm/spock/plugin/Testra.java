@@ -136,7 +136,14 @@ public class Testra extends AbstractRunListener implements IGlobalExtension {
     List<Label> labels = getLabels(iteration);
     TestcaseRequest testCaseRequest = new TestcaseRequest();
     testCaseRequest.setTags(labels.stream().map(Label::getValue).collect(Collectors.toList()));
-    testCaseRequest.setName(iteration.getName());
+    String dataValueHeader = "";
+    for(Object value : iteration.getDataValues()){
+      if(dataValueHeader.equals(""))
+        dataValueHeader += " where " + ((String) value.toString());
+      else
+        dataValueHeader += "," + ((String) value.toString());
+    }
+    testCaseRequest.setName(iteration.getName() + dataValueHeader);
     testCaseRequest.setClassName(iteration.getDescription().getClassName().substring(iteration.getDescription().getClassName().lastIndexOf(".")+1));
     testCaseRequest.setNamespace(iteration.getDescription().getClassName().substring(0,iteration.getDescription().getClassName().lastIndexOf(".")));
     if(labels.stream().map(Label::getValue).collect(Collectors.toList()).contains("Manual")){
