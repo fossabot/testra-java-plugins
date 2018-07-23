@@ -105,6 +105,7 @@ subprojects {
             dependency group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
             dependency group: 'ch.qos.logback', name:'logback-classic', version: '1.0.9'
             dependency group: 'ch.qos.logback', name:'logback-core', version: '1.0.9'
+            dependency group: 'org.jbehave', name:'jbehave-core' , version: '4.3.4'
 
         }
     }
@@ -206,7 +207,7 @@ subprojects {
 }
 
 configure(subprojects
-        .findAll { it.name == 'testra-java-cucumberv2-plugin' || it.name == 'testra-java-cucumberv1-plugin'|| it.name == 'testra-java-cucumberv3-plugin'}) {
+        .findAll { it.name == 'testra-java-cucumberv2-plugin' || it.name == 'testra-java-cucumberv1-plugin'|| it.name == 'testra-java-cucumberv3-plugin' || it.name == 'testra-java-jbehave-plugin'}) {
     apply plugin: 'com.energizedwork.webdriver-binaries'
 }
 

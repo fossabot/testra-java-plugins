@@ -7,21 +7,12 @@ dependencies {
     compile project(':testra-java-api-client')
     compile project(':testra-java-commons')
 
-    compile group: 'io.cucumber', name: 'cucumber-core', version: "${cucumber_version}"
-    compile group: 'io.cucumber', name: 'cucumber-java', version: "${cucumber_version}"
-    compile group: 'io.cucumber', name: 'cucumber-testng', version: "${cucumber_version}"
-    compile group: 'io.cucumber', name: 'cucumber-junit', version: "${cucumber_version}"
+    compile group: 'org.jbehave', name:'jbehave-core'
 
     compile group: 'org.assertj', name: 'assertj-core-java8'
     compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.8.1'
     compile 'org.projectlombok:lombok:1.16.18'
     compile group: 'com.google.guava', name: 'guava', version: '24.0-jre'
-
-    testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.19.0'
-// https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
-    testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.0-beta.5'
-
-
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
 

@@ -44,7 +44,7 @@ public final class TestraRestClient {
     executionApi.getApiClient().setBasePath(url);
     resultApi.getApiClient().setBasePath(url);
     scenarioApi.getApiClient().setBasePath(url);
-      if (Boolean.parseBoolean(prop("testra.debug"))) {
+    if (Boolean.parseBoolean(prop("testra.debug"))) {
       projectApi.getApiClient().setDebugging(true);
       executionApi.getApiClient().setDebugging(true);
       resultApi.getApiClient().setDebugging(true);
