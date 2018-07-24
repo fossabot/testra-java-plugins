@@ -13,9 +13,12 @@ dependencies {
     compile group: 'io.cucumber', name: 'cucumber-junit', version: "${cucumber_version}"
 
     compile group: 'org.assertj', name: 'assertj-core-java8'
-    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.8.1'
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.13.0'
     compile 'org.projectlombok:lombok:1.16.18'
     compile group: 'com.google.guava', name: 'guava', version: '24.0-jre'
+
+    compile group: 'com.codeborne', name: 'selenide', version: '4.12.3'
+
 
     testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.19.0'
 // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2

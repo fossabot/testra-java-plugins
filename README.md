@@ -10,6 +10,7 @@ It includes plugins for cucumber versions 1.2.5, 2.4.0 and 3.0.2
 - [Junit Usage](#junit)
 - [Spock Usage](#spock)
 - [Properties](#properties)
+- [Screenshots](#screenshots)
 - [Tags](#tags)
 - [Contribute](#contribute)
 - [License](#license)
@@ -65,7 +66,6 @@ If you are using junit and wish to use the retry functionality to rerun failed t
   }
 ```
 And you must have junit=true as a jvm arg or in .testra
-
 
 
 ## Junit
@@ -135,6 +135,39 @@ If this file is present, there is no need to add previousexecutionID to the .tes
 Run testra.disabled=true as a jvm argument to disable the Testra Plugin
 
 Any .testra properties that are passed as jvm args, the jvm arg will be used first.
+
+##Screenshots
+To take a screenshot with selenium, add the following to your @After
+```#xslt
+  @After
+  public void teardown(Scenario scenario){
+    if(webDriver!=null){
+      try {
+        if (scenario.isFailed()) {
+          byte[] screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
+          scenario.embed(screenshot, "image/png");
+        }
+      } catch (WebDriverException | ClassCastException somePlatformsDontSupportScreenshots) {
+        somePlatformsDontSupportScreenshots.printStackTrace();
+      }
+      webDriver.close();
+    }
+  }
+```
+
+The simplest way to make screenshots to work with selenide is to do the same but import static com.codeborne.selenide.WebDriverRunner.getWebDriver
+```$xslt
+    if(getWebDriver()!=null){
+      try {
+        if (scenario.isFailed()) {
+          byte[] screenshot = ((TakesScreenshot) getWebDriver()).getScreenshotAs(OutputType.BYTES);
+          scenario.embed(screenshot, "image/png");
+        }
+      } catch (WebDriverException | ClassCastException somePlatformsDontSupportScreenshots) {
+        somePlatformsDontSupportScreenshots.printStackTrace();
+      }
+    }
+``` 
 
 ##Tags
 Adding @ExpectedFailure as a tag to a test will add the 'expectedtofail' flag to the test results for that test. In the testra user interface this will allow you to filter out expected failures from your reports.
