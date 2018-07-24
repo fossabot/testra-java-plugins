@@ -3,7 +3,6 @@ package tech.testra.jvm.plugin.jbehave.test;
 import static java.util.Collections.singletonList;
 
 import java.io.File;
-import org.jbehave.core.annotations.BeforeScenario;
 import org.jbehave.core.configuration.MostUsefulConfiguration;
 import org.jbehave.core.embedder.Embedder;
 import org.jbehave.core.embedder.EmbedderControls;
@@ -16,7 +15,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import tech.testra.jvm.plugin.jbehave.Testra;
 import tech.testra.jvm.plugin.jbehave.test.steps.JBehaveSteps;
-import tech.testra.jvm.plugin.jbehave.utils.TestraJunitHelper;
 
 public class JBehaveRunner {
 
@@ -43,7 +41,7 @@ public class JBehaveRunner {
   }
 
 
-  @Test
+//  @Test
   public void runTests() {
     embedder.runStoriesAsPaths(singletonList("stories/example.story"));
   }
