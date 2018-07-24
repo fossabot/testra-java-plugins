@@ -135,6 +135,7 @@ public class Testra extends NullStoryReporter {
 
   @Override
   public void beforeScenario(final String title) {
+    CommonDataProvider.setCommonData(Thread.currentThread().getId(), commonData);
     commonData.startTime = System.currentTimeMillis();
     final Story story = stories.get();
     final String uuid = scenarios.get();
@@ -178,7 +179,6 @@ public class Testra extends NullStoryReporter {
     if(commonData.isRetry&&!commonData.failedScenarioIDs.containsKey(commonData.currentScenarioID)){
       LOGGER.info("Test has already passed in a previous test run");
       if(prop("junit") ==null || !Boolean.parseBoolean(prop("junit"))){
-        //TODO - for testng
         commonData.skip = true;
       }
       else{

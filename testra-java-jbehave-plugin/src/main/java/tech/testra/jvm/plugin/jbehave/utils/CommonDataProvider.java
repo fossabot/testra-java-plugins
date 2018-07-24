@@ -16,6 +16,10 @@ public final class CommonDataProvider {
     commonDataMap.put(uniqueId, new CommonData());
   }
 
+  public static void setCommonData(Long uniqueId, CommonData commonData){
+    commonDataMap.put(uniqueId, commonData);
+  }
+
   public static CommonData get(Long uniqueId) {
     return commonDataMap.get(uniqueId);
   }
