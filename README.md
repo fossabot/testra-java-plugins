@@ -181,4 +181,4 @@ PRs accepted.
 
 ## License
 
-[MIT](https://github.com/nishanths/license/blob/master/LICENSE)
+[GNU GPLv3](https://github.com/testra-tech/testra-java-plugins/blob/master/LICENSE)
