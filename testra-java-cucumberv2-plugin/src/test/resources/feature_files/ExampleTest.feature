@@ -1,4 +1,4 @@
-@example
+@exampleUnit
 Feature: Example Test Feature
 
   Background:
@@ -39,4 +39,9 @@ Feature: Example Test Feature
   Scenario: Manual Test
     And true is true
     Then 4 minus 2 equals 2
+
+#  Scenario: DataTables
+#    And dataTable is readable hello
+#    | hello | world  |
+#    | hello | cheese |
 

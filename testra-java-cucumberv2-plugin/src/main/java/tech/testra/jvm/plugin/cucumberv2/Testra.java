@@ -7,6 +7,9 @@ import cucumber.runner.PickleTestStep;
 import gherkin.ast.Feature;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.Step;
+import gherkin.pickles.PickleCell;
+import gherkin.pickles.PickleRow;
+import gherkin.pickles.PickleTable;
 import java.io.FileWriter;
 import java.io.IOException;
 import org.slf4j.Logger;
@@ -253,6 +256,27 @@ public class Testra implements Formatter {
     for(int i = commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).size(); i<pickleSteps.size(); i++){
         TestStep testStep = new TestStep();
         testStep.setIndex(i);
+        PickleTestStep pickleStep = pickleSteps.get(i);
+        if(pickleStep.getStepArgument().size()>0){
+          PickleTable pickleTable = ((PickleTable)pickleStep.getStepArgument().get(0));
+          List<DataTableRow> dtrRows = new ArrayList<>();
+          int rowcounter = 0;
+          for(PickleRow pickleRow : pickleTable.getRows()){
+            DataTableRow dtr = new DataTableRow();
+            dtr.setIndex(rowcounter);
+            rowcounter++;
+            int cellcounter = 0;
+            for(PickleCell pickleCell : pickleRow.getCells()){
+              DataTableCell dtc = new DataTableCell();
+              dtc.setIndex(cellcounter);
+              cellcounter++;
+              dtc.setValue(pickleCell.getValue());
+              dtr.addCellsItem(dtc);
+            }
+            dtrRows.add(dtr);
+          }
+          testStep.setDataTableRows(dtrRows);
+        }
         testStep.setText(commonData.cucumberSourceUtils.getKeywordFromSource(event.testCase.getUri(), pickleSteps.get(i).getStepLine()) + ((pickleSteps.get(i))).getStepText());
         testStepList.add(testStep);
     }

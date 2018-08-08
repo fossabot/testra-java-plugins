@@ -1157,9 +1157,39 @@ definitions:
         type: integer
       text:
         type: string
+      dataTableRows:
+        type: array
+        items:
+          $ref: '#/definitions/DataTableRow'
     required:
       - index
       - text
+
+  DataTableRow:
+    title: DataTableRow
+    type: object
+    properties:
+      index:
+        type: integer
+      cells:
+        type: array
+        items:
+          $ref: '#/definitions/DataTableCell'
+    required:
+      - index
+      - cells
+
+  DataTableCell:
+    title: DataTableCell
+    type: object
+    properties:
+      index:
+        type: integer
+      value:
+        type: string
+    required:
+      - index
+      - value
 
   Testcase:
     title: TestCase
@@ -1243,7 +1273,7 @@ definitions:
     required:
       - id
       - projectId
-      - isParallel
+      - parallel
       - host
       - startTime
       - endTime
@@ -1276,7 +1306,7 @@ definitions:
         items:
           type: string
     required:
-      - isParallel
+      - parallel
       - host
 
   TestExecutionStats:
@@ -1289,13 +1319,16 @@ definitions:
         type: string
       projectId:
         type: string
-      passedResults:
+      passed:
         type: integer
         format: int64
-      failedResults:
+      failed:
         type: integer
         format: int64
-      otherResults:
+      expectedFailures:
+        type: integer
+        format: int64
+      others:
         type: integer
         format: int64
 
@@ -1354,12 +1387,12 @@ definitions:
       - targetId
       - groupId
       - resultType
-      - result
+      - status
       - durationInMs
       - startTime
       - endTime
       - retryCount
-      
+
   EnrichedTestResult:
     title: TestResult
     type: object
@@ -1408,7 +1441,7 @@ definitions:
       - targetId
       - groupId
       - resultType
-      - result
+      - status
       - durationInMs
       - startTime
       - endTime
@@ -1455,7 +1488,7 @@ definitions:
       - targetId
       - groupId
       - resultType
-      - result
+      - status
       - durationInMs
       - startTime
       - endTime
@@ -1477,7 +1510,7 @@ definitions:
         type: string
     required:
       - index
-      - result
+      - status
       - durationInMs
 
   Attachment:

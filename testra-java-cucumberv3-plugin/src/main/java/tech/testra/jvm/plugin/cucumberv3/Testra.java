@@ -7,6 +7,9 @@ import cucumber.api.formatter.Formatter;
 import gherkin.ast.Feature;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.Step;
+import gherkin.pickles.PickleCell;
+import gherkin.pickles.PickleRow;
+import gherkin.pickles.PickleTable;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,6 +240,27 @@ public class Testra implements Formatter {
         TestStep testStep = new TestStep();
         testStep.setIndex(i);
         testStep.setText(commonData.cucumberSourceUtils.getKeywordFromSource(event.testCase.getUri(), pickleSteps.get(i).getStepLine()) + ((pickleSteps.get(i))).getStepText());
+      if(pickleSteps.get(i).getStepArgument().size()>0){
+        PickleTable pickleTable = ((PickleTable)pickleSteps.get(i).getStepArgument().get(0));
+        List<DataTableRow> dtrRows = new ArrayList<>();
+        int rowcounter = 0;
+        for(PickleRow pickleRow : pickleTable.getRows()){
+          DataTableRow dtr = new DataTableRow();
+          dtr.setIndex(rowcounter);
+          rowcounter++;
+          int cellcounter = 0;
+          for(PickleCell pickleCell : pickleRow.getCells()){
+            DataTableCell dtc = new DataTableCell();
+            dtc.setIndex(cellcounter);
+            cellcounter++;
+            dtc.setValue(pickleCell.getValue());
+            dtr.addCellsItem(dtc);
+          }
+          dtrRows.add(dtr);
+        }
+        testStep.setDataTableRows(dtrRows);
+      }
+
         testStepList.add(testStep);
     }
     if(tagList.contains("@ExpectedFailure")){

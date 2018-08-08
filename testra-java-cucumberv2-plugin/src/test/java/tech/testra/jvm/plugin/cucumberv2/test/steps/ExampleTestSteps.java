@@ -1,5 +1,7 @@
 package tech.testra.jvm.plugin.cucumberv2.test.steps;
 
+import cucumber.api.DataTable;
+import cucumber.api.PendingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -42,5 +44,10 @@ public class ExampleTestSteps {
   @And("^(.*) is true$")
   public void trueIsTrue(boolean var){
     assertThat(var);
+  }
+
+  @And("^dataTable is readable (.*)$")
+  public void datatableIsReadable(String word, DataTable dataTable) throws Throwable {
+    assertThat(dataTable.cells(0).size() >0).isTrue();
   }
 }
