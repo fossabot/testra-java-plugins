@@ -4,9 +4,13 @@ import cucumber.api.Result.Type;
 import cucumber.api.event.*;
 import cucumber.api.formatter.Formatter;
 import cucumber.runner.PickleTestStep;
+import gherkin.ast.DataTable;
 import gherkin.ast.Feature;
+import gherkin.ast.Node;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.Step;
+import gherkin.ast.TableCell;
+import gherkin.ast.TableRow;
 import gherkin.pickles.PickleCell;
 import gherkin.pickles.PickleRow;
 import gherkin.pickles.PickleTable;
@@ -211,6 +215,30 @@ public class Testra implements Formatter {
       int counter = 0;
       for(Step step : background.getSteps()){
         StepTemplate stepTemplate = new StepTemplate();
+        if(step.getArgument() !=null){
+          DataTable datatable;
+          Node argument = step.getArgument();
+          if (argument instanceof DataTable) {
+            datatable = (DataTable) argument;
+            List<DataTableRow> dtrRows = new ArrayList<>();
+            int rowcounter = 0;
+            for(TableRow tableRow : datatable.getRows()){
+              DataTableRow dtr = new DataTableRow();
+              dtr.setIndex(rowcounter);
+              int cellCounter = 0;
+              for(TableCell tableCell : tableRow.getCells()){
+                DataTableCell dtc = new DataTableCell();
+                dtc.setIndex(cellCounter);
+                dtc.setValue(tableCell.getValue());
+                cellCounter++;
+                dtr.addCellsItem(dtc);
+              }
+              dtrRows.add(dtr);
+            }
+            stepTemplate.setDataTableRowList(dtrRows);
+          }
+        }
+
         stepTemplate.setGherkinStep(step.getKeyword() + step.getText());
         stepTemplate.setIndex(counter);
         stepTemplate.setLine(step.getLocation().getLine());
@@ -246,7 +274,8 @@ public class Testra implements Formatter {
         .map(s -> {
           TestStep testStep = new TestStep();
           testStep.setIndex(s.getIndex());
-        testStep.setText(s.getGherkinStep());
+          testStep.setText(s.getGherkinStep());
+          testStep.setDataTableRows(s.getDataTableRowList());
         return testStep;}).collect(Collectors.toList()));
     List<TestStep> testStepList = new ArrayList<>();
     List<PickleTestStep> pickleSteps = commonData.currentTestCase.getTestSteps().stream()

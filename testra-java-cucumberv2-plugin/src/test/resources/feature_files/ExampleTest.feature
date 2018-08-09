@@ -2,6 +2,8 @@
 Feature: Example Test Feature
 
   Background:
+    And dataTable is readable hello
+      | hello | world  |
     Given 3 plus 3 equals 6
     Given 4 plus 4 equals 8
 
@@ -40,8 +42,8 @@ Feature: Example Test Feature
     And true is true
     Then 4 minus 2 equals 2
 
-#  Scenario: DataTables
-#    And dataTable is readable hello
-#    | hello | world  |
-#    | hello | cheese |
+  Scenario: DataTables
+    And dataTable is readable hello
+    | hello | world  |
+    | hello | cheese |
 
