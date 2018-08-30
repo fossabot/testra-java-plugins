@@ -234,6 +234,7 @@ public class Testra implements Formatter {
                 dtr.addCellsItem(dtc);
               }
               dtrRows.add(dtr);
+              rowcounter++;
             }
             stepTemplate.setDataTableRowList(dtrRows);
           }
@@ -293,7 +294,6 @@ public class Testra implements Formatter {
           for(PickleRow pickleRow : pickleTable.getRows()){
             DataTableRow dtr = new DataTableRow();
             dtr.setIndex(rowcounter);
-            rowcounter++;
             int cellcounter = 0;
             for(PickleCell pickleCell : pickleRow.getCells()){
               DataTableCell dtc = new DataTableCell();
@@ -303,6 +303,7 @@ public class Testra implements Formatter {
               dtr.addCellsItem(dtc);
             }
             dtrRows.add(dtr);
+            rowcounter++;
           }
           testStep.setDataTableRows(dtrRows);
         }
