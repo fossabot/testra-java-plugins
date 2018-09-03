@@ -14,6 +14,7 @@ import gherkin.ast.TableRow;
 import gherkin.pickles.PickleCell;
 import gherkin.pickles.PickleRow;
 import gherkin.pickles.PickleTable;
+import java.io.FileWriter;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +22,8 @@ import org.testng.SkipException;
 import org.testng.reporters.Files;
 import tech.testra.java.client.TestraRestClient;
 import tech.testra.java.client.model.*;
-import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
+import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.jvm.commons.util.MD5;
 import tech.testra.jvm.commons.util.PropertyHelper;
 import tech.testra.jvm.plugin.cucumberv3.utils.CommonData;
@@ -61,15 +62,14 @@ public class Testra implements Formatter {
   public Testra() {
     PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
     setup();
-    if(Boolean.parseBoolean(prop("testra.disabled" ,"false"))){
+    if (Boolean.parseBoolean(prop("testra.disabled", "false"))) {
       featureStartedHandler = this::handleFeatureStartedHandlerDisabled;
       caseStartedHandler = this::handleTestCaseStartedDisabled;
       caseFinishedHandler = this::handleTestCaseFinishedDisabled;
       stepStartedHandler = this::handleTestStepStartedDisabled;
       stepFinishedHandler = this::handleTestStepFinishedDisabled;
       snippetsSuggestedEventEventHandler = this::snippetHandler;
-    }
-    else{
+    } else {
       featureStartedHandler = this::handleFeatureStartedHandler;
       caseStartedHandler = this::handleTestCaseStarted;
       caseFinishedHandler = this::handleTestCaseFinished;
@@ -85,7 +85,7 @@ public class Testra implements Formatter {
 
   }
 
-  private void handleTestCaseStartedDisabled(TestCaseStarted event){
+  private void handleTestCaseStartedDisabled(TestCaseStarted event) {
 
   }
 
@@ -110,82 +110,97 @@ public class Testra implements Formatter {
     publisher.registerHandlerFor(SnippetsSuggestedEvent.class, snippetsSuggestedEventEventHandler);
   }
 
-  private void setup(){
+  private void setup() {
     LOGGER.info("Scenario setup - Begin");
     CommonDataProvider.newCommonData(threadId);
     if ((commonData = CommonDataProvider.get(threadId)) == null) {
       throw new RuntimeException("Common data not found for id : " + threadId);
-    }
-    else {
+    } else {
       LOGGER.info("Initialised common data instance for scenario");
     }
     LOGGER.info("Scenario setup - End");
   }
 
-  private void setProperties(){
+  private void setProperties() {
     TestraRestClient.setURLs(prop("host"));
     projectID = TestraRestClient.getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
     commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
-    commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
-    if(prop("buildRef")!=null){
+    commonData.setExecutionID = Boolean.parseBoolean(prop("setExecutionID"));
+    if (prop("buildRef") != null) {
       TestraRestClient.buildRef = prop("buildRef");
     }
-    if(prop("testra.execution.description")!=null){
+    if (prop("testra.execution.description") != null) {
       TestraRestClient.executionDescription = prop("testra.execution.description");
     }
     createExecution();
-    if(commonData.isRetry) {
+    if (commonData.isRetry) {
       List<EnrichedTestResult> failedTests = TestraRestClient.getFailedResults();
-      failedTests.forEach(x -> {commonData.failedScenarioIDs.put(x.getTargetId(),x.getId());
-        commonData.failedRetryMap.put(x.getTargetId(), x.getRetryCount());});
+      failedTests.forEach(x -> {
+        commonData.failedScenarioIDs.put(x.getTargetId(), x.getId());
+        commonData.failedRetryMap.put(x.getTargetId(), x.getRetryCount());
+      });
     }
   }
 
-  private void snippetHandler(SnippetsSuggestedEvent event){
+  private void snippetHandler(SnippetsSuggestedEvent event) {
     commonData.snippetLine.add(event.snippets.get(0));
   }
 
   private void handleFeatureStartedHandler(final TestSourceRead event) {
-    cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
-    commonData.cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
-    processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri), MD5.generateMD5(event.uri));
-  }
-  private synchronized void createExecution() {
-      if(TestraRestClient.getExecutionid() == null) {
-        if(commonData.isRetry){
-          File file = new File("testra.exec");
-          if(file.isFile()){
-            try {
-              TestraRestClient.setExecutionid(Files.readFile(file).trim());
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
-          }
-          else {
-            TestraRestClient.setExecutionid(prop("previousexecutionID"));
-          }
-        }
-        else if(commonData.setExecutionID){
-          TestraRestClient.setExecutionid(prop("previousexecutionID"));
-        }
-        else {
-          TestraRestClient.setExecutionid(null);
-          TestraRestClient.createExecutionIDFile();
-        }
-      }
-    executionID = TestraRestClient.getExecutionid();
-    LOGGER.info("Execution ID is: " + executionID);
-    LOGGER.info(prop("host") + "/projects/" + projectID + "/executions/"+ executionID);
+    cucumberSourceUtils.addTestSourceReadEvent(event.uri, event);
+    commonData.cucumberSourceUtils.addTestSourceReadEvent(event.uri, event);
+    processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri),
+        MD5.generateMD5(event.uri));
   }
 
+  private synchronized void createExecution() {
+    if (TestraRestClient.getExecutionid() == null) {
+      if (commonData.isRetry) {
+        File file = new File("testra.exec");
+        if (file.isFile()) {
+          try {
+            TestraRestClient.setExecutionid(Files.readFile(file).trim());
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        } else {
+          TestraRestClient.setExecutionid(prop("previousexecutionID"));
+        }
+      } else if (commonData.setExecutionID) {
+        TestraRestClient.setExecutionid(prop("previousexecutionID"));
+      } else {
+        TestraRestClient.setExecutionid(null);
+        createExecutionIDFile();
+      }
+    }
+    executionID = TestraRestClient.getExecutionid();
+    LOGGER.info("Execution ID is: " + executionID);
+    LOGGER.info(prop("host") + "/projects/" + projectID + "/executions/" + executionID);
+  }
+
+  private void createExecutionIDFile() {
+    File file = new File("testra.exec");
+    FileWriter writer = null;
+    try {
+      if (file.createNewFile()) {
+        System.out.println("File is created!");
+      } else {
+        System.out.println("File already exists.");
+      }
+      writer = new FileWriter(file);
+      writer.write(TestraRestClient.getExecutionid());
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
   private void handleEmbed(EmbedEvent event) {
     commonData.embedEvent = event;
   }
 
-  private void processBackgroundSteps(Feature feature, String featureHash)
-  {
+  private void processBackgroundSteps(Feature feature, String featureHash) {
     List<StepTemplate> backgroundSteps = new ArrayList<>();
     List<String> featureTags = new ArrayList<>();
     feature.getTags().forEach(x -> featureTags.add(x.getName()));
@@ -194,22 +209,22 @@ public class Testra implements Formatter {
         .findFirst()
         .orElse(null);
 
-    if(background!=null){
+    if (background != null) {
       int counter = 0;
-      for(Step step : background.getSteps()){
+      for (Step step : background.getSteps()) {
         StepTemplate stepTemplate = new StepTemplate();
-        if(step.getArgument() !=null){
+        if (step.getArgument() != null) {
           DataTable datatable;
           Node argument = step.getArgument();
           if (argument instanceof DataTable) {
             datatable = (DataTable) argument;
             List<DataTableRow> dtrRows = new ArrayList<>();
             int rowcounter = 0;
-            for(TableRow tableRow : datatable.getRows()){
+            for (TableRow tableRow : datatable.getRows()) {
               DataTableRow dtr = new DataTableRow();
               dtr.setIndex(rowcounter);
               int cellCounter = 0;
-              for(TableCell tableCell : tableRow.getCells()){
+              for (TableCell tableCell : tableRow.getCells()) {
                 DataTableCell dtc = new DataTableCell();
                 dtc.setIndex(cellCounter);
                 dtc.setValue(tableCell.getValue());
@@ -222,22 +237,23 @@ public class Testra implements Formatter {
             stepTemplate.setDataTableRowList(dtrRows);
           }
         }
+
         stepTemplate.setGherkinStep(step.getKeyword() + step.getText());
         stepTemplate.setIndex(counter);
         stepTemplate.setLine(step.getLocation().getLine());
-        counter ++;
+        counter++;
         backgroundSteps.add(stepTemplate);
       }
     }
-    commonData.backgroundSteps.put(featureHash,backgroundSteps);
+    commonData.backgroundSteps.put(featureHash, backgroundSteps);
   }
-
 
 
   private void handleTestCaseStarted(final TestCaseStarted event) {
     commonData.startTime = System.currentTimeMillis();
     commonData.currentFeatureFile = event.testCase.getUri();
-    commonData.currentFeature = commonData.cucumberSourceUtils.getFeature(commonData.currentFeatureFile);
+    commonData.currentFeature = commonData.cucumberSourceUtils
+        .getFeature(commonData.currentFeatureFile);
     commonData.currentTestCase = event.testCase;
     final List<String> tagList = new ArrayList<>();
     event.testCase.getTags().forEach(x -> tagList.add(x.getName()));
@@ -246,38 +262,40 @@ public class Testra implements Formatter {
     scenarioRequest.setFeatureName(commonData.currentFeature.getName());
     scenarioRequest.setFeatureDescription(commonData.currentFeature.getDescription());
     scenarioRequest.setTags(tagList);
-    if(tagList.contains("@Manual")){
+    if (tagList.contains("@Manual")) {
       scenarioRequest.setManual(true);
       commonData.isManual = true;
-    }
-    else{
+    } else {
       commonData.isManual = false;
     }
-    scenarioRequest.setBackgroundSteps(commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).stream()
-        .map(s -> {
-          TestStep testStep = new TestStep();
-          testStep.setIndex(s.getIndex());
-          testStep.setText(s.getGherkinStep());
-          testStep.setDataTableRows(s.getDataTableRowList());
-        return testStep;}).collect(Collectors.toList()));
+    scenarioRequest.setBackgroundSteps(
+        commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).stream()
+            .map(s -> {
+              TestStep testStep = new TestStep();
+              testStep.setIndex(s.getIndex());
+              testStep.setText(s.getGherkinStep());
+              testStep.setDataTableRows(s.getDataTableRowList());
+              return testStep;
+            }).collect(Collectors.toList()));
     List<TestStep> testStepList = new ArrayList<>();
     List<PickleStepTestStep> pickleSteps = commonData.currentTestCase.getTestSteps().stream()
         .filter(x -> !x.isHook())
-        .map(x -> (PickleStepTestStep)x)
+        .map(x -> (PickleStepTestStep) x)
         .collect(Collectors.toList());
-    for(int i = commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).size(); i<pickleSteps.size(); i++){
-        TestStep testStep = new TestStep();
-        testStep.setIndex(i);
-        testStep.setText(commonData.cucumberSourceUtils.getKeywordFromSource(event.testCase.getUri(), pickleSteps.get(i).getStepLine()) + ((pickleSteps.get(i))).getStepText());
-      if(pickleSteps.get(i).getStepArgument().size()>0){
-        PickleTable pickleTable = ((PickleTable)pickleSteps.get(i).getStepArgument().get(0));
+    for (int i = commonData.backgroundSteps.get(MD5.generateMD5(event.testCase.getUri())).size();
+        i < pickleSteps.size(); i++) {
+      TestStep testStep = new TestStep();
+      testStep.setIndex(i);
+      PickleStepTestStep pickleStep = pickleSteps.get(i);
+      if (pickleStep.getStepArgument().size() > 0) {
+        PickleTable pickleTable = ((PickleTable) pickleStep.getStepArgument().get(0));
         List<DataTableRow> dtrRows = new ArrayList<>();
         int rowcounter = 0;
-        for(PickleRow pickleRow : pickleTable.getRows()){
+        for (PickleRow pickleRow : pickleTable.getRows()) {
           DataTableRow dtr = new DataTableRow();
           dtr.setIndex(rowcounter);
           int cellcounter = 0;
-          for(PickleCell pickleCell : pickleRow.getCells()){
+          for (PickleCell pickleCell : pickleRow.getCells()) {
             DataTableCell dtc = new DataTableCell();
             dtc.setIndex(cellcounter);
             cellcounter++;
@@ -289,13 +307,14 @@ public class Testra implements Formatter {
         }
         testStep.setDataTableRows(dtrRows);
       }
-
-        testStepList.add(testStep);
+      testStep.setText(commonData.cucumberSourceUtils
+          .getKeywordFromSource(event.testCase.getUri(), pickleSteps.get(i).getStepLine())
+          + ((pickleSteps.get(i))).getStepText());
+      testStepList.add(testStep);
     }
-    if(tagList.contains("@ExpectedFailure")){
+    if (tagList.contains("@ExpectedFailure")) {
       commonData.isExpectedFailure = true;
-    }
-    else{
+    } else {
       commonData.isExpectedFailure = false;
     }
     scenarioRequest.setSteps(testStepList);
@@ -303,15 +322,15 @@ public class Testra implements Formatter {
     commonData.currentScenarioID = scenario.getId();
     commonData.currentFeatureID = scenario.getFeatureId();
 
-    if(commonData.isRetry&&!commonData.failedScenarioIDs.containsKey(commonData.currentScenarioID)){
+    if (commonData.isRetry && !commonData.failedScenarioIDs
+        .containsKey(commonData.currentScenarioID)) {
       LOGGER.info("Test has already passed in a previous test run");
-      if(prop("junit") ==null || !Boolean.parseBoolean(prop("junit"))){
-          throw new SkipException("Test already passed, skipping");
+      if (prop("junit") == null || !Boolean.parseBoolean(prop("junit"))) {
+        throw new SkipException("Test already passed, skipping");
       }
-    }
-
-    else if(commonData.isRetry){
-      commonData.currentTestResultID = commonData.failedScenarioIDs.get(commonData.currentScenarioID);
+    } else if (commonData.isRetry) {
+      commonData.currentTestResultID = commonData.failedScenarioIDs
+          .get(commonData.currentScenarioID);
       commonData.retryCount = commonData.failedRetryMap.get(commonData.currentScenarioID) + 1;
     }
 
@@ -321,7 +340,7 @@ public class Testra implements Formatter {
   }
 
   private void handleTestStepFinished(final TestStepFinished event) {
-    if(commonData.skip){
+    if (commonData.skip) {
       return;
     }
     if (event.testStep.isHook()) {
@@ -335,13 +354,13 @@ public class Testra implements Formatter {
   }
 
   private void handleTestCaseFinished(final TestCaseFinished event) {
-    if(commonData.skip){
+    if (commonData.skip) {
       commonData.skip = false;
       commonData.stepResultsNew = new ArrayList<>();
       commonData.embedEvent = null;
       return;
     }
-    if(commonData.isManual){
+    if (commonData.isManual) {
       TestResultRequest testResultRequest = new TestResultRequest();
       testResultRequest.setGroupId(commonData.currentFeatureID);
       testResultRequest.setTargetId(commonData.currentScenarioID);
@@ -354,7 +373,7 @@ public class Testra implements Formatter {
       testResultRequest.setRetryCount(commonData.retryCount);
       testResultRequest.setExpectedToFail(commonData.isExpectedFailure);
       commonData.stepResultsNew = new ArrayList<>();
-      TestraRestClient.createResult(testResultRequest);
+      commonData.resultID = TestraRestClient.createResult(testResultRequest).getId();
       return;
     }
     commonData.resultCounter = 0;
@@ -370,12 +389,14 @@ public class Testra implements Formatter {
     testResultRequest.setEndTime(commonData.endTime);
     testResultRequest.setRetryCount(commonData.retryCount);
     testResultRequest.setExpectedToFail(commonData.isExpectedFailure);
-    if(event.result.getStatus().equals(Type.FAILED)){
+    commonData.isExpectedFailure = false;
+    if (event.result.getStatus().equals(Type.FAILED)) {
       testResultRequest.setError(event.result.getErrorMessage());
-      if(commonData.embedEvent != null){
+      if (commonData.embedEvent != null) {
         Attachment attachment = new Attachment();
         attachment.setMimeType(commonData.embedEvent.mimeType);
-        attachment.setBase64EncodedByteArray(new String(Base64.getEncoder().encode(commonData.embedEvent.data)));
+        attachment.setBase64EncodedByteArray(
+            new String(Base64.getEncoder().encode(commonData.embedEvent.data)));
         testResultRequest
             .setAttachments(Collections.singletonList(attachment));
       }
@@ -383,11 +404,11 @@ public class Testra implements Formatter {
 
     commonData.embedEvent = null;
     commonData.stepResultsNew = new ArrayList<>();
-    if(commonData.isRetry){
-      TestraRestClient.updateResult(commonData.currentTestResultID,testResultRequest);
-    }
-    else
-      TestraRestClient.createResult(testResultRequest);
+    if (commonData.isRetry) {
+      commonData.resultID = TestraRestClient
+          .updateResult(commonData.currentTestResultID, testResultRequest).getId();
+    } else
+      commonData.resultID = TestraRestClient.createResult(testResultRequest).getId();
   }
 
   private void handlePickleStep(final TestStepFinished event) {
@@ -397,19 +418,19 @@ public class Testra implements Formatter {
     stepResult.setIndex(commonData.resultCounter);
     commonData.resultCounter = commonData.resultCounter + 1;
     stepResult.setStatus(StepResult.StatusEnum.fromValue(event.result.getStatus().toString()));
-    if(event.result.getStatus().equals(Type.UNDEFINED)){
-      if(commonData.snippetLine.size()>0){
+    if (event.result.getStatus().equals(Type.UNDEFINED)) {
+      if (commonData.snippetLine.size() > 0) {
         stepResult.setError(commonData.snippetLine.get(commonData.snippetCount));
         commonData.snippetCount++;
-      }
-      else {
+      } else {
         stepResult.setError(
             "No step found for scenario line: " + testStep.getPickleStep().getText());
       }
     }
-    if(event.result.getStatus().equals(Type.FAILED)){
+    if (event.result.getStatus().equals(Type.FAILED)) {
       stepResult.setError(event.result.getErrorMessage());
     }
     commonData.stepResultsNew.add(stepResult);
   }
+
 }
