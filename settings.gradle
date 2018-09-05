@@ -8,3 +8,5 @@ include 'testra-java-jbehave-plugin'
 include 'testra-java-junit5-plugin'
 include 'testra-java-commons'
 include 'testra-java-api-client'
+include 'testra-java-gatling-plugin'
+

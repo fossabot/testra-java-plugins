@@ -9,6 +9,7 @@ import tech.testra.java.client.api.ExecutionApi;
 import tech.testra.java.client.api.ProjectApi;
 import tech.testra.java.client.api.ResultApi;
 import tech.testra.java.client.api.ScenarioApi;
+import tech.testra.java.client.api.SimulationApi;
 import tech.testra.java.client.api.TestcaseApi;
 import tech.testra.java.client.model.*;
 import tech.testra.java.client.model.TestResultRequest.StatusEnum;
@@ -31,6 +32,7 @@ public final class TestraRestClient {
   private static ScenarioApi scenarioApi = new ScenarioApi();
   private static ExecutionApi executionApi = new ExecutionApi();
   private static ResultApi resultApi = new ResultApi();
+  private static SimulationApi simulationtApi = new SimulationApi();
   private static TestcaseApi testcaseApi = new TestcaseApi();
   public static String buildRef;
   public static String executionDescription;
@@ -200,6 +202,16 @@ public final class TestraRestClient {
       writer.write(TestraRestClient.getExecutionid());
       writer.close();
     } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void createSimulation(SimulationRequest simulationRequest){
+    try {
+      simulationtApi.createSimulation(projectIDString, executionIDString, simulationRequest);
+    } catch (ApiException e) {
+      LOGGER.error("Error Creating Simulation");
+      LOGGER.error(e.getResponseBody());
       e.printStackTrace();
     }
   }
