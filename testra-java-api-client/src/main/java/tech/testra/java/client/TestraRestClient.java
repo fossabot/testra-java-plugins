@@ -191,18 +191,15 @@ public final class TestraRestClient {
 
   public static void createExecutionIDFile(){
     File file = new File("testra.exec");
-    FileWriter writer = null;
-    try {
+    try (FileWriter writer = new FileWriter(file)) {
       if (file.createNewFile()){
         System.out.println("File is created!");
       }else{
         System.out.println("File already exists.");
       }
-      writer = new FileWriter(file);
       writer.write(TestraRestClient.getExecutionid());
-      writer.close();
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("Exception when creating execution id file.", e);
     }
   }
 
