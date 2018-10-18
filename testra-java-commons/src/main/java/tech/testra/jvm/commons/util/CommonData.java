@@ -10,6 +10,7 @@ public class CommonData {
   public long endTime;
   public Boolean isRetry;
   public Boolean setExecutionID;
+  public Boolean saveEID;
   public Map<String,String> failedScenarioIDs = new HashMap<>();
   public Map<String,Integer> failedRetryMap = new HashMap<>();
   public int resultCounter = 0;
