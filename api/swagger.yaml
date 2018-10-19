@@ -196,6 +196,72 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResponse'
 
+  /projects/{id}/counters:
+    get:
+      tags:
+      - "project"
+      summary: Get couters for project children
+      description: Returns counts of Executions, Results, Scenarios, Testcases, SImulations and Vulnerability alerts
+      operationId: getProjectCounters
+      parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: Project Id
+      responses:
+        200:
+          description: 'Success return of counts'
+          schema:
+            $ref: '#/definitions/ProjectCounter'
+          examples:
+            application/json:
+            - testExecutionsCount: 10
+              testResultsCount: 10
+              testScenariosCount: 10
+              testCasesCount: 10
+              simulationsCount: 10
+              vulnerabilityAlertsCount: 10
+        404:
+          description: 'Project not found'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+            - error: ProjectNotFoundException
+              message: Invalid project id
+              timestamp: 15678902394
+        default:
+          description: Any other errors
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /projects/top:
+    get:
+      tags:
+      - "project"
+      summary: Top Projects
+      description: |
+        Returns list of top projects sorted by no of executions
+      operationId: topProjects
+      parameters:
+      - name: size
+        in: query
+        type: integer
+        required: true
+        description: No of projects to retrieve
+      responses:
+        200:
+          description: Successful Response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProjectExecutionCounter'
+          examples:
+            application/json:
+            - projectName: Test Project
+              noOfExecutions: 10
+
   /projects/{projectId}/scenarios:
     get:
       tags:
@@ -758,6 +824,28 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResponse'
 
+  /executions/recents:
+    get:
+      tags:
+      - "execution"
+      summary: Recent executions
+      description: |
+        Returns list of recent executions sorted by start time
+      operationId: recentExecutions
+      parameters:
+      - name: size
+        in: query
+        required: true
+        type: integer
+        description: No of executions to return
+      responses:
+        200:
+          description: Successful Response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Execution'
+
   /projects/{projectId}/executions/{executionId}/results:
     get:
       tags:
@@ -1155,8 +1243,8 @@ definitions:
         type: integer
         format: int64
     required:
-      - id
-      - name
+    - id
+    - name
 
   ProjectRequest:
     title: Project Request
@@ -1170,7 +1258,8 @@ definitions:
       description:
         type: string
     required:
-      - name
+    - name
+    - description
     example:
       name: Test Project
 
@@ -1211,16 +1300,16 @@ definitions:
         items:
           $ref: '#/definitions/TestStep'
     required:
-      - id
-      - projectId
-      - name
-      - featureId
-      - featureDescription
-      - tags
-      - before
-      - after
-      - backgroundSteps
-      - steps
+    - id
+    - projectId
+    - name
+    - featureId
+    - featureDescription
+    - tags
+    - before
+    - after
+    - backgroundSteps
+    - steps
 
   ScenarioRequest:
     title: Scenario Request
@@ -1255,10 +1344,10 @@ definitions:
         items:
           $ref: '#/definitions/TestStep'
     required:
-      - name
-      - featureName
-      - featureDescription
-      - steps
+    - name
+    - featureName
+    - featureDescription
+    - steps
 
   TestStep:
     title: TestStep
@@ -1273,8 +1362,8 @@ definitions:
         items:
           $ref: '#/definitions/DataTableRow'
     required:
-      - index
-      - text
+    - index
+    - text
 
   DataTableRow:
     title: DataTableRow
@@ -1287,8 +1376,8 @@ definitions:
         items:
           $ref: '#/definitions/DataTableCell'
     required:
-      - index
-      - cells
+    - index
+    - cells
 
   DataTableCell:
     title: DataTableCell
@@ -1299,8 +1388,8 @@ definitions:
       value:
         type: string
     required:
-      - index
-      - value
+    - index
+    - value
 
   Testcase:
     title: TestCase
@@ -1321,10 +1410,10 @@ definitions:
         items:
           type: string
     required:
-      - id
-      - projectId
-      - name
-      - namespaceId
+    - id
+    - projectId
+    - name
+    - namespaceId
 
   TestcaseRequest:
     title: TestCaseRequest
@@ -1343,9 +1432,9 @@ definitions:
         items:
           type: string
     required:
-      - name
-      - namespace
-      - className
+    - name
+    - namespace
+    - className
 
   Execution:
     title: TestExecution
@@ -1382,16 +1471,16 @@ definitions:
         items:
           type: string
     required:
-      - id
-      - projectId
-      - parallel
-      - host
-      - startTime
-      - endTime
-      - environment
-      - branch
-      - tags
-      - groupIds
+    - id
+    - projectId
+    - parallel
+    - host
+    - startTime
+    - endTime
+    - environment
+    - branch
+    - tags
+    - groupIds
 
   ExecutionRequest:
     title: TestExecutionRequest
@@ -1417,8 +1506,8 @@ definitions:
         items:
           type: string
     required:
-      - parallel
-      - host
+    - parallel
+    - host
 
   TestExecutionStats:
     title: TestExecutionStats
@@ -1446,13 +1535,13 @@ definitions:
   Result:
     type: string
     enum: &RESULT_ENUM
-      - PASSED
-      - FAILED
-      - PENDING
-      - SKIPPED
-      - AMBIGUOUS
-      - UNDEFINED
-      - UNKNOWN
+    - PASSED
+    - FAILED
+    - PENDING
+    - SKIPPED
+    - AMBIGUOUS
+    - UNDEFINED
+    - UNKNOWN
 
   TestResult:
     title: TestResult
@@ -1494,15 +1583,15 @@ definitions:
         items:
           $ref: '#/definitions/Attachment'
     required:
-      - id
-      - targetId
-      - groupId
-      - resultType
-      - status
-      - durationInMs
-      - startTime
-      - endTime
-      - retryCount
+    - id
+    - targetId
+    - groupId
+    - resultType
+    - status
+    - durationInMs
+    - startTime
+    - endTime
+    - retryCount
 
   EnrichedTestResult:
     title: TestResult
@@ -1548,15 +1637,15 @@ definitions:
       testcase:
         $ref: '#/definitions/Testcase'
     required:
-      - id
-      - targetId
-      - groupId
-      - resultType
-      - status
-      - durationInMs
-      - startTime
-      - endTime
-      - retryCount
+    - id
+    - targetId
+    - groupId
+    - resultType
+    - status
+    - durationInMs
+    - startTime
+    - endTime
+    - retryCount
 
   TestResultRequest:
     title: TestResultRequest
@@ -1596,14 +1685,14 @@ definitions:
         items:
           $ref: '#/definitions/Attachment'
     required:
-      - targetId
-      - groupId
-      - resultType
-      - status
-      - durationInMs
-      - startTime
-      - endTime
-      - retryCount
+    - targetId
+    - groupId
+    - resultType
+    - status
+    - durationInMs
+    - startTime
+    - endTime
+    - retryCount
 
   StepResult:
     title: Step result
@@ -1620,9 +1709,9 @@ definitions:
       error:
         type: string
     required:
-      - index
-      - status
-      - durationInMs
+    - index
+    - status
+    - durationInMs
 
   Attachment:
     title: Attachment
@@ -1635,8 +1724,8 @@ definitions:
       base64EncodedByteArray:
         type: string
     required:
-      - mimeType
-      - base64EncodedByteArray
+    - mimeType
+    - base64EncodedByteArray
 
   TestGroup:
     title: TestGroup
@@ -1651,19 +1740,19 @@ definitions:
       type:
         type: string
         enum:
-          - FEATURE
-          - NAMESPACE
+        - FEATURE
+        - NAMESPACE
       description:
         type: string
       subGroup:
         type: string
     required:
-      - id
-      - name
-      - projectId
-      - type
-      - description
-      - subGroup
+    - id
+    - name
+    - projectId
+    - type
+    - description
+    - subGroup
 
   Percentile:
     title: Percentile
@@ -1676,44 +1765,44 @@ definitions:
         type: number
 
   SimulationScenario:
-      title: SimulationScenario
-      type: object
-      properties:
-        request:
-          type: string
-        startTime:
-          type: integer
-          format: int64
-        endTime:
-          type: integer
-          format: int64
-        durationInMs:
-          type: integer
-          format: int64
-        count:
-          type: integer
-          format: int64
-        successCount:
-          type: integer
-          format: int64
-        errorCount:
-          type: integer
-          format: int64
-        min:
-          type: number
-        max:
-          type: number
-        percentiles:
-          type: array
-          items:
-            $ref: '#/definitions/Percentile'
-        average:
-          type: number
-        stdDiv:
-          type: number
-        avgRequestPerSec:
-          type: double
-          format: long
+    title: SimulationScenario
+    type: object
+    properties:
+      request:
+        type: string
+      startTime:
+        type: integer
+        format: int64
+      endTime:
+        type: integer
+        format: int64
+      durationInMs:
+        type: integer
+        format: int64
+      count:
+        type: integer
+        format: int64
+      successCount:
+        type: integer
+        format: int64
+      errorCount:
+        type: integer
+        format: int64
+      min:
+        type: number
+      max:
+        type: number
+      percentiles:
+        type: array
+        items:
+          $ref: '#/definitions/Percentile'
+      average:
+        type: number
+      stdDiv:
+        type: number
+      avgRequestPerSec:
+        type: integer
+        format: long
 
   SimulationRequest:
     title: Simulation
@@ -1728,9 +1817,9 @@ definitions:
         items:
           $ref: '#/definitions/SimulationScenario'
     required:
-      - name
-      - namespace
-      - scenarios
+    - name
+    - namespace
+    - scenarios
 
   Simulation:
     title: Simulation
@@ -1750,7 +1839,7 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/SimulationScenario'
-      
+
   Counter:
     title: Counter
     type: object
@@ -1770,12 +1859,63 @@ definitions:
       testResultsCount:
         type: integer
         format: int64
+      simulationsCount:
+        type: integer
+        format: int64
+      vulnerabilityAlertsCount:
+        type: integer
+        format: int64
     required:
-      - projectsCount
-      - testScenariosCount
-      - testCasesCount
-      - testExecutionsCount
-      - testResultsCount
+    - projectsCount
+    - testScenariosCount
+    - testCasesCount
+    - testExecutionsCount
+    - testResultsCount
+    - simulationsCount
+    - vulnerabilityAlertsCount
+
+  ProjectCounter:
+    title: ProjectCounter
+    type: object
+    properties:
+      testExecutionsCount:
+        type: integer
+        format: int64
+      testResultsCount:
+        type: integer
+        format: int64
+      testScenariosCount:
+        type: integer
+        format: int64
+      testCasesCount:
+        type: integer
+        format: int64
+      simulationsCount:
+        type: integer
+        format: int64
+      vulnerabilityAlertsCount:
+        type: integer
+        format: int64
+    required:
+    - testScenariosCount
+    - testCasesCount
+    - testExecutionsCount
+    - testResultsCount
+    - simulationsCount
+    - vulnerabilityAlertsCount
+
+  ProjectExecutionCounter:
+    title: ProjectExecutionCounter
+    type: object
+    properties:
+      projectName:
+        type: string
+      noOfExecutions:
+        type: integer
+        format: int64
+    required:
+    - projectName
+    - noOfExecutions
 
   ErrorResponse:
     title: ErrorResponse

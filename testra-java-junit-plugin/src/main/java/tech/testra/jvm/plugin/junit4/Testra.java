@@ -3,7 +3,6 @@ package tech.testra.jvm.plugin.junit4;
 import static tech.testra.jvm.commons.util.PropertyHelper.prop;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
@@ -55,12 +54,6 @@ public class Testra extends RunListener {
     LOGGER.info("Project ID is " + projectID);
     commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
     commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
-    if(prop("saveEID")!=null) {
-      commonData.saveEID = Boolean.parseBoolean(prop("saveEID"));
-    }
-    else{
-      commonData.saveEID = false;
-    }
     if(prop("buildRef")!=null){
       TestraRestClient.buildRef = prop("buildRef");
     }
@@ -76,13 +69,12 @@ public class Testra extends RunListener {
   }
 
   private synchronized void createExecution() {
-    Scanner fileReader;
     if(TestraRestClient.getExecutionid() == null) {
       if(commonData.isRetry){
         File file = new File("testra.exec");
         if(file.isFile()){
           try {
-            fileReader = new Scanner(file);
+            Scanner fileReader = new Scanner(file);
             TestraRestClient.setExecutionid(fileReader.nextLine());
           } catch (IOException e) {
             e.printStackTrace();
@@ -94,21 +86,6 @@ public class Testra extends RunListener {
       }
       else if(commonData.setExecutionID){
         TestraRestClient.setExecutionid(prop("previousexecutionID"));
-      }
-      else if(commonData.saveEID){
-        File file = new File("testra.exec");
-        if(file.isFile()) {
-          try {
-            fileReader = new Scanner(file);
-            TestraRestClient.setExecutionid(fileReader.nextLine());
-          } catch (FileNotFoundException e) {
-            e.printStackTrace();
-          }
-        }
-        else{
-          TestraRestClient.setExecutionid(null);
-          TestraRestClient.createExecutionIDFile();
-        }
       }
       else {
         TestraRestClient.setExecutionid(null);
