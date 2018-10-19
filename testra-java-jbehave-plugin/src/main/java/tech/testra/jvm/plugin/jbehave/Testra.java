@@ -40,8 +40,13 @@ public class Testra extends NullStoryReporter {
       = InheritableThreadLocal.withInitial(() -> UUID.randomUUID().toString());
 
   public Testra() {
-    PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
-    setup();
+    File propfile = new File(".testra");
+    if(propfile.exists()) {
+      PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
+    }
+    else{
+      PropertyHelper.loadPropertiesFromAbsolute(new File("../.testra").getAbsolutePath());
+    }    setup();
     setProperties();
   }
 

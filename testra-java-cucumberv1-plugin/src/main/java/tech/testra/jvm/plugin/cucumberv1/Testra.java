@@ -42,8 +42,13 @@ public class Testra implements Reporter, Formatter {
   private final Long threadId = Thread.currentThread().getId();
 
   public Testra() {
-    PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
-    setup();
+    File propfile = new File(".testra");
+    if(propfile.exists()) {
+      PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
+    }
+    else{
+      PropertyHelper.loadPropertiesFromAbsolute(new File("../.testra").getAbsolutePath());
+    }    setup();
     TestraRestClient.setURLs(prop("host"));
     projectID = TestraRestClient.getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);

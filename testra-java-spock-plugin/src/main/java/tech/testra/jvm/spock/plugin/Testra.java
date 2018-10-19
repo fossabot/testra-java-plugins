@@ -47,8 +47,13 @@ public class Testra extends AbstractRunListener implements IGlobalExtension {
   private String executionID;
 
   public Testra(){
-    PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
-    setup();
+    File propfile = new File(".testra");
+    if(propfile.exists()) {
+      PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
+    }
+    else{
+      PropertyHelper.loadPropertiesFromAbsolute(new File("../.testra").getAbsolutePath());
+    }    setup();
     if(Boolean.parseBoolean(prop("testra.disabled"))){
       commonData.isDisabled = true;
       return;
