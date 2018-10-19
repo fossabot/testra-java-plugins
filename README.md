@@ -1,7 +1,7 @@
 # Testra Java Plugin
 
 This is the test plugin including API Client for Testra.
-It includes plugins for cucumber versions 1.2.5, 2.4.0 and 3.0.2
+It includes plugins for cucumber versions 1.x, 2.x and 3.x, Spock and jUnit 4 & 5
 
 ## Table of Contents
 
@@ -136,7 +136,7 @@ Run testra.disabled=true as a jvm argument to disable the Testra Plugin
 
 Any .testra properties that are passed as jvm args, the jvm arg will be used first.
 
-##Screenshots
+## Screenshots
 To take a screenshot with selenium, add the following to your @After
 ```#xslt
   @After
@@ -169,14 +169,15 @@ The simplest way to make screenshots to work with selenide is to do the same but
     }
 ``` 
 
-##Tags
+## Tags
 Adding @ExpectedFailure as a tag to a test will add the 'expectedtofail' flag to the test results for that test. In the testra user interface this will allow you to filter out expected failures from your reports.
 
 Adding @Manual as a tag to a test will add the manual flag to a scenario and will skip the test to be done manually at the end.
+
 ## Contribute
 
 
-PRs accepted.
+PRs accepted. Lets make our test repoting to next level!!!
 
 
 ## License
