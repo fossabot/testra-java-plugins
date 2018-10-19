@@ -16,7 +16,8 @@ dependencies {
     compile project(':testra-java-commons')
     compile project(':testra-java-api-client')
     compile group: 'net.quux00.simplecsv', name: 'simplecsv', version: '2.1'
-    compile 'org.projectlombok:lombok:1.16.18'
+    compileOnly group: 'org.projectlombok', name: 'lombok'     
+    annotationProcessor group: 'org.projectlombok', name: 'lombok'
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
-//    apt "org.projectlombok:lombok:1.16.18"
+//
 }
