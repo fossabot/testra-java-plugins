@@ -16,6 +16,8 @@ import gherkin.pickles.PickleRow;
 import gherkin.pickles.PickleTable;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.SkipException;
@@ -56,10 +58,15 @@ public class Testra implements Formatter {
 
   private final CucumberSourceUtils cucumberSourceUtils = new CucumberSourceUtils();
   private EventHandler<EmbedEvent> embedEventhandler = this::handleEmbed;
-  private String projectID;
-  private String executionID;
+  private static String projectID;
+  private static String executionID;
+  private static boolean isRetry;
+  private static boolean setExecutionId;
+  public static Map<String,String> failedScenarioIDs = new HashMap<>();
+  private static Map<String,Integer> failedRetryMap = new HashMap<>();
 
-  public Testra() {
+
+  static{
     File propfile = new File(".testra");
     if(propfile.exists()) {
       PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
@@ -67,6 +74,11 @@ public class Testra implements Formatter {
     else{
       PropertyHelper.loadPropertiesFromAbsolute(new File("../.testra").getAbsolutePath());
     }
+    setProperties();
+  }
+
+  public Testra() {
+
     setup();
     if(Boolean.parseBoolean(prop("testra.disabled" ,"false"))){
       featureStartedHandler = this::handleFeatureStartedHandlerDisabled;
@@ -129,23 +141,23 @@ public class Testra implements Formatter {
     LOGGER.info("Scenario setup - End");
   }
 
-  private void setProperties(){
+  private static void setProperties(){
     TestraRestClient.setURLs(prop("host"));
     projectID = TestraRestClient.getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
-    commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
-    commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
+    isRetry = Boolean.parseBoolean(prop("isrerun"));
+    setExecutionId=Boolean.parseBoolean(prop("setExecutionID"));
     if(prop("buildRef")!=null){
       TestraRestClient.buildRef = prop("buildRef");
     }
     if(prop("testra.execution.description")!=null){
       TestraRestClient.executionDescription = prop("testra.execution.description");
     }
-    createExecution();
-    if(commonData.isRetry) {
+    createExecution(isRetry,setExecutionId);
+    if(isRetry) {
       List<EnrichedTestResult> failedTests = TestraRestClient.getFailedResults();
-      failedTests.forEach(x -> {commonData.failedScenarioIDs.put(x.getTargetId(),x.getId());
-        commonData.failedRetryMap.put(x.getTargetId(), x.getRetryCount());});
+      failedTests.forEach(x -> {failedScenarioIDs.put(x.getTargetId(),x.getId());
+        failedRetryMap.put(x.getTargetId(), x.getRetryCount());});
     }
   }
 
@@ -158,9 +170,9 @@ public class Testra implements Formatter {
     commonData.cucumberSourceUtils.addTestSourceReadEvent(event.uri,event);
     processBackgroundSteps(commonData.cucumberSourceUtils.getFeature(event.uri), MD5.generateMD5(event.uri));
   }
-  private synchronized void createExecution() {
+  private static void createExecution(boolean isRetry, boolean setExecutionId) {
       if(TestraRestClient.getExecutionid() == null) {
-        if(commonData.isRetry){
+        if(isRetry){
           File file = new File("testra.exec");
           if(file.isFile()){
             try {
@@ -173,7 +185,7 @@ public class Testra implements Formatter {
             TestraRestClient.setExecutionid(prop("previousexecutionID"));
           }
         }
-        else if(commonData.setExecutionID){
+        else if(setExecutionId){
           TestraRestClient.setExecutionid(prop("previousexecutionID"));
         }
         else {
@@ -186,7 +198,7 @@ public class Testra implements Formatter {
     LOGGER.info(prop("host") + "/projects/" + projectID + "/executions/"+ executionID);
   }
 
-  private void createExecutionIDFile(){
+  private static void createExecutionIDFile(){
     File file = new File("testra.exec");
     FileWriter writer = null;
     try {
@@ -327,16 +339,16 @@ public class Testra implements Formatter {
     commonData.currentScenarioID = scenario.getId();
     commonData.currentFeatureID = scenario.getFeatureId();
 
-    if(commonData.isRetry&&!commonData.failedScenarioIDs.containsKey(commonData.currentScenarioID)){
+    if(isRetry&&!failedScenarioIDs.containsKey(commonData.currentScenarioID)){
       LOGGER.info("Test has already passed in a previous test run");
       if(prop("junit") ==null || !Boolean.parseBoolean(prop("junit"))){
           throw new SkipException("Test already passed, skipping");
       }
     }
 
-    else if(commonData.isRetry){
-      commonData.currentTestResultID = commonData.failedScenarioIDs.get(commonData.currentScenarioID);
-      commonData.retryCount = commonData.failedRetryMap.get(commonData.currentScenarioID) + 1;
+    else if(isRetry){
+      commonData.currentTestResultID = failedScenarioIDs.get(commonData.currentScenarioID);
+      commonData.retryCount = failedRetryMap.get(commonData.currentScenarioID) + 1;
     }
 
   }
@@ -408,7 +420,7 @@ public class Testra implements Formatter {
 
     commonData.embedEvent = null;
     commonData.stepResultsNew = new ArrayList<>();
-    if(commonData.isRetry){
+    if(isRetry){
       commonData.resultID = TestraRestClient.updateResult(commonData.currentTestResultID,testResultRequest).getId();
     }
     else
