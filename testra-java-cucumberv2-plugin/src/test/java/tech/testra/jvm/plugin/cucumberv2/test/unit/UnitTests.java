@@ -48,13 +48,13 @@ import tech.testra.jvm.plugin.cucumberv2.utils.CommonData;
 import tech.testra.jvm.plugin.cucumberv2.utils.CucumberSourceUtils;
 
 public class UnitTests {
-  
+
   private String projectID = "5b45e66a52faff0001d7a368";
   private String executionID = "5b45e66a52faff1231d7a368";
   Project project = new Project();
   ExecutionRequest executionRequest = new ExecutionRequest();
   Testra testra;
-  
+
   @BeforeTest
   public void setup() throws ApiException {
     ProjectApi projectApi = mock(ProjectApi.class);
@@ -65,7 +65,7 @@ public class UnitTests {
     project.setDescription("Mock descrition");
     when(projectApi.getProject("Mock")).thenReturn(project);
     Whitebox.setInternalState(TestraRestClient.class, "projectApi", projectApi);
-    
+
     ExecutionApi executionApi = mock(ExecutionApi.class);
     Execution execution = new Execution();
     execution.setBranch("branchname");
@@ -84,7 +84,7 @@ public class UnitTests {
     executionRequest.buildRef("buildRef");
     executionRequest.setHost(HostNameUtil.hostName());
     executionRequest.setTags(Collections.singletonList(""));
-    
+
     when(executionApi.createExecution(eq(projectID),any(ExecutionRequest.class))).thenReturn(execution);
     Whitebox.setInternalState(TestraRestClient.class, "executionApi", executionApi);
 
@@ -100,7 +100,7 @@ public class UnitTests {
     ResultApi resultApi = mock(ResultApi.class);
     Whitebox.setInternalState(TestraRestClient.class, "resultApi", resultApi);
     when(resultApi.createResult(eq(projectID),eq(executionID),any(TestResultRequest.class))).thenReturn(testResult);
-    
+
   }
 
   @Test
@@ -170,8 +170,6 @@ public class UnitTests {
 
   private CommonData createCommonData(){
     CommonData commonData = new CommonData();
-    commonData.isRetry = false;
-    commonData.setExecutionID = false;
     commonData.backgroundSteps = new HashMap<>();
     commonData.cucumberSourceUtils = mock(CucumberSourceUtils.class);
     gherkin.ast.Feature feature = new Feature(Collections.EMPTY_LIST, null,"en", "And", "This is a feature", "Description",Collections.EMPTY_LIST);
