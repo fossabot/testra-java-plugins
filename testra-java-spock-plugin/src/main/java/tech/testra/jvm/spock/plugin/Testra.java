@@ -11,7 +11,9 @@ import java.lang.annotation.Repeatable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.function.Function;
@@ -43,43 +45,55 @@ public class Testra extends AbstractRunListener implements IGlobalExtension {
   private static final Logger LOGGER = LoggerFactory.getLogger(Testra.class);
   private final Long threadId = Thread.currentThread().getId();
   private CommonData commonData;
-  private String projectID;
-  private String executionID;
+  private static String projectID;
+  private static String executionID;
+  private static boolean isDisabled;
+  private static boolean isRetry;
+  private static boolean setExecutionID;
+  private static Map<String,String> failedScenarioIDs = new HashMap<>();
+  private static Map<String,Integer> failedRetryMap = new HashMap<>();
 
-  public Testra(){
+  static{
     File propfile = new File(".testra");
     if(propfile.exists()) {
       PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
     }
     else{
       PropertyHelper.loadPropertiesFromAbsolute(new File("../.testra").getAbsolutePath());
-    }    setup();
+    }
     if(Boolean.parseBoolean(prop("testra.disabled"))){
-      commonData.isDisabled = true;
-      return;
+      isDisabled = true;
     }
-    TestraRestClient.setURLs(prop("host"));
-    projectID = TestraRestClient.getProjectID(prop("project"));
-    LOGGER.info("Project ID is " + projectID);
-    commonData.isRetry = Boolean.parseBoolean(prop("isrerun"));
-    commonData.setExecutionID=Boolean.parseBoolean(prop("setExecutionID"));
-    if(prop("buildRef")!=null){
-      TestraRestClient.buildRef = prop("buildRef");
-    }
-    if(prop("testra.execution.description")!=null){
-      TestraRestClient.executionDescription = prop("testra.execution.description");
-    }
-    createExecution();
-    if(commonData.isRetry) {
-      List<EnrichedTestResult> failedTests = TestraRestClient.getFailedResults();
-      failedTests.forEach(x -> {commonData.failedScenarioIDs.put(x.getTargetId(),x.getId());
-        commonData.failedRetryMap.put(x.getTargetId(), x.getRetryCount());});
+    else {
+      TestraRestClient.setURLs(prop("host"));
+      projectID = TestraRestClient.getProjectID(prop("project"));
+      LOGGER.info("Project ID is " + projectID);
+      isRetry = Boolean.parseBoolean(prop("isrerun"));
+      setExecutionID = Boolean.parseBoolean(prop("setExecutionID"));
+      if (prop("buildRef") != null) {
+        TestraRestClient.buildRef = prop("buildRef");
+      }
+      if (prop("testra.execution.description") != null) {
+        TestraRestClient.executionDescription = prop("testra.execution.description");
+      }
+      createExecution();
+      if (isRetry) {
+        List<EnrichedTestResult> failedTests = TestraRestClient.getFailedResults();
+        failedTests.forEach(x -> {
+          failedScenarioIDs.put(x.getTargetId(), x.getId());
+          failedRetryMap.put(x.getTargetId(), x.getRetryCount());
+        });
+      }
     }
   }
 
-  private synchronized void createExecution() {
+  public Testra(){
+    setup();
+  }
+
+  private static void createExecution() {
     if(TestraRestClient.getExecutionid() == null) {
-      if(commonData.isRetry){
+      if(isRetry){
         File file = new File("testra.exec");
         if(file.isFile()){
           try {
@@ -93,7 +107,7 @@ public class Testra extends AbstractRunListener implements IGlobalExtension {
           TestraRestClient.setExecutionid(prop("previousexecutionID"));
         }
       }
-      else if(commonData.setExecutionID){
+      else if(setExecutionID){
         TestraRestClient.setExecutionid(prop("previousexecutionID"));
       }
       else {
@@ -136,7 +150,7 @@ public class Testra extends AbstractRunListener implements IGlobalExtension {
   @Override
   public void beforeIteration(final IterationInfo iteration) {
     commonData.startTime = System.currentTimeMillis();
-    if(commonData.isDisabled)
+    if(isDisabled)
       return;
     List<Label> labels = getLabels(iteration);
     TestcaseRequest testCaseRequest = new TestcaseRequest();
@@ -167,14 +181,14 @@ public class Testra extends AbstractRunListener implements IGlobalExtension {
     Testcase testcase = TestraRestClient.createTestcase(testCaseRequest);
     commonData.currentTestCaseID = testcase.getId();
     commonData.currentGroupID = testcase.getNamespaceId();
-    if(commonData.isRetry &&!commonData.failedScenarioIDs.containsKey(commonData.currentTestCaseID)){
+    if(isRetry &&!failedScenarioIDs.containsKey(commonData.currentTestCaseID)){
       LOGGER.info("Test has already passed in a previous test run");
       commonData.skip = true;
     }
     else{
-      if(commonData.isRetry) {
+      if(isRetry) {
         commonData.skip = false;
-        commonData.resultCounter = commonData.failedRetryMap.get(commonData.currentTestCaseID);
+        commonData.resultCounter = failedRetryMap.get(commonData.currentTestCaseID);
       }
     }
   }
@@ -189,7 +203,7 @@ public class Testra extends AbstractRunListener implements IGlobalExtension {
   @Override
   public void afterIteration(final IterationInfo iterationInfo){
     commonData.endTime = System.currentTimeMillis();
-    if(commonData.isDisabled||commonData.skip)
+    if(isDisabled||commonData.skip)
       return;
     TestResultRequest testResultRequest = new TestResultRequest();
     if(commonData.isManual){
@@ -225,10 +239,10 @@ public class Testra extends AbstractRunListener implements IGlobalExtension {
     testResultRequest.setTargetId(commonData.currentTestCaseID);
     testResultRequest.setExpectedToFail(commonData.isExpectedFailure);
     testResultRequest.setRetryCount(0);
-    if(commonData.isRetry){
+    if(isRetry){
       testResultRequest.setRetryCount(commonData.resultCounter+1);
       commonData.resultCounter = 0;
-      TestraRestClient.updateResult(commonData.failedScenarioIDs.get(commonData.currentTestCaseID),testResultRequest);
+      TestraRestClient.updateResult(failedScenarioIDs.get(commonData.currentTestCaseID),testResultRequest);
     }
     else
       TestraRestClient.createResult(testResultRequest);

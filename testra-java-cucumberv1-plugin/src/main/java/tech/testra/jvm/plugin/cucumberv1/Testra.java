@@ -41,18 +41,22 @@ public class Testra implements Reporter, Formatter {
   private static String projectID;
   private final Long threadId = Thread.currentThread().getId();
 
-  public Testra() {
+  static {
     File propfile = new File(".testra");
     if(propfile.exists()) {
       PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
     }
     else{
       PropertyHelper.loadPropertiesFromAbsolute(new File("../.testra").getAbsolutePath());
-    }    setup();
+    }
     TestraRestClient.setURLs(prop("host"));
     projectID = TestraRestClient.getProjectID(prop("project"));
     LOGGER.info("Project ID is " + projectID);
     createExecution();
+  }
+
+  public Testra() {
+    setup();
   }
 
   private void setup(){
@@ -165,7 +169,7 @@ public class Testra implements Reporter, Formatter {
     return stepResult;
   }
 
-  private void createExecution() {
+  private static void createExecution() {
     if (TestraRestClient.getExecutionid() == null) {
       TestraRestClient.setExecutionid(null);
     }
