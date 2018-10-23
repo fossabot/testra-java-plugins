@@ -18,7 +18,7 @@ public class TestraJunitHelper {
   public void checkSkip() {
     commonData = CommonDataProvider.get(threadId);
     if(isRerun) {
-      if (!commonData.failedScenarioIDs.containsKey(commonData.currentScenarioID)) {
+      if (!Testra.failedScenarioIDs.containsKey(commonData.currentScenarioID)) {
         commonData.skip = true;
         throw new AssumptionViolatedException("Test already passed, skipping");
       }

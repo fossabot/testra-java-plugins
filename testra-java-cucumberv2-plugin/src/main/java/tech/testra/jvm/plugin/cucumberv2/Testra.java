@@ -95,7 +95,6 @@ public class Testra implements Formatter {
       stepStartedHandler = this::handleTestStepStarted;
       stepFinishedHandler = this::handleTestStepFinished;
       snippetsSuggestedEventEventHandler = this::snippetHandler;
-      setProperties();
     }
 
   }

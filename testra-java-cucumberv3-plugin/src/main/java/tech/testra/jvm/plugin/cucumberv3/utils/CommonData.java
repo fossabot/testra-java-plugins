@@ -28,11 +28,7 @@ public class CommonData {
   public long startTime;
   public long endTime;
   public int retryCount = 0;
-  public Boolean isRetry;
-  public Boolean setExecutionID;
   public String currentTestResultID;
-  public Map<String,String> failedScenarioIDs = new HashMap<>();
-  public Map<String,Integer> failedRetryMap = new HashMap<>();
   public int resultCounter = 0;
   public boolean skip = false;
   public boolean isManual = false;

@@ -40,7 +40,7 @@ ext.seleniumVersion = '3.8.1'
 
 allprojects {
     group 'tech.testra'
-    version '0.15'
+    version '0.16'
 
     apply plugin: 'idea'
     apply plugin: 'project-report'
