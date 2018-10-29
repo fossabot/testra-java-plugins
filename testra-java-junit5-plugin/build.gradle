@@ -1,15 +1,12 @@
 dependencies {
-    compile project(':testra-java-api-client')
     compile project(':testra-java-commons')
+    
     compile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1'
     compile group: 'org.junit.platform', name: 'junit-platform-launcher', version: '1.2.0'
     compile group: 'org.junit.platform', name: 'junit-platform-runner', version: '1.2.0'
     compile group: 'org.junit.platform', name: 'junit-platform-commons', version: '1.2.0'
+    compile group: 'tech.testra', name: 'testra-java-api-client'
+    
     compileOnly group: 'org.projectlombok', name: 'lombok'
     annotationProcessor group: 'org.projectlombok', name: 'lombok'
-
-
-
-
-
 }

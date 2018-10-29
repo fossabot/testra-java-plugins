@@ -1,6 +1,7 @@
 dependencies {
-    compile 'org.spockframework:spock-core:1.1-groovy-2.4'
     compile project(':testra-java-commons')
-    compile project(':testra-java-api-client')
+    compile 'org.spockframework:spock-core:1.1-groovy-2.4'
+    compile group: 'tech.testra', name: 'testra-java-api-client'
+
     testCompile "org.codehaus.groovy:groovy-all:2.4.11"
 }

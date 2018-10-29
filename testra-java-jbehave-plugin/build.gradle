@@ -3,20 +3,18 @@ plugins {
 
 }
 dependencies {
-    compile project(':testra-java-api-client')
     compile project(':testra-java-commons')
 
     compile group: 'org.jbehave', name:'jbehave-core'
-
     compile group: 'org.assertj', name: 'assertj-core-java8'
     compile group: 'org.seleniumhq.selenium', name: 'selenium-java'
+    compile group: 'com.google.guava', name: 'guava'
+    compile group: 'tech.testra', name: 'testra-java-api-client'
+
     compileOnly group: 'org.projectlombok', name: 'lombok'
     annotationProcessor group: 'org.projectlombok', name: 'lombok'
-    compile group: 'com.google.guava', name: 'guava'
+
     testCompile group: 'junit', name: 'junit'
-
-
-
 }
 
 webdriverBinaries {

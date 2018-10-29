@@ -1,8 +1,9 @@
 dependencies {
-    compile project(':testra-java-api-client')
     compile project(':testra-java-commons')
+
     compile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'tech.testra', name: 'testra-java-api-client'
+
     compileOnly group: 'org.projectlombok', name: 'lombok'
     annotationProcessor group: 'org.projectlombok', name: 'lombok'
-
 }

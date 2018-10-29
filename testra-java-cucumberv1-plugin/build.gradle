@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    compile project(':testra-java-api-client')
     compile project(':testra-java-commons')
+
     compile group: 'org.testng', name: 'testng'
     compile group: 'org.assertj', name: 'assertj-core-java8'
     compile group: 'junit', name: 'junit'
@@ -12,12 +12,14 @@ dependencies {
     compile group: 'info.cukes', name: 'cucumber-picocontainer'
     compile group: 'info.cukes', name: 'cucumber-testng'
     compile group: 'org.seleniumhq.selenium', name: 'selenium-java'
-    testCompile group: 'info.cukes', name: 'cucumber-junit', version: '1.2.5'
     compile group: 'org.slf4j', name: 'slf4j-api'
     compile group: 'ch.qos.logback', name: 'logback-classic'
-    compileOnly group: 'org.projectlombok', name: 'lombok'     
+    compile group: 'tech.testra', name: 'testra-java-api-client'
+
+    compileOnly group: 'org.projectlombok', name: 'lombok'
     annotationProcessor group: 'org.projectlombok', name: 'lombok'
 
+    testCompile group: 'info.cukes', name: 'cucumber-junit', version: '1.2.5'
 }
 
 webdriverBinaries {

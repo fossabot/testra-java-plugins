@@ -37,6 +37,7 @@ ext.testngVersion = '6.11'
 ext.okHttpLoggingVersion = '1.0.1'
 ext.fluentLeniumVersion = '3.5.0'
 ext.seleniumVersion = '3.8.1'
+ext.testraApiClientVersion = '0.19'
 
 allprojects {
     group 'tech.testra'
@@ -92,14 +93,14 @@ subprojects {
             dependency group: 'com.jleth.util', name: 'okhttp2-logging', version: "${okHttpLoggingVersion}"
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: seleniumVersion
             dependency group: 'com.google.guava', name: 'guava', version: '24.0-jre'
-            // https://mvnrepository.com/artifact/org.mockito/mockito-core
             dependency group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
-            dependency group: 'ch.qos.logback', name:'logback-classic', version: '1.0.9'
-            dependency group: 'ch.qos.logback', name:'logback-core', version: '1.0.9'
-            dependency group: 'org.jbehave', name:'jbehave-core' , version: '4.3.4'
+            dependency group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.9'
+            dependency group: 'ch.qos.logback', name: 'logback-core', version: '1.0.9'
+            dependency group: 'org.jbehave', name: 'jbehave-core', version: '4.3.4'
             dependency group: 'org.projectlombok', name: 'lombok', version: 'edge-SNAPSHOT'
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.14.0'
 
+            dependency group: 'tech.testra', name: 'testra-java-api-client', version: "$testraApiClientVersion"
         }
     }
 
@@ -193,14 +194,16 @@ subprojects {
             version {
                 name = "$project.version"
                 desc = "$project.version"
-                released  = new Date()
+                released = new Date()
             }
         }
     }
 }
 
 configure(subprojects
-        .findAll { it.name == 'testra-java-cucumberv2-plugin' || it.name == 'testra-java-cucumberv1-plugin'|| it.name == 'testra-java-cucumberv3-plugin' || it.name == 'testra-java-jbehave-plugin'}) {
+        .findAll {
+    it.name == 'testra-java-cucumberv2-plugin' || it.name == 'testra-java-cucumberv1-plugin' || it.name == 'testra-java-cucumberv3-plugin' || it.name == 'testra-java-jbehave-plugin'
+}) {
     apply plugin: 'com.energizedwork.webdriver-binaries'
 }
 
