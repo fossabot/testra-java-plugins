@@ -1,10 +1,6 @@
 package tech.testra.jvm.plugin.junit5.utils;
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -30,10 +26,6 @@ import javax.xml.bind.annotation.XmlType;
  *
  *
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "StatusDetails", propOrder = {
-
-})
 public class StatusDetails implements Serializable
 {
 
@@ -41,9 +33,7 @@ public class StatusDetails implements Serializable
   protected boolean known;
   protected boolean muted;
   protected boolean flaky;
-  @XmlElement(required = true)
   protected String message;
-  @XmlElement(required = true)
   protected String trace;
 
   /**

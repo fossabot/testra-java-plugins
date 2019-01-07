@@ -40,7 +40,7 @@ ext.seleniumVersion = '3.8.1'
 
 allprojects {
     group 'tech.testra'
-    version '0.20'
+    version '0.21'
 
     apply plugin: 'idea'
     apply plugin: 'project-report'
@@ -70,8 +70,8 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'maven-publish'
-    apply plugin: 'com.jfrog.bintray'
-    apply plugin: 'com.jfrog.artifactory'
+//    apply plugin: 'com.jfrog.bintray'
+//    apply plugin: 'com.jfrog.artifactory'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -204,6 +204,6 @@ configure(subprojects
     apply plugin: 'com.energizedwork.webdriver-binaries'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.8.1'
+task gradleWrapper(type: Wrapper) {
+    gradleVersion = '5.1'
 }
