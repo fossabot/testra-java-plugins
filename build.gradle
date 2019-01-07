@@ -40,7 +40,7 @@ ext.seleniumVersion = '3.8.1'
 
 allprojects {
     group 'tech.testra'
-    version '0.19'
+    version '0.20'
 
     apply plugin: 'idea'
     apply plugin: 'project-report'
@@ -120,17 +120,6 @@ subprojects {
     }
 
     publishing {
-//        repositories {
-//            maven {
-//                credentials {
-//                    username 'pajohnson'
-//                    password ''
-//                }
-//                // change to point to your repo, e.g. http://my.org/repo
-//                url = "https://nexus.dtc.prod.williamhill.plc:8443/repository/3rd-party/"
-//
-//            }
-//        }
         publications {
             mavenPublication(MavenPublication) {
                 from components.java
