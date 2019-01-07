@@ -40,7 +40,7 @@ ext.seleniumVersion = '3.8.1'
 
 allprojects {
     group 'tech.testra'
-    version '0.18'
+    version '0.19'
 
     apply plugin: 'idea'
     apply plugin: 'project-report'
@@ -92,13 +92,13 @@ subprojects {
             dependency group: 'com.jleth.util', name: 'okhttp2-logging', version: "${okHttpLoggingVersion}"
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: seleniumVersion
             dependency group: 'com.google.guava', name: 'guava', version: '24.0-jre'
-            // https://mvnrepository.com/artifact/org.mockito/mockito-core
             dependency group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
             dependency group: 'ch.qos.logback', name:'logback-classic', version: '1.0.9'
             dependency group: 'ch.qos.logback', name:'logback-core', version: '1.0.9'
             dependency group: 'org.jbehave', name:'jbehave-core' , version: '4.3.4'
             dependency group: 'org.projectlombok', name: 'lombok', version: 'edge-SNAPSHOT'
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.14.0'
+
 
         }
     }
@@ -120,6 +120,17 @@ subprojects {
     }
 
     publishing {
+//        repositories {
+//            maven {
+//                credentials {
+//                    username 'pajohnson'
+//                    password ''
+//                }
+//                // change to point to your repo, e.g. http://my.org/repo
+//                url = "https://nexus.dtc.prod.williamhill.plc:8443/repository/3rd-party/"
+//
+//            }
+//        }
         publications {
             mavenPublication(MavenPublication) {
                 from components.java

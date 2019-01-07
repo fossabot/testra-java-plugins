@@ -9,7 +9,7 @@ import org.junit.runner.*;
  */
 //@RunWith(Cucumber.class)
 //@CucumberOptions(
-//    tags = "@example",
+//    tags = "@exampleUnit",
 //    features = "src/test/resources/feature_files",
 //    glue = {""},
 //    plugin = {
