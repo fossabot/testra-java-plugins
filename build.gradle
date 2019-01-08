@@ -41,7 +41,7 @@ ext.testraApiClientVersion = '0.19'
 
 allprojects {
     group 'tech.testra'
-    version '0.17'
+    version '0.21'
 
     apply plugin: 'idea'
     apply plugin: 'project-report'
@@ -94,12 +94,11 @@ subprojects {
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: seleniumVersion
             dependency group: 'com.google.guava', name: 'guava', version: '24.0-jre'
             dependency group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
-            dependency group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.9'
-            dependency group: 'ch.qos.logback', name: 'logback-core', version: '1.0.9'
-            dependency group: 'org.jbehave', name: 'jbehave-core', version: '4.3.4'
+            dependency group: 'ch.qos.logback', name:'logback-classic', version: '1.0.9'
+            dependency group: 'ch.qos.logback', name:'logback-core', version: '1.0.9'
+            dependency group: 'org.jbehave', name:'jbehave-core' , version: '4.3.4'
             dependency group: 'org.projectlombok', name: 'lombok', version: 'edge-SNAPSHOT'
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.14.0'
-
             dependency group: 'tech.testra', name: 'testra-java-api-client', version: "$testraApiClientVersion"
         }
     }
@@ -201,12 +200,10 @@ subprojects {
 }
 
 configure(subprojects
-        .findAll {
-    it.name == 'testra-java-cucumberv2-plugin' || it.name == 'testra-java-cucumberv1-plugin' || it.name == 'testra-java-cucumberv3-plugin' || it.name == 'testra-java-jbehave-plugin'
-}) {
+        .findAll { it.name == 'testra-java-cucumberv2-plugin' || it.name == 'testra-java-cucumberv1-plugin'|| it.name == 'testra-java-cucumberv3-plugin' || it.name == 'testra-java-jbehave-plugin'}) {
     apply plugin: 'com.energizedwork.webdriver-binaries'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.8.1'
+task gradleWrapper(type: Wrapper) {
+    gradleVersion = '5.1'
 }

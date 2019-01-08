@@ -2,4 +2,5 @@ dependencies{
     compile group: 'org.slf4j', name: 'slf4j-api', version: "${slf4jVersion}"
     compileOnly group: 'org.projectlombok', name: 'lombok'     
     annotationProcessor group: 'org.projectlombok', name: 'lombok'
+
 }

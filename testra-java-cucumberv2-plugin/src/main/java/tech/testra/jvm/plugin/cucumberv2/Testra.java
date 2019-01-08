@@ -67,14 +67,16 @@ public class Testra implements Formatter {
 
 
   static{
-    File propfile = new File(".testra");
-    if(propfile.exists()) {
-      PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
-    }
-    else{
-      PropertyHelper.loadPropertiesFromAbsolute(new File("../.testra").getAbsolutePath());
-    }
-    setProperties();
+    if(!Boolean.parseBoolean(prop("testra.disabled"))) {
+      File propfile = new File(".testra");
+      if(propfile.exists()) {
+        PropertyHelper.loadPropertiesFromAbsolute(new File(".testra").getAbsolutePath());
+      }
+      else{
+        PropertyHelper.loadPropertiesFromAbsolute(new File("../.testra").getAbsolutePath());
+      }
+        setProperties();
+      }
   }
 
   public Testra() {

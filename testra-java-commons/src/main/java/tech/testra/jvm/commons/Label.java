@@ -1,10 +1,6 @@
 package tech.testra.jvm.commons;
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -25,15 +21,14 @@ import javax.xml.bind.annotation.XmlType;
  *
  *
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Label")
+
 public class Label implements Serializable
 {
 
   private final static long serialVersionUID = 1L;
-  @XmlAttribute(name = "name", required = true)
+
   protected String name;
-  @XmlAttribute(name = "value", required = true)
+
   protected String value;
 
   /**

@@ -49,10 +49,12 @@ public class Testra implements Reporter, Formatter {
     else{
       PropertyHelper.loadPropertiesFromAbsolute(new File("../.testra").getAbsolutePath());
     }
-    TestraRestClient.setURLs(prop("host"));
-    projectID = TestraRestClient.getProjectID(prop("project"));
-    LOGGER.info("Project ID is " + projectID);
-    createExecution();
+    if(!Boolean.parseBoolean(prop("testra.disabled"))) {
+      TestraRestClient.setURLs(prop("host"));
+      projectID = TestraRestClient.getProjectID(prop("project"));
+      LOGGER.info("Project ID is " + projectID);
+      createExecution();
+    }
   }
 
   public Testra() {
@@ -82,81 +84,92 @@ public class Testra implements Reporter, Formatter {
 
   @Override
   public void startOfScenarioLifeCycle(final Scenario scenario) {
-    commonData.currentScenario = scenario;
-    commonData.stepIndex = 0;
-    commonData.currentScenarioTemplate = new ScenarioTemplate();
-    commonData.currentScenarioTemplate.setName(scenario.getName());
-    commonData.currentScenarioTemplate.setFeatureName(commonData.currentFeature.getName());
+    if(!Boolean.parseBoolean(prop("testra.disabled"))) {
+      commonData.currentScenario = scenario;
+      commonData.stepIndex = 0;
+      commonData.currentScenarioTemplate = new ScenarioTemplate();
+      commonData.currentScenarioTemplate.setName(scenario.getName());
+      commonData.currentScenarioTemplate.setFeatureName(commonData.currentFeature.getName());
 
-    final Deque<Tag> tags = new LinkedList<>();
-    tags.addAll(scenario.getTags());
-    tags.addAll(commonData.currentFeature.getTags());
-    commonData.currentScenarioTemplate.setTags(tags);
+      final Deque<Tag> tags = new LinkedList<>();
+      tags.addAll(scenario.getTags());
+      tags.addAll(commonData.currentFeature.getTags());
+      commonData.currentScenarioTemplate.setTags(tags);
 
-    commonData.startTime = System.currentTimeMillis();
+      commonData.startTime = System.currentTimeMillis();
+    }
   }
 
   @Override
   public void endOfScenarioLifeCycle(final Scenario scenario) {
-    long timeAtEnd = System.currentTimeMillis();
-    ScenarioRequest scenarioRequest = new ScenarioRequest();
-    scenarioRequest.setFeatureName(commonData.currentFeature.getName());
-    scenarioRequest.setFeatureDescription(commonData.currentFeature.getDescription());
-    scenarioRequest.setName(scenario.getName());
-    List<String> tags = commonData.currentFeature.getTags().stream().map(Tag::getName).collect(Collectors.toList());
-    tags.addAll(scenario.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
-    scenarioRequest.setTags(tags);
+    if(!Boolean.parseBoolean(prop("testra.disabled"))) {
+      long timeAtEnd = System.currentTimeMillis();
+      ScenarioRequest scenarioRequest = new ScenarioRequest();
+      scenarioRequest.setFeatureName(commonData.currentFeature.getName());
+      scenarioRequest.setFeatureDescription(commonData.currentFeature.getDescription());
+      scenarioRequest.setName(scenario.getName());
+      List<String> tags = commonData.currentFeature.getTags().stream().map(Tag::getName)
+          .collect(Collectors.toList());
+      tags.addAll(scenario.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+      scenarioRequest.setTags(tags);
 
-    List<TestStep> backgroundSteps = commonData.currentScenarioTemplate.getBackgroundSteps()
-        .stream()
-        .map(s -> {TestStep testStep = new TestStep();
-        testStep.setIndex(s.getIndex());
-        testStep.setText(s.getGherkinStep());
-        return testStep;})
-        .collect(Collectors.toList());
-    commonData.stepIndex = 0;
+      List<TestStep> backgroundSteps = commonData.currentScenarioTemplate.getBackgroundSteps()
+          .stream()
+          .map(s -> {
+            TestStep testStep = new TestStep();
+            testStep.setIndex(s.getIndex());
+            testStep.setText(s.getGherkinStep());
+            return testStep;
+          })
+          .collect(Collectors.toList());
+      commonData.stepIndex = 0;
 
-    List<TestStep> steps = commonData.currentScenarioTemplate.getSteps()
-        .stream()
-        .map(s -> {TestStep testStep = new TestStep(); testStep.setIndex(s.getIndex());
-          testStep.setText(s.getGherkinStep());
-          return testStep;})
-        .collect(Collectors.toList());
-    commonData.stepIndex = 0;
+      List<TestStep> steps = commonData.currentScenarioTemplate.getSteps()
+          .stream()
+          .map(s -> {
+            TestStep testStep = new TestStep();
+            testStep.setIndex(s.getIndex());
+            testStep.setText(s.getGherkinStep());
+            return testStep;
+          })
+          .collect(Collectors.toList());
+      commonData.stepIndex = 0;
 
-    scenarioRequest.setBackgroundSteps(backgroundSteps);
-    scenarioRequest.setSteps(steps);
+      scenarioRequest.setBackgroundSteps(backgroundSteps);
+      scenarioRequest.setSteps(steps);
 
-    tech.testra.java.client.model.Scenario scenario1 = TestraRestClient.createScenario(scenarioRequest);
-    commonData.currentScenarioID = scenario1.getId();
-    commonData.currentFeatureID = scenario1.getFeatureId();
+      tech.testra.java.client.model.Scenario scenario1 = TestraRestClient
+          .createScenario(scenarioRequest);
+      commonData.currentScenarioID = scenario1.getId();
+      commonData.currentFeatureID = scenario1.getFeatureId();
 
-    TestResultRequest testResultRequest = new TestResultRequest();
-    testResultRequest.setStatus(resultToEnum(commonData.result));
-    testResultRequest.setResultType(ResultTypeEnum.SCENARIO);
-    testResultRequest.setDurationInMs(timeAtEnd - commonData.startTime);
-    testResultRequest.setTargetId(commonData.currentScenarioID);
-    testResultRequest.setGroupId(commonData.currentFeatureID);
-    testResultRequest.setStartTime(commonData.startTime);
-    testResultRequest.setEndTime(timeAtEnd);
-    List<StepResult> results = commonData.currentScenarioTemplate.getBackgroundSteps().stream()
-        .map(this::getStepResult).collect(Collectors.toList());
+      TestResultRequest testResultRequest = new TestResultRequest();
+      testResultRequest.setStatus(resultToEnum(commonData.result));
+      testResultRequest.setResultType(ResultTypeEnum.SCENARIO);
+      testResultRequest.setDurationInMs(timeAtEnd - commonData.startTime);
+      testResultRequest.setTargetId(commonData.currentScenarioID);
+      testResultRequest.setGroupId(commonData.currentFeatureID);
+      testResultRequest.setStartTime(commonData.startTime);
+      testResultRequest.setEndTime(timeAtEnd);
+      List<StepResult> results = commonData.currentScenarioTemplate.getBackgroundSteps().stream()
+          .map(this::getStepResult).collect(Collectors.toList());
 
-    results.addAll(commonData.currentScenarioTemplate.getSteps().stream()
-        .map(this::getStepResult).collect(Collectors.toList()));
-    testResultRequest.setStepResults(results);
+      results.addAll(commonData.currentScenarioTemplate.getSteps().stream()
+          .map(this::getStepResult).collect(Collectors.toList()));
+      testResultRequest.setStepResults(results);
 
-
-    if (commonData.currentScenarioTemplate.getIsFailed()) {
-      testResultRequest.setError(commonData.currentScenarioTemplate.getError().getErrorMessage());
-      if(commonData.attachmentMimeType != null){
-        Attachment attachment = new Attachment();
-        attachment.setName(commonData.attachmentMimeType);
-        attachment.setBase64EncodedByteArray(new String(Base64.getEncoder().encode(commonData.attachmentByteArray)));
-        testResultRequest.setAttachments(Collections.singletonList(attachment));
+      if (commonData.currentScenarioTemplate.getIsFailed()) {
+        testResultRequest.setError(commonData.currentScenarioTemplate.getError().getErrorMessage());
+        if (commonData.attachmentMimeType != null) {
+          Attachment attachment = new Attachment();
+          attachment.setName(commonData.attachmentMimeType);
+          attachment.setBase64EncodedByteArray(
+              new String(Base64.getEncoder().encode(commonData.attachmentByteArray)));
+          testResultRequest.setAttachments(Collections.singletonList(attachment));
+        }
       }
+      TestraRestClient.createResult(testResultRequest);
     }
-    TestraRestClient.createResult(testResultRequest);
   }
 
   private StepResult getStepResult(StepTemplate x) {
@@ -193,31 +206,34 @@ public class Testra implements Reporter, Formatter {
   }
   @Override
   public void result(final Result result) {
-    commonData.result = result;
-    int scenarioLine;
-    if (commonData.isScenarioOutline) {
-      scenarioLine = commonData.scenarioOutlineIndex;
-    } else {
-      scenarioLine = commonData.currentScenario.getLine();
-    }
-    StepTemplate stepTemplate = new StepTemplate();
-    stepTemplate.setGherkinStep(commonData.currentStep.getKeyword() + commonData.currentStep.getName());
-    stepTemplate.setIndex(commonData.stepIndex);
-    if (!result.getStatus().equals("skipped")&&!result.getStatus().equals("undefined")) {
-      stepTemplate.setStepDuration(result.getDuration());
-    }
-    commonData.stepIndex++;
-    stepTemplate.setLine(commonData.currentStep.getLine());
-    if(result.getStatus().equals(FAILED)){
-      commonData.currentScenarioTemplate.setError(setErrors(stepTemplate, result));
-      commonData.currentScenarioTemplate.setIsFailed(true);
-    }
-    stepTemplate.setStatus(result);
+    if(!Boolean.parseBoolean(prop("testra.disabled"))) {
+      commonData.result = result;
+      int scenarioLine;
+      if (commonData.isScenarioOutline) {
+        scenarioLine = commonData.scenarioOutlineIndex;
+      } else {
+        scenarioLine = commonData.currentScenario.getLine();
+      }
+      StepTemplate stepTemplate = new StepTemplate();
+      stepTemplate
+          .setGherkinStep(commonData.currentStep.getKeyword() + commonData.currentStep.getName());
+      stepTemplate.setIndex(commonData.stepIndex);
+      if (!result.getStatus().equals("skipped") && !result.getStatus().equals("undefined")) {
+        stepTemplate.setStepDuration(result.getDuration());
+      }
+      commonData.stepIndex++;
+      stepTemplate.setLine(commonData.currentStep.getLine());
+      if (result.getStatus().equals(FAILED)) {
+        commonData.currentScenarioTemplate.setError(setErrors(stepTemplate, result));
+        commonData.currentScenarioTemplate.setIsFailed(true);
+      }
+      stepTemplate.setStatus(result);
 
-    if (scenarioLine > stepTemplate.getLine()) {
-      commonData.currentScenarioTemplate.getBackgroundSteps().add(stepTemplate);
-    } else {
-      commonData.currentScenarioTemplate.getSteps().add(stepTemplate);
+      if (scenarioLine > stepTemplate.getLine()) {
+        commonData.currentScenarioTemplate.getBackgroundSteps().add(stepTemplate);
+      } else {
+        commonData.currentScenarioTemplate.getSteps().add(stepTemplate);
+      }
     }
   }
 
@@ -243,8 +259,10 @@ public class Testra implements Reporter, Formatter {
 
   @Override
   public void match(final Match match) {
-    if (match instanceof StepDefinitionMatch) {
-      commonData.currentStep = Utils.extractStep((StepDefinitionMatch) match);
+    if(!Boolean.parseBoolean(prop("testra.disabled"))) {
+      if (match instanceof StepDefinitionMatch) {
+        commonData.currentStep = Utils.extractStep((StepDefinitionMatch) match);
+      }
     }
   }
 
@@ -254,8 +272,10 @@ public class Testra implements Reporter, Formatter {
 
   @Override
   public void embedding(final String string, final byte[] bytes) {
-    commonData.attachmentMimeType = string;
-    commonData.attachmentByteArray = bytes;
+    if(!Boolean.parseBoolean(prop("testra.disabled"))) {
+      commonData.attachmentMimeType = string;
+      commonData.attachmentByteArray = bytes;
+    }
   }
 
   @Override
@@ -273,12 +293,16 @@ public class Testra implements Reporter, Formatter {
 
   @Override
   public void scenarioOutline(final ScenarioOutline so) {
-    commonData.scenarioOutlineIndex = so.getLine();
+    if(!Boolean.parseBoolean(prop("testra.disabled"))) {
+      commonData.scenarioOutlineIndex = so.getLine();
+    }
   }
 
   @Override
   public void examples(final Examples examples) {
-    commonData.isScenarioOutline = true;
+    if(!Boolean.parseBoolean(prop("testra.disabled"))) {
+      commonData.isScenarioOutline = true;
+    }
   }
 
 
