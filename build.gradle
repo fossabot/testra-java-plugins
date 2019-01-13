@@ -95,7 +95,7 @@ subprojects {
             dependency group: 'com.google.guava', name: 'guava', version: '24.0-jre'
             dependency group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
             dependency group: 'ch.qos.logback', name:'logback-classic', version: '1.0.9'
-            dependency group: 'ch.qos.logback', name:'logback-core', version: '1.0.9'
+            dependency group: 'ch.qos.logback', name:'logback-core', version: '1.2.3'
             dependency group: 'org.jbehave', name:'jbehave-core' , version: '4.3.4'
             dependency group: 'org.projectlombok', name: 'lombok', version: 'edge-SNAPSHOT'
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.14.0'
