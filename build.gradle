@@ -92,7 +92,7 @@ subprojects {
             dependency group: 'org.assertj', name: 'assertj-core-java8', version: "${assertjVersion}"
             dependency group: 'com.jleth.util', name: 'okhttp2-logging', version: "${okHttpLoggingVersion}"
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: seleniumVersion
-            dependency group: 'com.google.guava', name: 'guava', version: '24.0-jre'
+            dependency group: 'com.google.guava', name: 'guava', version: '27.0.1-jre'
             dependency group: 'org.mockito', name: 'mockito-core', version: '2.19.0'
             dependency group: 'ch.qos.logback', name:'logback-classic', version: '1.2.3'
             dependency group: 'ch.qos.logback', name:'logback-core', version: '1.2.3'
