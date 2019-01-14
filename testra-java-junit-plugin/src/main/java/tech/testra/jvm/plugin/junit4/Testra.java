@@ -1,22 +1,5 @@
 package tech.testra.jvm.plugin.junit4;
 
-import static tech.testra.jvm.commons.util.PropertyHelper.prop;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Repeatable;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -26,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import tech.testra.java.client.TestraRestClient;
 import tech.testra.java.client.model.EnrichedTestResult;
 import tech.testra.java.client.model.TestResultRequest;
-import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.java.client.model.TestResultRequest.ResultTypeEnum;
+import tech.testra.java.client.model.TestResultRequest.StatusEnum;
 import tech.testra.java.client.model.Testcase;
 import tech.testra.java.client.model.TestcaseRequest;
 import tech.testra.jvm.commons.Label;
@@ -35,6 +18,18 @@ import tech.testra.jvm.commons.Tag;
 import tech.testra.jvm.commons.util.CommonData;
 import tech.testra.jvm.commons.util.CommonDataProvider;
 import tech.testra.jvm.commons.util.PropertyHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Repeatable;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static tech.testra.jvm.commons.util.PropertyHelper.prop;
 
 public class Testra extends RunListener {
 
@@ -114,8 +109,6 @@ public class Testra extends RunListener {
     LOGGER.info("Execution ID is: " + executionID);
     LOGGER.info(prop("host") + "/projects/" + projectID + "/executions/"+ executionID+"\n");
   }
-
-
 
   private void setup(){
     LOGGER.info("Scenario setup - Begin");
