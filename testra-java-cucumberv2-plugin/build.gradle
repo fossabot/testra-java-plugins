@@ -20,7 +20,7 @@ dependencies {
 
     testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.19.0'
 // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
-    testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.0-beta.5'
+    testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.0'
     testCompile group: 'junit', name: 'junit'
 }
 
