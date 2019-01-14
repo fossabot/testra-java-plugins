@@ -26,7 +26,7 @@ plugins {
 
 // Dependency versions
 ext.logbackVersion = '1.2.3'
-ext.slf4jVersion = '1.7.2'
+ext.slf4jVersion = '1.7.25'
 ext.junitVersion = '4.12'
 ext.jacksonVersion = '2.8.8'
 ext.apacheCommondLangVersion = '3.5'
