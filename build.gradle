@@ -96,7 +96,7 @@ subprojects {
             dependency group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
             dependency group: 'ch.qos.logback', name:'logback-classic', version: '1.2.3'
             dependency group: 'ch.qos.logback', name:'logback-core', version: '1.2.3'
-            dependency group: 'org.jbehave', name:'jbehave-core' , version: '4.3.4'
+            dependency group: 'org.jbehave', name:'jbehave-core' , version: '4.3.5'
             dependency group: 'org.projectlombok', name: 'lombok', version: 'edge-SNAPSHOT'
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.59'
             dependency group: 'tech.testra', name: 'testra-java-api-client', version: "$testraApiClientVersion"
