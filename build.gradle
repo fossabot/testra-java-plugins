@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        dependencyManagementPluginVersion = '1.0.3.RELEASE'
+        dependencyManagementPluginVersion = '1.0.6.RELEASE'
         js2pPluginVersion = '1.0.0'
     }
     repositories {
