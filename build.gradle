@@ -93,7 +93,7 @@ subprojects {
             dependency group: 'com.jleth.util', name: 'okhttp2-logging', version: "${okHttpLoggingVersion}"
             dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: seleniumVersion
             dependency group: 'com.google.guava', name: 'guava', version: '27.0.1-jre'
-            dependency group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
+            dependency group: 'org.mockito', name: 'mockito-core', version: '2.24.0'
             dependency group: 'ch.qos.logback', name:'logback-classic', version: '1.2.3'
             dependency group: 'ch.qos.logback', name:'logback-core', version: '1.2.3'
             dependency group: 'org.jbehave', name:'jbehave-core' , version: '4.3.5'

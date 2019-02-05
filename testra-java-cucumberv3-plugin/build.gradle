@@ -19,7 +19,7 @@ dependencies {
     annotationProcessor group: 'org.projectlombok', name: 'lombok'
 
     testCompile group: 'junit', name: 'junit'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.24.0'
 }
 
 webdriverBinaries {
