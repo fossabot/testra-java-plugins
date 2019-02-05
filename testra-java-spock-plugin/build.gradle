@@ -3,5 +3,5 @@ dependencies {
     compile 'org.spockframework:spock-core:1.2-groovy-2.5'
     compile group: 'tech.testra', name: 'testra-java-api-client'
 
-    testCompile "org.codehaus.groovy:groovy-all:2.5.5"
+    testCompile "org.codehaus.groovy:groovy-all:2.5.6"
 }
