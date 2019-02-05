@@ -18,7 +18,7 @@ dependencies {
     compileOnly group: 'org.projectlombok', name: 'lombok'
     annotationProcessor group: 'org.projectlombok', name: 'lombok'
 
-    testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.23.4'
+    testCompile group: 'org.mockito', name: 'mockito-inline', version: '2.24.0'
 // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.0'
     testCompile group: 'junit', name: 'junit'
