@@ -1,4 +1,6 @@
 # Testra Java Plugin
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftestra%2Ftestra-java-plugins.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftestra%2Ftestra-java-plugins?ref=badge_shield)
+
 
 This is the test plugin including API Client for Testra.
 It includes plugins for cucumber versions 1.x, 2.x and 3.x, Spock and jUnit 4 & 5
@@ -183,3 +185,6 @@ PRs accepted. Lets make our test repoting to next level!!!
 ## License
 
 [GNU GPLv3](https://github.com/testra-tech/testra-java-plugins/blob/master/LICENSE)
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftestra%2Ftestra-java-plugins.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftestra%2Ftestra-java-plugins?ref=badge_large)
